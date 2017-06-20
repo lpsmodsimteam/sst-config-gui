@@ -1,0 +1,4 @@
+Makefile Makefile
+model.cc <model#1>.cc
+model.h <model#1>.h
+test.py tests/<model#1>.py

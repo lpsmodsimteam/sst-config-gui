@@ -14,14 +14,14 @@
 	}
 
 	output.verbose(CALL_INFO, 1, 0, "Config: maxRepeats=%" PRIu64 ", printFreq=%" PRIu64 "\n",
-		static_cast<uint64_t>(maxRepeats), static_cast<uint64_t>(printFreq));
+	static_cast<uint64_t>(maxRepeats), static_cast<uint64_t>(printFreq));
 
 	// Just register a plain clock for this simple example
-    	registerClock("100MHz", new SST::Clock::Handler<<model#1>>(this, &<model#1>::clockTick));
+	registerClock("100MHz", new SST::Clock::Handler<<model#1>>(this, &<model#1>::clockTick));
 
 	// Tell SST to wait until we authorize it to exit
-    	registerAsPrimaryComponent();
-    	primaryComponentDoNotEndSim();
+	registerAsPrimaryComponent();
+	primaryComponentDoNotEndSim();
 }
 
 <model#1>::~<model#1>() {

@@ -126,6 +126,15 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="5">
+       <widget class="QComboBox" name="templateType">
+        <item>
+         <property name="text">
+          <string>simpleModel</string>
+         </property>
+        </item>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -136,7 +145,7 @@
      <x>0</x>
      <y>0</y>
      <width>1141</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
