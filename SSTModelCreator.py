@@ -138,7 +138,6 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 			self.write_info('***PLEASE ENTER A MODEL NAME***\n')
 			return False
 		return True
-				
 	
 	# Gets the template information
 	def getTemplate(self):
@@ -154,21 +153,20 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 			if (".cc" in item) | (".h" in item):
 				self.sourceFiles.append(item.replace('<model#1>', str(self.model)))
 	
+	# Move and update the template files to create a new model
+	def createModel(self):
+		os.system(str('mkdir ' + self.model))
+		os.system(str('mkdir ' + self.model + '/tests'))
+		for s, d in zip(self.source, self.dest):
+			os.system(str('cp templates/' + self.template + '/' + s + ' ' + self.model + '/' + d))
+			os.system(str('sed -i \'s/<model#1>/' + self.model + '/g\' ' + self.model + '/' + d))
+			os.system(str('sed -i \'s/<sourceFiles>/' + ' '.join(self.sourceFiles) + '/g\' ' + self.model + '/' + d))
+	
 	# Write to information screen
 	def write_info(self, text):
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertPlainText(text)
 		self.info.moveCursor(QTextCursor.End)
-	
-	# Move and update the template files to create a new model
-	def createModel(self):
-		os.system(str('mkdir ' + self.model))
-		os.system(str('mkdir ' + self.model + '/tests'))
-		
-		for s, d in zip(self.source, self.dest):
-			os.system(str('cp templates/' + self.template + '/' + s + ' ' + self.model + '/' + d))
-			os.system(str('sed -i \'s/<model#1>/' + self.model + '/g\' ' + self.model + '/' + d))
-			os.system(str('sed -i \'s/<sourceFiles>/' + ' '.join(self.sourceFiles) + '/g\' ' + self.model + '/' + d))
 	
 	# Open template files in editor
 	def callEditor(self):
