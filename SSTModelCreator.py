@@ -61,7 +61,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 	
 	### Generate Templates Button main function
 	def MakeTemplates(self):
-		self.getModel()
+		if not self.getModel(): return
 		self.getTemplate()
 		
 		# Do some checking see if you already have a model in your working directory
@@ -90,7 +90,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 
 	### Configure Button main function
 	def ConfigureSST(self):
-		self.getModel()
+		if not self.getModel(): return
 		
 		# make clean and make all install
 		if self.clean.isChecked():
@@ -115,7 +115,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 
 	### Run SST Button main function
 	def Run(self):
-		self.getModel()
+		if not self.getModel(): return
 		self.getTemplate()
 		
 		regex=re.compile(".*(tests/).*")
@@ -136,6 +136,9 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 		self.model = self.modelName.text()
 		if (self.model == ''):
 			self.write_info('***PLEASE ENTER A MODEL NAME***\n')
+			return False
+		return True
+				
 	
 	# Gets the template information
 	def getTemplate(self):
@@ -145,20 +148,17 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 		self.source = structure.split()[0::2]
 		destination = structure.split()[1::2]
 		self.dest=[]
+		self.sourceFiles=[]
 		for item in destination:
 			self.dest.append(item.replace('<model#1>', str(self.model)))
+			if (".cc" in item) | (".h" in item):
+				self.sourceFiles.append(item.replace('<model#1>', str(self.model)))
 	
 	# Write to information screen
 	def write_info(self, text):
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertPlainText(text)
-	
-	# Open template files in editor
-	def callEditor(self):
-		line = 'gedit '
-		for item in self.dest:
-			line += self.model + '/' + item + ' '
-		os.system(str(line))
+		self.info.moveCursor(QTextCursor.End)
 	
 	# Move and update the template files to create a new model
 	def createModel(self):
@@ -168,6 +168,14 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 		for s, d in zip(self.source, self.dest):
 			os.system(str('cp templates/' + self.template + '/' + s + ' ' + self.model + '/' + d))
 			os.system(str('sed -i \'s/<model#1>/' + self.model + '/g\' ' + self.model + '/' + d))
+			os.system(str('sed -i \'s/<sourceFiles>/' + ' '.join(self.sourceFiles) + '/g\' ' + self.model + '/' + d))
+	
+	# Open template files in editor
+	def callEditor(self):
+		line = 'gedit '
+		for item in self.dest:
+			line += self.model + '/' + item + ' '
+		os.system(str(line))
 	
 	# Information for template generation
 	def templatesMessage(self):

@@ -4,7 +4,7 @@ LDFLAGS=$(shell sst-config --ELEMENT_LDFLAGS)
 
 all: lib<model#1>.so install
 
-lib<model#1>.so: <model#1>.cc <model#1>.h
+lib<model#1>.so: <sourceFiles>
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $<
 
 install:
