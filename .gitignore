@@ -1,1 +1,3 @@
+# Ignore all folders except the templates folder
 */*
+!templates/

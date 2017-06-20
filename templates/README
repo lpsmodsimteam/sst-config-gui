@@ -20,3 +20,11 @@ model.h works the same as model.cc
 
 test.py is placed under the tests folder in the root directory and then named
 <model#1>.py which again is substituted with the first model name provided
+
+The SSTModelCreator GUI will also find all the .cc and .h files listed in the
+template file and use them to populate the Makefile dependencies automatically
+using the <sourceFiles> tag. You can also manually specify which files to
+depend on using <model#1>.cc <model#1>.h in this case.
+
+Any test files MUST be located under the tests/ folder otherwise the GUI will
+not be able to locate the test. 

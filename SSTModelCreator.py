@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-# This is a self.model development script to help you develop,
-# integrate and run a new self.model in SST. The code is setup
+# This is a model development script to help you develop,
+# integrate and run a new model in SST. The code is setup
 # in a menu option and each menu option corresponds to a
 # button on the GUI. There should be a sstGUI.ui file, a README
 # file and a sst-logo-small.png file in the same directory
