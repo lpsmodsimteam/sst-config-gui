@@ -5,25 +5,25 @@ assumes that you have set the $SST_ELEMENTS_HOME and the
 $SST_CORE_HOME environment variables either in your .bashrc
 or in your text browser. 
 
-It is suggested that you create your model in a working directory;
-the tool will copy the files correct directories inside of 
-the SST Simulation Framework and configure SST to run your
-model. The tool is setup to step you through the model development
+It is suggested that you create your model in a working directory.
+The tool will create a model directory and "register" the model
+with SST. There is no need to transfer your model to the SST directory.
+The tool is setup to step you through the model development
 process. Information about each step will be displayed in the 
-information screen. Additionally tool tips are available if
-you mouse over each button. Below is a brief description of 
-each button and box on the tool:
+information screen. Tool tips are available if you mouse 
+over each button. Below is a brief description of each
+button and box on the tool:
 
 Enter Model Name --> text box - Simply enter the name of your
   model, this name will be used as the base name for all of
   your files and your model's directory. If you do not enter
   a name the will not continue until a name is entered.
 
-Generate/Open Templates button - This button will first create a 
+Generate/Open Templates button - This button will create a 
   directory in your working directory with your model name, 
   inside this directory you will find your <model>.cc, <model>.h,
-  <model>Wrapper.cc, Makefile.am, and tests/test_<model>.py
-  templates. The templates will also appear in the pop-up editor
+  Makefile, and tests/test_<model>.py templates.
+  The templates will also appear in the pop-up editor
   gedit, so you can complete the development of your model. Create
   your model by editing the templates, save and close the editor.
   The templates do generate a very simple model that can be 
@@ -39,20 +39,19 @@ Generate/Open Templates button - This button will first create a
   this will allow you use the GUI to complete your model if it 
   is not complete or correct errors found during compilation.
 
-Configure button - This button will copy your model directory to 
-  the proper place inside of the SST Simulation Framework, and run
-  the autogen, and configure scripts. Once the scripts complete 
-  Configure will run "make all install"
+Configure button - This button will copy compile your model.
+  If the Make Clean check box is selected a make clean will
+  be run before compile. All results from the compile will be
+  displayed in your information screen.
 
-Overwrite Existing Model check box - Both the Generate Templates
-  and Configure steps will check to see if a model is already
+Overwrite Existing Model check box - The Generate Templates
+  step will check to see if a model is already
   present with the current name. Generate Templates will check
-  in your working directory and Configure will check the 
-  elements library. If this box is checked the old model will
-  be overwritten with the new one you created.
+  in your working directory. If this box is checked the old model 
+  will be overwritten with the new one you created.
 
 Make Clean check box - If you select this check box Configure will
-  run a "make clean" before running "make all install
+  run a "make clean" before running "make all"
 
 Run SST button - This button will run the test_<mode>.py script
   (basically running your model in SST) the results will

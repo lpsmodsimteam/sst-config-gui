@@ -34,21 +34,12 @@ def write_info(info, text):
     info.moveCursor(QTextCursor.End)
     info.insertPlainText(text)
 
-# Creates elements library directory from SST_ELEMENTS_HOME enviroment variable
-def get_libDir():
-    element_home = os.environ['SST_ELEMENTS_HOME']
-    array = element_home.split('local/sstelements-')
-    prefix = array[0]
-    version = array[1]
-    return prefix + 'scratch/src/sst-elements-library-' + version
-
 # Open template files in editor
 def CallEditor(model):
     line = 'gedit ' + model + '/' + model + '.cc ' 
     line += model + '/' + model + '.h '
     line += model + '/tests/' + 'test_' + model + '.py '
-    line += model + '/Makefile.am '
-    line += model + '/' + model + 'Wrapper.cc &'
+    line += model + '/Makefile &'
     os.system(str(line))
 
 # Generates a warning pop-up when you try to overwrite existing files
@@ -72,8 +63,7 @@ def templatesMessage(info, model):
     text += '\t\t- ' + model + '.cc\n'
     text += '\t\t- ' + model + '.h\n'
     text += '\t\t- test_' + model + '.py\n'
-    text += '\t\t- Makefile.am\n'
-    text += '\t\t- ' + model + 'Wrapper.cc\n'
+    text += '\t\t- Makefile\n'
     text += 'Please review/edit your files to create your model. You can make changes in\n'
     text += 'the pop-up editor, save your file then close the editor or you can close the pop-up\n'
     text += 'editor and the GUI, then proceed to editing the files in the editor of your choice\n'
@@ -102,17 +92,11 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
         if (model == ''):
             write_info(self.info, '***PLEASE ENTER A MODEL NAME***\n')  
             return
-        FulllibDir = get_libDir() + '/src/sst/elements/'
-
+     
         # Do some checking see if you already have a model in your working directory
         # with the same name or if there is one in the element directory
-        currentModels = os.listdir(FulllibDir)
         workingModels = os.listdir('.')
         makefiles = 1
-        
-        # Check SST Models
-        if (self.checkSSTModels( model, currentModels) == 0):
-            return
         
         # Check local models
         if (workingModels.count(model) != 0):
@@ -121,6 +105,9 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
                 val = warningPopup(text)
                 if (val == QMessageBox.No):
                     makefiles = 0
+                else:
+                    LinuxCmd = 'rm -r ' + model
+                    os.system(str(LinuxCmd))
             else:
                 makefiles = 0
         
@@ -139,40 +126,24 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
         if (model == ''):
             write_info(self.info, '***PLEASE ENTER A MODEL NAME***\n') 
             return
-        origDir = os.getcwd()
-        libDir = get_libDir()
-        FulllibDir = libDir + '/src/sst/elements/'
-        FullcoreDir = os.environ['SST_CORE_HOME']
-        element_home = os.environ['SST_ELEMENTS_HOME']
-
-        # Do some error checking see if there is already a model by the same name in the 
-        # elements directory.
-        currentModels = os.listdir(FulllibDir)
-        if (self.checkSSTModels(model, currentModels) == 0):
-            return
         
-        # Copy new model directory to the SST elements directory
-        LinuxCmd = 'cp -r ' + model + '/ ' + FulllibDir + '.'
-        os.system(str(LinuxCmd))
-        
-        # Run autogen.sh and configure
-        os.chdir(libDir)
-        os.system('./autogen.sh')
-        config = './configure --prefix=' + element_home + ' --with-sst-core=' + FullcoreDir
-        os.system(config)
-
+        os.chdir(model)
         # make clean and make all install
         if self.clean.isChecked():
-            os.system('make clean')
-        os.system('make all install')
+            LinuxCmd = str('make clean').split()
+            for line in run_command(LinuxCmd):
+                write_info(self.info, line)
+
+        LinuxCmd = str('make all').split()
+        for line in run_command(LinuxCmd):
+            write_info(self.info, line)
+        
         text = '****************************************************************************\n'
-        text += 'SST has been configured to run your model you may now proceed to the next\n'
-        text += 'step Run SST\n'
+        text += 'If your compile completed successfully SST has been configured to run your\n'
+        text += 'model you may now proceed to the next step Run SST\n'
         text += '****************************************************************************\n\n'
         write_info(self.info, text)
         
-        # Go back to original directory
-        os.chdir(origDir)
         # Run the model if autorun is checked
         if self.autoRun.isChecked():
             self.Run()
@@ -186,7 +157,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
             written = write_info(self.info, '***PLEASE ENTER A MODEL NAME***\n')  
             return
         origDir = os.getcwd()
-        TestsDir = get_libDir() + '/src/sst/elements/' + model + '/tests/'
+        TestsDir = origDir + '/tests/'
         LinuxCmd = str('sst test_' + model + '.py').split()
         os.chdir(TestsDir)
         text = '****************************************************************************\n'
@@ -203,22 +174,6 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
         with open('README', 'r') as fp:
             text = fp.read()
         write_info(self.info, text)
-
-    # Check SST Models to see if the model already exists
-    def checkSSTModels(self, model, currentModels):
-        if (currentModels.count(model) != 0):
-            if self.overwrite.isChecked():
-                text = 'THERE IS ALREADY AN SST MODEL NAMED '
-                text += model + '.\n'
-                text += 'IF THIS IS YOUR MODEL YOU MAY OVERWRITE IT, OTHERWISE SELECT NO\n'
-                text += 'Do you really want to overwrite the SST model?'
-                val = warningPopup(text)
-                if (val == QMessageBox.No):
-                    return 0
-            else:
-                write_info(self.info, '***THERE IS ALREADY AN SST MODEL NAMED ' + model + '***\n\n')
-                return 0
-        return 1
 
 ##### Main Application Class End 
 
@@ -239,12 +194,9 @@ def CreateFiles(model):
     line = 'mv ' + model + '.cc ' + model +'/.'
     os.system(str(line))
     MakefileAM(model)
-    line = 'mv Makefile.am ' + model +'/.'
+    line = 'mv Makefile ' + model +'/.'
     os.system(str(line))
-    Wrapper(model)
-    line = 'mv ' + model + 'Wrapper.cc ' + model +'/.'
-    os.system(str(line))
-
+    
 # Writing information to test_<model>.py file
 def testScript(model):
     filename = 'test_' + model + '.py'
@@ -253,18 +205,11 @@ def testScript(model):
     fp.write('# Please edit for particular model specifics\n\n')
     fp.write('import sst\n\n')
     fp.write('# Define SST core options\n\n')
-    fp.write('sst.setProgramOption("timebase", "1 ps")\n')
-    fp.write('sst.setProgramOption("stopAtCycle", "10000s")\n\n')
-    fp.write('# Define the simulation components\n\n')
-    line = 'comp_clocker0 = sst.Component("clocker0","' + model + '.' + model + '")'
-    fp.write(line)
-    fp.write('\n')
-    fp.write('comp_clocker0.addParams({\n')
-    fp.write('    "clockcount" : """100000000""",\n')
-    fp.write('    "clock" : """1MHz""",\n\n')
-    fp.write('# Add in any specific clock parameters here\n\n')
-    fp.write('})\n\n')
-    fp.write('# Define the simulation links\n')
+    fp.write('obj = sst.Component("' + model + '","' + model + '.' + model + '")\n')
+    fp.write('obj.addParams({\n')
+    fp.write('    "printFrequency" : "5",\n')
+    fp.write('    "repeats" : "15"\n')
+    fp.write('    })\n')
     fp.write('# End of generated output')
     fp.close()
 
@@ -273,7 +218,6 @@ def hFile(model):
     filename = model + '.h'
     fp = open(filename, 'w+')
     fp.write('// This file is an automatic generated template of an sst model ".h" file\n')
-    fp.write('// This cannot be used in its present form.\n')
     fp.write('// Please edit it to fit your specific model.\n\n')
     modelVar1 = str(model)
     modelVar = modelVar1.upper()
@@ -282,33 +226,34 @@ def hFile(model):
     line = '#define _' + modelVar + '_H\n\n'
     fp.write(line)
     fp.write('#include <sst/core/component.h>\n')
-    fp.write('#include <sst/core/rng/marsaglia.h>\n\n')
-    fp.write('namespace SST {\n')
-    line = 'namespace ' + model + '_Class {'
+    fp.write('#include <sst/core/elementinfo.h>\n\n')
+    line = 'class ' + model + ' : public SST::Component {\n'
     fp.write(line)
-    line = 'class ' + model + ' : public SST::Component\n'
-    fp.write(line)
-    fp.write('{\n')
     fp.write('public:\n')
     line = '\t' + model + '(SST::ComponentId_t id, SST::Params& params);\n'
     fp.write(line)
-    fp.write('\t// Constructor\n\n')
-    fp.write('\tvoid setup() {}\n')
-    fp.write('\tvoid finish() {}\n\n')
+    fp.write('\t~' + model + '();\n\n')
+    fp.write('\tvoid setup();\n')
+    fp.write('\tvoid finish();\n\n')
+    fp.write('\tbool clockTick( SST::Cycle_t currentCycle );\n\n')
+    fp.write('\tSST_ELI_REGISTER_COMPONENT(\n')
+    fp.write('\t\t' + model + ',\n')
+    fp.write('\t\t"' + model + '",\n')
+    fp.write('\t\t"' + model + '",\n')
+    fp.write('\t\tSST_ELI_ELEMENT_VERSION( 1, 0, 0 ),\n')
+    fp.write('\t\t"Demonstration of an External Element for SST",\n')
+    fp.write('\t\tCOMPONENT_CATEGORY_PROCESSOR\n')
+    fp.write('\t)\n\n')
+    fp.write('\tSST_ELI_DOCUMENT_PARAMS(\n')
+    fp.write('\t\t{ "printFrequency", "How frequently to print a message from the component", "5" },\n')
+    fp.write('\t\t{ "repeats", "Number of repetitions to make", "10" }\n')
+    fp.write('\t)\n\n')
     fp.write('private:\n')
-    fp.write('\tvirtual bool tick(SST::Cycle_t);\n\n')
-    fp.write('// Add in any specific functions you need for your model\n\n')
-    fp.write('// Simulation Variables\n\n')
-    fp.write('\tSST::RNG::MarsagliaRNG* m_rng;\n')
-    fp.write('\tint64_t m_SimulationTimeLength;\n\n')
-    fp.write('\tstd::string clock_frequency_str;\n')
-    fp.write('\tint clock_count;\n\n')
-    fp.write('// Add in any specif variables you need for your model\n')
-    fp.write('\tint m_tick;')
-    fp.write('};\n\n')
-    line = '} // namespace ' + model + '\n'
-    fp.write(line)
-    fp.write('} // namespace SST\n\n')
+    fp.write('\tSST::Output output;\n')
+    fp.write('\tSST::Cycle_t printFreq;\n')
+    fp.write('\tSST::Cycle_t maxRepeats;\n')
+    fp.write('\tSST::Cycle_t repeats;\n')
+    fp.write('};\n')    
     line = '#endif /* _' + modelVar + '_H */'
     fp.write(line)
     fp.close()
@@ -318,136 +263,65 @@ def ccFile(model):
     filename = model + '.cc'
     fp = open(filename, 'w+')
     fp.write('// This file is an automatic generated template of an sst model ".cc" file\n')
-    fp.write('// This cannot be used in its present form.\n')
     fp.write('// Please edit it to fit your specific model.\n\n')
-    fp.write('#include "sst_config.h"\n')
+    fp.write('#include <sst/core/sst_config.h>\n')
     line = '#include "' + model + '.h"\n\n'
     fp.write(line)
-    fp.write('namespace SST {\n')
-    line = 'namespace ' + model + '_Class {'
+    line = model + '::' + model + '( SST::ComponentId_t id, SST::Params& params) :\n'
     fp.write(line)
-    fp.write('// Constructor \n\n')
-    line = model + '::' + model + '(ComponentId_t id, Params& params) :\n'
-    fp.write(line)
-    fp.write('Component(id)\n')
-    fp.write('{\n\n')
-    fp.write('// See if any optional simulation parameters were set in the\n')
-    fp.write('// executing Python script\n\n')
-    fp.write('\tclock_frequency_str = params.find<std::string>("clock", "1MHz");\n')
-    fp.write('\tclock_count = params.find<int64_t>("clockcount", 1000);\n')
-    fp.write('\tm_SimulationTimeLength = params.find<int64_t>("simulationtime", 5);\n')
-    fp.write('\tm_tick = 0;\n\n')
-    fp.write('// If you added other parameters in the Python script list here\n\n')
-    fp.write('\tstd::cout << std::endl << std::endl;\n\n')
-    fp.write('// You can put any introductory greating here\n\n')
-    fp.write('// Tell the simulator not to end without us\n\n')
-    fp.write('// Register as Primary Component\n\n')
-    fp.write('\tregisterAsPrimaryComponent();\n\n')
-    fp.write('// Put this model in charge of the simulation execution\n\n')
-    fp.write('\tprimaryComponentDoNotEndSim();\n\n')
-    fp.write('// Initialize variables for simulation model\n\n')
-    fp.write('// Register Main Clock\n\n')
-    fp.write('// This will automatically be called by the SST framework\n\n')
-    line = '\tregisterClock(clock_frequency_str, new Clock::Handler<' + model + '>(this, &' + model + '::tick));\n\n'
-    fp.write(line)
-    fp.write('// Set up any other clocks and build any one-shots if you are using them\n\n')
-    fp.write('} // Construction - End\n\n')
-    fp.write('// Create the main part of the model below \n\n')
-    line = 'bool ' + model + '::tick( Cycle_t )\n'
-    fp.write(line)
-    fp.write('{\n\n')
-    fp.write('// The body of your model\n')
-    fp.write('\tif(m_tick >= m_SimulationTimeLength) {\n')
-    fp.write('\t\treturn(true);\n')
-    fp.write('\t}else{\n')
-    fp.write('\t\tprintf("Hello\\n");\n')
-    fp.write('\t\tm_tick++;\n')
-    fp.write('\t\treturn(false);\n\t}\n')
-    fp.write('} \n\n')
-    fp.write('// Add in any other functions, one-shots or clock control specific to your model ..\n\n')
-    line = '} // namespace ' + model + '\n'
-    fp.write(line)
-    fp.write('} // namespace SST')
+    fp.write('\tSST::Component(id), repeats(0) {\n\n')
+    fp.write('\toutput.init("' + model + '-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);\n\n')
+    fp.write('\tprintFreq = params.find<SST::Cycle_t>("printFrequency", 5);\n')
+    fp.write('\tmaxRepeats = params.find<SST::Cycle_t>("repeats", 10);\n\n')
+    fp.write('\tif( ! (printFreq > 0) ) {\n')
+    fp.write('\toutput.fatal(CALL_INFO,  -1, "Error: printFrequency must be greater than zero.\\n");\n')
+    fp.write('\t}\n')
+    fp.write('\toutput.verbose(CALL_INFO, 1, 0, "Config: maxRepeats=%" PRIu64 ",printFreq=%" PRIu64 "\\n",\n')
+    fp.write('\t\tstatic_cast<uint64_t>(maxRepeats), static_cast<uint64_t>(printFreq));\n\n')
+    fp.write('\t// Just register a plain clock for this simple example\n\n')
+    fp.write('\tregisterClock("100MHz", new SST::Clock::Handler<' + model + '>(this, &' + model + '::clockTick));\n\n')
+    fp.write('\t// Tell SST to wait until we authorize it to exit\n')
+    fp.write('\tregisterAsPrimaryComponent();\n')
+    fp.write('\tprimaryComponentDoNotEndSim();\n')
+    fp.write('}\n\n')
+    fp.write(model + '::~' + model + '() {\n')
+    fp.write('}\n\n')
+    fp.write('void ' + model + '::setup() {\n')
+    fp.write('\toutput.verbose(CALL_INFO, 1, 0, "Component is being setup.\\n");\n')
+    fp.write('}\n\n')
+    fp.write('void ' + model + '::finish() {\n')
+    fp.write('\toutput.verbose(CALL_INFO, 1, 0, "Component is being finished.\\n");\n')
+    fp.write('}\n\n')
+    fp.write('bool ' + model + '::clockTick( SST::Cycle_t currentCycle ) {\n')
+    fp.write('\tif( currentCycle % printFreq == 0 ) {\n')
+    fp.write('\t\toutput.verbose(CALL_INFO, 1, 0, "Hello World!\\n");\n')
+    fp.write('\t}\n\n')
+    fp.write('\trepeats++;\n\n')
+    fp.write('\tif( repeats == maxRepeats ) {\n')
+    fp.write('\t\tprimaryComponentOKToEndSim();\n')
+    fp.write('\t\treturn true;\n')
+    fp.write('\t} else {\n')
+    fp.write('\t\treturn false;\n')
+    fp.write('\t}\n')
+    fp.write('}')    
     fp.close()
 
 # Writing information to Makefile.am file
 def MakefileAM(model):
-    filename = 'Makefile.am'
+    filename = 'Makefile'
     fp = open(filename, 'w+')
-    text = '# -*- Makefile -*-\n'
-    text += '# \n'
-    text += '# \n'
-    text += '\n'
-    text += 'AM_CPPFLAGS = \\\n'
-    text += '\t$(BOOST_CPPFLAGS)\\\n'
-    text += '\t$(MPI_CPPFLAGS)\n\n'
-    text += 'compdir = $(pkglibdir)\n'
-    text += 'comp_LTLIBRARIES = lib' + model + '.la\n'
-    text += 'lib' + model + '_la_SOURCES =  \\\n'
-    text += '\t' + model + 'Wrapper.cc \\\n'
-    text += '\t' + model + '.h \\\n'
-    text += '\t' + model + '.cc\n\n\n'
-    text += 'EXTRA_DIST =\\\n'
-    text += '\tREADME \\\n'
-    text += '\ttests/test_' + model + '.py\n\n'
-    text += 'lib' + model + '_la_LDFLAGS = -module -avoid-version\n\n'
-    text += '########################################################################## \n'
-    text += '########################################################################## \n'
-    text += '########################################################################## \n'
-    fp.write(text)
+    fp.write('# -*- Makefile -*-\n\n')
+    fp.write('CXX=$(shell sst-config --CXX)\n')
+    fp.write('CXXFLAGS=$(shell sst-config --ELEMENT_CXXFLAGS)\n')
+    fp.write('LDFLAGS=$(shell sst-config --ELEMENT_LDFLAGS)\n\n')
+    fp.write('all: lib' + model + '.so install\n\n')
+    fp.write('lib' + model + '.so: ' + model + '.cc\n')
+    fp.write('\t$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $<\n\n')
+    fp.write('install:\n')
+    fp.write('\tsst-register ' + model + ' ' + model + 'LIBDIR=$(CURDIR)\n\n')
+    fp.write('clean:\n')
+    fp.write('\trm -f *.o lib' + model + '.so\n')
     fp.close()
-
-# Writing information to <model>Wrapper.cc file
-def Wrapper(model):
-    filename = model + 'Wrapper.cc'
-    fp = open(filename, 'w+')
-    text = '// This is the ' + model + 'Wrapper.cc file for Model ' + model + '.\n'
-    text +=  '// Update according for your particulare simulation model.\n\n\n'
-    text +=  '// Make sure any modifications to parameters are also reflected in\n'
-    text +=  '// the Python script\n\n\n'
-    text +=  '#include "sst_config.h"\n'
-    text +=  '#include "sst/core/element.h"\n'
-    text +=  '#include "' + model + '.h"\n\n'
-    text +=  'using namespace SST;\n'
-    text +=  'using namespace SST::' + model + '_Class;\n\n'
-    text +=  'static Component* create_' + model + '(SST::ComponentId_t id, SST::Params& params)\n'
-    text +=  '{\n'
-    text +=  '\treturn new ' + model + '(id, params);\n'
-    text +=  '}\n\n'
-    text +=  'static const ElementInfoParam ' + model + '_params[] = {\n'
-    text +=  '\t{ "clock", "Clock frequency", "1GHz" },\n'
-    text +=  '\t{ "clockcount", "Number of clock ticks to execute", "100000"},\n'
-    text +=  '\t{ NULL, NULL, NULL }\n'
-    text +=  '};\n\n'
-    text +=  'static const ElementInfoComponent ' + model + 'Components[] = {\n'
-    text +=  '\t{ "' + model + '",\t\t\t\t// Name\n'
-    text +=  '\t "' + model + ' Simulator",\t\t\t\t// Description\n'	
-    text +=  '\t NULL,\t\t\t\t\t// PrintHelp\n'
-    text +=  '\t create_' + model + ',\t\t\t\t// Allocator\n'
-    text +=  '\t ' + model +'_params,\t\t\t\t// Parameters\n'
-    text +=  '\t NULL,\t\t\t\t\t// Ports\n'
-    text +=  '\t COMPONENT_CATEGORY_UNCATEGORIZED,\t\t\t// Category\n'
-    text +=  '\t NULL\t\t\t\t\t// Statistics\n'
-    text +=  '\t},\n'
-    text +=  '\t{ NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL}\n'
-    text +=  '};\n\n'
-    text +=  'extern \"C\" {\n'
-    text +=  '\tElementLibraryInfo ' + model + '_eli = {\n'
-    text +=  '\t\t\"' + model + '\",\t\t\t\t\t// Name\n'
-    text +=  '\t\t\"A Simple Example Element With Demo Components\",\t// Description\n'
-    text +=  '\t\t' + model + 'Components,\t\t\t\t// Components\n'
-    text +=  '\t\tNULL,\t\t\t\t\t\t// Events\n'
-    text +=  '\t\tNULL,\t\t\t\t\t\t// Introspectors\n'
-    text +=  '\t\tNULL,\t\t\t\t\t\t// Modules\n'
-    text +=  '\t\tNULL,\t\t\t\t\t\t// Subcomponents\n'
-    text +=  '\t\tNULL,\t\t\t\t\t\t// Partitioners\n'
-    text +=  '\t\tNULL,\t\t\t\t\t\t// Python Module Generator\n'
-    text +=  '\t\tNULL\t\t\t\t\t\t// Generators\n'
-    text +=  '\t};\n'
-    text +=  '}'
-    fp.write(text)
-    fp.close()
-
 
 ###	Main Function
 if __name__ == "__main__":
