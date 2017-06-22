@@ -1,14 +1,14 @@
-#ifndef _<model#1>_H
-#define _<model#1>_H
+#ifndef _<model>_H
+#define _<model>_H
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
 
-class <model#1> : public SST::Component {
+class <model> : public SST::Component {
 
 public:
-	<model#1>( SST::ComponentId_t id, SST::Params& params );
-	~<model#1>();
+	<model>( SST::ComponentId_t id, SST::Params& params );
+	~<model>();
 
 	void setup();
 	void finish();
@@ -16,11 +16,11 @@ public:
 	bool clockTick( SST::Cycle_t currentCycle );
 
 	SST_ELI_REGISTER_COMPONENT(
-		<model#1>,
-		"<model#1>",
-		"<model#1>",
+		<model>,
+		"<model>",
+		"<model>",
 		SST_ELI_ELEMENT_VERSION( 1, 0, 0 ),
-		"<model#1> Description",
+		"<model> Description",
 		COMPONENT_CATEGORY_PROCESSOR
 	)
 

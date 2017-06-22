@@ -53,16 +53,21 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 	   	Ui_MainWindow.__init__(self)
 		self.setupUi(self)
 		self.setWindowIcon(QtGui.QIcon('sst-logo-small.png'))
+		self.browse.clicked.connect(self.browseTemplates)
 		self.templates.clicked.connect(self.MakeTemplates)
 		self.Configure.clicked.connect(self.ConfigureSST)
 		self.RunSST.clicked.connect(self.Run)
 		self.actionOpen_Help.triggered.connect(self.help)
-	   
+	
+	### Browse the templates folder
+	def browseTemplates(self):
+		templatePath = QFileDialog.getExistingDirectory(self, "Select Template", "./templates/", QFileDialog.ShowDirsOnly)
+		self.templateType.setText(str(templatePath))
 	
 	### Generate Templates Button main function
 	def MakeTemplates(self):
 		if not self.getModel(): return
-		self.getTemplate()
+		if not self.getTemplate(): return
 		
 		# Do some checking see if you already have a model in your working directory
 		# with the same name or if there is one in the element directory
@@ -116,7 +121,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 	### Run SST Button main function
 	def Run(self):
 		if not self.getModel(): return
-		self.getTemplate()
+		if not self.getTemplate(): return
 		
 		regex=re.compile(".*(tests/).*")
 		testfiles=[m.group(0) for item in self.dest for m in [regex.search(item)] if m]
@@ -141,25 +146,34 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 	
 	# Gets the template information
 	def getTemplate(self):
-		self.template = self.templateType.currentText()
-		with open(str('templates/' + self.template + '/template'), 'r') as fp:
+		self.templatePath = str(self.templateType.text())
+		self.template = os.path.basename(self.templatePath)
+		if (self.template == ''):
+			self.write_info('***PLEASE SELECT A TEMPLATE***\n')
+			return False
+		if not os.path.isfile(self.templatePath + '/template'):
+			self.write_info('***TEMPLATE PATH IS INCORRECT OR TEMPLATE IS SETUP WRONG***\n')
+			return False
+		
+		with open(self.templatePath + '/template', 'r') as fp:
 			structure = fp.read()
 		self.source = structure.split()[0::2]
 		destination = structure.split()[1::2]
 		self.dest=[]
 		self.sourceFiles=[]
 		for item in destination:
-			self.dest.append(item.replace('<model#1>', str(self.model)))
+			self.dest.append(item.replace('<model>', str(self.model)))
 			if (".cc" in item) | (".h" in item):
-				self.sourceFiles.append(item.replace('<model#1>', str(self.model)))
+				self.sourceFiles.append(item.replace('<model>', str(self.model)))
+		return True
 	
 	# Move and update the template files to create a new model
 	def createModel(self):
 		os.system(str('mkdir ' + self.model))
 		os.system(str('mkdir ' + self.model + '/tests'))
 		for s, d in zip(self.source, self.dest):
-			os.system(str('cp templates/' + self.template + '/' + s + ' ' + self.model + '/' + d))
-			os.system(str('sed -i \'s/<model#1>/' + self.model + '/g\' ' + self.model + '/' + d))
+			os.system(str('cp ' + self.templatePath + '/' + s + ' ' + self.model + '/' + d))
+			os.system(str('sed -i \'s/<model>/' + self.model + '/g\' ' + self.model + '/' + d))
 			os.system(str('sed -i \'s/<sourceFiles>/' + ' '.join(self.sourceFiles) + '/g\' ' + self.model + '/' + d))
 	
 	# Write to information screen

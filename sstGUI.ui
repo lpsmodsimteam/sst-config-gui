@@ -34,13 +34,6 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="3" colspan="3">
-       <widget class="QLineEdit" name="modelName">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Type in the name of your new model. The tool will not proceed if this box is empty.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0" colspan="6">
        <widget class="QPlainTextEdit" name="info">
         <property name="readOnly">
@@ -116,7 +109,14 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
+      <item row="0" column="3" colspan="2">
+       <widget class="QLineEdit" name="modelName">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Type in the name of your new model. The tool will not proceed if this box is empty.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
        <widget class="QCheckBox" name="overwrite">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;If this box is checked any model with the same name will be overwritten&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -126,13 +126,18 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="5">
-       <widget class="QComboBox" name="templateType">
-        <item>
-         <property name="text">
-          <string>simpleModel</string>
-         </property>
-        </item>
+      <item row="1" column="2" alignment="Qt::AlignRight">
+       <widget class="QCommandLinkButton" name="browse">
+        <property name="text">
+         <string>Browse Templates</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3" colspan="3">
+       <widget class="QLineEdit" name="templateType">
+        <property name="readOnly">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
      </layout>

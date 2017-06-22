@@ -7,24 +7,24 @@ path and name of the file once it is used in a model. Using the example
 from the simpleModel template:
 
 Makefile Makefile
-model.cc <model#1>.cc
-model.h <model#1>.h
-test.py tests/<model#1>.py
+model.cc <model>.cc
+model.h <model>.h
+test.py tests/<model>.py
 
 Makefile doesn't change names and is located in the root of the model directory
 
-model.cc is placed in the root directory and uses the name <model#1> which is
+model.cc is placed in the root directory and uses the name <model> which is
 substituted with the first model name provided
 
 model.h works the same as model.cc
 
 test.py is placed under the tests folder in the root directory and then named
-<model#1>.py which again is substituted with the first model name provided
+<model>.py which again is substituted with the first model name provided
 
 The SSTModelCreator GUI will also find all the .cc and .h files listed in the
 template file and use them to populate the Makefile dependencies automatically
 using the <sourceFiles> tag. You can also manually specify which files to
-depend on using <model#1>.cc <model#1>.h in this case.
+depend on using <model>.cc <model>.h in this case.
 
 Any test files MUST be located under the tests/ folder otherwise the GUI will
 not be able to locate the test. 
