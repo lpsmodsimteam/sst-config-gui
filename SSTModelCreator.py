@@ -187,6 +187,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 		line = 'gedit '
 		for item in self.dest:
 			line += self.model + '/' + item + ' '
+		line += '&'
 		os.system(str(line))
 	
 	# Information for template generation
