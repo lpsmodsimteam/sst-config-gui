@@ -170,8 +170,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 	
 	# Move and update the template files to create a new model
 	def createModel(self):
-		os.system(str('mkdir ' + self.model))
-		os.system(str('mkdir ' + self.model + '/tests'))
+		os.system(str('mkdir -p ' + self.model + '/tests'))
 		for s, d in zip(self.source, self.dest):
 			os.system(str('cp ' + self.templatePath + '/' + s + ' ' + self.model + '/' + d))
 			os.system(str('sed -i \'s/<model>/' + self.model + '/g\' ' + self.model + '/' + d))
