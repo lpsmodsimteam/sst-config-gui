@@ -25,11 +25,6 @@ qtCreatorFile = "sstGUI.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 ### Assistant functions for the application class
-# Runs a command and returns the output line by line
-def run_command(LinuxCmd):
-	p = subprocess.Popen(LinuxCmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	return iter(p.stdout.readline, b'')
-
 # Generates a warning pop-up when you try to overwrite existing files
 def warningPopup(text):
 	msg = QMessageBox()
@@ -60,10 +55,12 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 		self.actionOpen_Help.triggered.connect(self.help)
 		self.modelName.setFocus()
 	
+	
 	### Browse the templates folder
 	def browseTemplates(self):
 		templatePath = QFileDialog.getExistingDirectory(self, "Select Template", "./templates/", QFileDialog.ShowDirsOnly)
 		self.templateType.setText(str(templatePath))
+	
 	
 	### Generate Templates Button main function
 	def MakeTemplates(self):
@@ -98,20 +95,26 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 	def ConfigureSST(self):
 		if not self.getModel(): return
 		
-		# make clean and make all install
+		text = '********************************************************************************\n'
+		text += '***** Building Model *****\n\n'
+		self.write_info(text)
+		
+		# make clean
 		if self.clean.isChecked():
-			LinuxCmd = str('make clean -C ' + self.model).split()
-			for line in run_command(LinuxCmd):
-				self.write_info(line)
+			self.run_command(str('make clean -C ' + self.model))
 		
-		LinuxCmd = str('make all -C ' + self.model).split()
-		for line in run_command(LinuxCmd):
-			self.write_info(line)
+		# run_command returns the make return value (0 success, others fail)
+		failed = self.run_command(str('make all -C ' + self.model))
+		if failed:
+			text = '\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***\n'
+			text += '********************************************************************************\n\n'
+			self.write_info(text)
+			return
 		
-		text = '****************************************************************************\n'
-		text += 'SST has been configured to run your model you may now proceed to the next\n'
+		# make all passed
+		text = '\nSST has been configured to run your model you may now proceed to the next\n'
 		text += 'step Run SST\n'
-		text += '****************************************************************************\n\n'
+		text += '********************************************************************************\n\n'
 		self.write_info(text)
 		
 		# Run the model if autorun is checked
@@ -127,12 +130,14 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 		regex=re.compile(".*(tests/).*")
 		testfiles=[m.group(0) for item in self.dest for m in [regex.search(item)] if m]
 		
-		text = '****************************************************************************\n'
+		text = '********************************************************************************\n'
+		text += '***** Running Model test(s) *****\n\n'
 		self.write_info(text)
-		LinuxCmd = str('sst ' + self.model + '/' + testfiles[0]).split()
-		for line in run_command(LinuxCmd):
-			self.write_info(line)
-		text = '****************************************************************************\n\n'
+		for testfile in testfiles:
+			self.write_info('*** ' + testfile + ' ***\n')
+			self.run_command(str('sst ' + self.model + '/' + testfile))
+			self.write_info('\n')
+		text = '********************************************************************************\n\n'
 		self.write_info(text)
 
 
@@ -141,7 +146,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 	def getModel(self):
 		self.model = self.modelName.text()
 		if (self.model == ''):
-			self.write_info('***PLEASE ENTER A MODEL NAME***\n')
+			self.write_info('*** PLEASE ENTER A MODEL NAME ***\n\n')
 			return False
 		return True
 	
@@ -150,10 +155,10 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 		self.templatePath = str(self.templateType.text())
 		self.template = os.path.basename(self.templatePath)
 		if (self.template == ''):
-			self.write_info('***PLEASE SELECT A TEMPLATE***\n')
+			self.write_info('*** PLEASE SELECT A TEMPLATE ***\n\n')
 			return False
 		if not os.path.isfile(self.templatePath + '/template'):
-			self.write_info('***TEMPLATE PATH IS INCORRECT OR TEMPLATE IS SETUP WRONG***\n')
+			self.write_info('*** TEMPLATE PATH IS INCORRECT OR TEMPLATE IS SETUP WRONG ***\n\n')
 			return False
 		
 		with open(self.templatePath + '/template', 'r') as fp:
@@ -181,6 +186,18 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertPlainText(text)
 		self.info.moveCursor(QTextCursor.End)
+		app.processEvents() # force the GUI to display the text
+	
+	# Runs a command and prints the output line by line
+	def run_command(self, command):
+		process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		while True:
+		    output = process.stdout.readline()
+		    if output == '' and process.poll() is not None:
+		        break
+		    if output:
+		        self.write_info(output.decode("utf-8"))
+		return process.poll()
 	
 	# Open template files in editor
 	def callEditor(self):
@@ -192,16 +209,16 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 	
 	# Information for template generation
 	def templatesMessage(self):
-		text = '****************************************************************************\n'
+		text = '********************************************************************************\n'
 		text += 'The following Templates should be displayed in the pop-up editor\n'
 		for item in self.dest:
-			text += '\t\t- ' + item + '\n'
+			text += '\t- ' + item + '\n'
 		text += 'Please review/edit your files to create your model. You can make changes in\n'
 		text += 'the pop-up editor, save your file then close the editor or you can close the pop-up\n'
 		text += 'editor and the GUI, then proceed to editing the files in the editor of your choice\n'
-		text += 'they reside in your working directory under ' + self.model + '/. The test scipt is in the\n'
-		text += 'tests directory. After your are done you can proceed to the next step "Configure".\n'
-		text += '****************************************************************************\n\n'
+		text += 'they reside in your working directory under ' + self.model + '/. \n'
+		text += 'After your are done you can proceed to the next step "Configure".\n'
+		text += '********************************************************************************\n\n'
 		self.write_info(text)
 	
 	# Help Menu

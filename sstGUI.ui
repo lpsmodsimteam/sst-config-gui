@@ -128,6 +128,9 @@
       </item>
       <item row="1" column="2" alignment="Qt::AlignRight">
        <widget class="QCommandLinkButton" name="browse">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Opens a File Browser for you to select a template.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Browse Templates</string>
         </property>
@@ -135,6 +138,9 @@
       </item>
       <item row="1" column="3" colspan="3">
        <widget class="QLineEdit" name="templateType">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Type in the full path to your template or use the Browse Templates button to navigate to a template folder.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="readOnly">
          <bool>false</bool>
         </property>

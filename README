@@ -1,9 +1,7 @@
 This is the SST Model Creation Tool is will assist in developing
 simple models for the SST Simulation Framework. This tool assumes
-that SST has been installed and is running on your system. It also
-assumes that you have set the $SST_ELEMENTS_HOME and the
-$SST_CORE_HOME environment variables either in your .bashrc
-or in your text browser. 
+that SST 7.1 or greater has been installed and is running on
+your system.
 
 The tool is setup to step you through the model development
 process. Information about each step will be displayed in the 
@@ -14,7 +12,13 @@ each button and box on the tool:
 Enter Model Name --> text box - Simply enter the name of your
   model, this name will be used as the base name for all of
   your files and your model's directory. If you do not enter
-  a name the will not continue until a name is entered.
+  a name the GUI will not continue until a name is entered.
+
+Browse Templates button & text box - You can manually type in
+  the path to a template of your choosing or you can use the
+  button to open a file browser where you can select the folder
+  that contains the template you wish to use. A template must be
+  selected in order to generate/open templates and to run sst.
 
 Generate/Open Templates button - This button will first create a 
   directory in your working directory with your model name, 
