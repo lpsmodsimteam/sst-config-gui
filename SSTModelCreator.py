@@ -58,6 +58,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 		self.Configure.clicked.connect(self.ConfigureSST)
 		self.RunSST.clicked.connect(self.Run)
 		self.actionOpen_Help.triggered.connect(self.help)
+		self.modelName.setFocus()
 	
 	### Browse the templates folder
 	def browseTemplates(self):
