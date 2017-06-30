@@ -161,11 +161,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def run_command(self, command):
 		process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		while True:
-		    output = process.stdout.readline()
-		    if output == '' and process.poll() is not None:
-		        break
-		    if output:
-		        self.write_info(output.decode("utf-8"))
+			output = process.stdout.readline()
+			if output == '' and process.poll() is not None:
+				break
+			if output:
+			 	self.write_info(output.decode("utf-8"))
 		return process.poll()
 	
 	
