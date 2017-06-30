@@ -24,7 +24,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	### Initialization Function
 	def __init__(self):
 		QMainWindow.__init__(self)
-	   	Ui_MainWindow.__init__(self)
+		Ui_MainWindow.__init__(self)
 		self.setupUi(self)
 		self.setWindowIcon(QIcon('sst-logo-small.png'))
 		self.browse.clicked.connect(self.browseTemplates)
