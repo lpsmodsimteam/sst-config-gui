@@ -9,20 +9,12 @@
 
 import sys
 import os
-import fileinput
-import site
-import getopt
-import re
-from PyQt4 import QtGui
-from PyQt4 import QtCore
-from PyQt4 import uic
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
 import subprocess
-from subprocess import call
+import re
+from PyQt4.QtGui import *
+from PyQt4 import uic
 
-qtCreatorFile = "sstGUI.ui"
-Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
+Ui_MainWindow, QtBaseClass = uic.loadUiType("sstGUI.ui")
 
 ### Assistant functions for the application class
 # Generates a warning pop-up when you try to overwrite existing files
@@ -41,13 +33,13 @@ def warningButton(button):
 
 
 ##### Main Application Class
-class MyApp(QtGui.QMainWindow, Ui_MainWindow):
+class MyApp(QMainWindow, Ui_MainWindow):
 	# Initialization Function
 	def __init__(self):
-		QtGui.QMainWindow.__init__(self)
+		QMainWindow.__init__(self)
 	   	Ui_MainWindow.__init__(self)
 		self.setupUi(self)
-		self.setWindowIcon(QtGui.QIcon('sst-logo-small.png'))
+		self.setWindowIcon(QIcon('sst-logo-small.png'))
 		self.browse.clicked.connect(self.browseTemplates)
 		self.templates.clicked.connect(self.MakeTemplates)
 		self.Configure.clicked.connect(self.ConfigureSST)
@@ -231,9 +223,9 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 
 ###	Main Function
 if __name__ == "__main__":
-	app = QtGui.QApplication(sys.argv)
+	app = QApplication(sys.argv)
 	window = MyApp()
-	QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('plastique'))
+	QApplication.setStyle(QStyleFactory.create('plastique'))
 	window.show()
 	sys.exit(app.exec_())
 
