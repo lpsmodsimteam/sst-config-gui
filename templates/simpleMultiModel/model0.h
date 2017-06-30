@@ -1,15 +1,15 @@
-#ifndef _<model>_H
-#define _<model>_H
+#ifndef _<model>0_H
+#define _<model>0_H
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
 #include <sst/core/elementinfo.h>
 
-class <model> : public SST::Component {
+class <model>0 : public SST::Component {
 
 public:
-	<model>( SST::ComponentId_t id, SST::Params& params );
-	~<model>();
+	<model>0( SST::ComponentId_t id, SST::Params& params );
+	~<model>0();
 
 	void setup();
 	void finish();
@@ -19,11 +19,11 @@ public:
     void handleEvent(SST::Event *ev);
 
 	SST_ELI_REGISTER_COMPONENT(
-		<model>,
+		<model>0,
 		"<model>",
-		"<model>",
+		"<model>0",
 		SST_ELI_ELEMENT_VERSION( 1, 0, 0 ),
-		"<model> Description",
+		"Demonstration of an External Element for SST",
 		COMPONENT_CATEGORY_PROCESSOR
 	)
 
