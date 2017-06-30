@@ -33,6 +33,8 @@ def run_command(LinuxCmd):
 def write_info(info, text):
     info.moveCursor(QTextCursor.End)
     info.insertPlainText(text)
+    info.moveCursor(QTextCursor.End)
+    app.processEvents()
 
 # Open template files in editor
 def CallEditor(model):
@@ -127,14 +129,13 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
             write_info(self.info, '***PLEASE ENTER A MODEL NAME***\n') 
             return
         
-        os.chdir(model)
         # make clean and make all install
         if self.clean.isChecked():
-            LinuxCmd = str('make clean').split()
+            LinuxCmd = str('make clean -C ' + model).split()
             for line in run_command(LinuxCmd):
                 write_info(self.info, line)
 
-        LinuxCmd = str('make all').split()
+        LinuxCmd = str('make all -C' + model).split()
         for line in run_command(LinuxCmd):
             write_info(self.info, line)
         
@@ -156,17 +157,13 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
         if (model == ''):
             written = write_info(self.info, '***PLEASE ENTER A MODEL NAME***\n')  
             return
-        origDir = os.getcwd()
-        TestsDir = origDir + '/tests/'
-        LinuxCmd = str('sst test_' + model + '.py').split()
-        os.chdir(TestsDir)
+        LinuxCmd = str('sst ' + model + '/tests/test_' + model + '.py').split()
         text = '****************************************************************************\n'
         write_info(self.info, text)
         for line in run_command(LinuxCmd):
             write_info(self.info, line)
         text = '****************************************************************************\n\n'
         write_info(self.info, text)
-        os.chdir(origDir)
 
 
     # Help Menu
@@ -180,9 +177,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 ### Template Creation SubFunctions
 # Create the template files
 def CreateFiles(model):
-    line = 'mkdir ' + model
-    os.system(str(line))
-    line = 'mkdir ' + model + '/tests'
+    line = 'mkdir -p ' + model + '/tests'
     os.system(str(line))
     testScript(model)
     line = 'mv test_' + model + '.py ' + model + '/tests/.'
