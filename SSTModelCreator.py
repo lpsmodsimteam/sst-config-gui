@@ -14,27 +14,14 @@ import re
 from PyQt4.QtGui import *
 from PyQt4 import uic
 
+# Load the UI
 Ui_MainWindow, QtBaseClass = uic.loadUiType("sstGUI.ui")
-
-### Assistant functions for the application class
-# Generates a warning pop-up when you try to overwrite existing files
-def warningPopup(text):
-	msg = QMessageBox()
-	msg.setIcon(QMessageBox.Warning)
-	msg.setText(text)
-	msg.setWindowTitle("Overwrite Model")
-	msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-	msg.setDefaultButton(QMessageBox.No)
-	msg.buttonClicked.connect(warningButton)
-	return msg.exec_()
-
-def warningButton(button):
-	return button
 
 
 ##### Main Application Class
 class MyApp(QMainWindow, Ui_MainWindow):
-	# Initialization Function
+	
+	### Initialization Function
 	def __init__(self):
 		QMainWindow.__init__(self)
 	   	Ui_MainWindow.__init__(self)
@@ -46,6 +33,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.RunSST.clicked.connect(self.Run)
 		self.actionOpen_Help.triggered.connect(self.help)
 		self.modelName.setFocus()
+		self.separator = '********************************************************************************\n'
 	
 	
 	### Browse the templates folder
@@ -58,26 +46,22 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def MakeTemplates(self):
 		if not self.getModel(): return
 		if not self.getTemplate(): return
-		
 		# Do some checking see if you already have a model in your working directory
 		# with the same name or if there is one in the element directory
 		workingModels = os.listdir('.')
 		makefiles = 1
-
 		# Check local models
 		if (workingModels.count(self.model) != 0):
 			if self.overwrite.isChecked():
 				text = "Do you really want to overwrite your local version of " + self.model + "?"
-				val = warningPopup(text)
+				val = self.warningPopup(text, "Overwrite Model?")
 				if (val == QMessageBox.No):
 					makefiles = 0
 			else:
 				makefiles = 0
-		
 		# Create templates
 		if (makefiles == 1):
 			self.createModel()
-
 		# Print out message to the GUI and open editor
 		self.templatesMessage()
 		self.callEditor()
@@ -86,29 +70,22 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	### Configure Button main function
 	def ConfigureSST(self):
 		if not self.getModel(): return
-		
-		text = '********************************************************************************\n'
-		text += '***** Building Model *****\n\n'
-		self.write_info(text)
-		
+		self.write_info(self.separator + '***** Building Model *****\n\n')
 		# make clean
 		if self.clean.isChecked():
 			self.run_command(str('make clean -C ' + self.model))
-		
 		# run_command returns the make return value (0 success, others fail)
 		failed = self.run_command(str('make all -C ' + self.model))
 		if failed:
 			text = '\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***\n'
-			text += '********************************************************************************\n\n'
+			text += self.separator + '\n'
 			self.write_info(text)
 			return
-		
 		# make all passed
 		text = '\nSST has been configured to run your model you may now proceed to the next\n'
 		text += 'step Run SST\n'
-		text += '********************************************************************************\n\n'
+		text += self.separator + '\n'
 		self.write_info(text)
-		
 		# Run the model if autorun is checked
 		if self.autoRun.isChecked():
 			self.Run()
@@ -118,19 +95,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def Run(self):
 		if not self.getModel(): return
 		if not self.getTemplate(): return
-		
 		regex=re.compile(".*(tests/).*")
 		testfiles=[m.group(0) for item in self.dest for m in [regex.search(item)] if m]
-		
-		text = '********************************************************************************\n'
-		text += '***** Running Model test(s) *****\n\n'
-		self.write_info(text)
+		self.write_info(self.separator + '***** Running Model test(s) *****\n\n')
 		for testfile in testfiles:
 			self.write_info('*** ' + testfile + ' ***\n')
 			self.run_command(str('sst ' + self.model + '/' + testfile))
 			self.write_info('\n')
-		text = '********************************************************************************\n\n'
-		self.write_info(text)
+		self.write_info(self.separator + '\n')
 
 
 	### Application helper functions
@@ -142,6 +114,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			return False
 		return True
 	
+	
 	# Gets the template information
 	def getTemplate(self):
 		self.templatePath = str(self.templateType.text())
@@ -152,7 +125,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if not os.path.isfile(self.templatePath + '/template'):
 			self.write_info('*** TEMPLATE PATH IS INCORRECT OR TEMPLATE IS SETUP WRONG ***\n\n')
 			return False
-		
 		with open(self.templatePath + '/template', 'r') as fp:
 			structure = fp.read()
 		self.source = structure.split()[0::2]
@@ -165,6 +137,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.sourceFiles.append(item.replace('<model>', str(self.model)))
 		return True
 	
+	
 	# Move and update the template files to create a new model
 	def createModel(self):
 		os.system(str('mkdir -p ' + self.model + '/tests'))
@@ -173,12 +146,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			os.system(str('sed -i \'s/<model>/' + self.model + '/g\' ' + self.model + '/' + d))
 			os.system(str('sed -i \'s/<sourceFiles>/' + ' '.join(self.sourceFiles) + '/g\' ' + self.model + '/' + d))
 	
+	
 	# Write to information screen
 	def write_info(self, text):
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertPlainText(text)
 		self.info.moveCursor(QTextCursor.End)
 		app.processEvents() # force the GUI to display the text
+	
 	
 	# Runs a command and prints the output line by line
 	def run_command(self, command):
@@ -191,6 +166,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		        self.write_info(output.decode("utf-8"))
 		return process.poll()
 	
+	
 	# Open template files in editor
 	def callEditor(self):
 		line = 'gedit '
@@ -199,9 +175,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		line += '&'
 		os.system(str(line))
 	
+	
 	# Information for template generation
 	def templatesMessage(self):
-		text = '********************************************************************************\n'
+		text = self.separator
 		text += 'The following Templates should be displayed in the pop-up editor\n'
 		for item in self.dest:
 			text += '\t- ' + item + '\n'
@@ -210,8 +187,24 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		text += 'editor and the GUI, then proceed to editing the files in the editor of your choice\n'
 		text += 'they reside in your working directory under ' + self.model + '/. \n'
 		text += 'After your are done you can proceed to the next step "Configure".\n'
-		text += '********************************************************************************\n\n'
+		text += self.separator + '\n'
 		self.write_info(text)
+	
+	
+	# Generates a warning pop-up when you try to overwrite existing files
+	def warningPopup(self, text, title):
+		msg = QMessageBox()
+		msg.setIcon(QMessageBox.Warning)
+		msg.setText(text)
+		msg.setWindowTitle(title)
+		msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+		msg.setDefaultButton(QMessageBox.No)
+		msg.buttonClicked.connect(self.warningButton)
+		return msg.exec_()
+	# Button to go along with the popup
+	def warningButton(self, button):
+		return button
+	
 	
 	# Help Menu
 	def help(self):
@@ -221,7 +214,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 ##### Main Application Class End 
 
-###	Main Function
+
+##### Main Function
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	window = MyApp()
