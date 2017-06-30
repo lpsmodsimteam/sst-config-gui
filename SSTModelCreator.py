@@ -33,6 +33,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.RunSST.clicked.connect(self.Run)
 		self.actionOpen_Help.triggered.connect(self.help)
 		self.modelName.setFocus()
+		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
 	
 	
@@ -140,6 +141,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Move and update the template files to create a new model
 	def createModel(self):
+		os.system(str('rm -rf ' + self.model))
 		os.system(str('mkdir -p ' + self.model + '/tests'))
 		for s, d in zip(self.source, self.dest):
 			os.system(str('cp ' + self.templatePath + '/' + s + ' ' + self.model + '/' + d))
@@ -169,7 +171,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Open template files in editor
 	def callEditor(self):
-		line = 'gedit '
+		line = self.editor + ' '
 		for item in self.dest:
 			line += self.model + '/' + item + ' '
 		line += '&'

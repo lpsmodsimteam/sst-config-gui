@@ -1,7 +1,9 @@
 This is the SST Model Creation Tool is will assist in developing
 simple models for the SST Simulation Framework. This tool assumes
 that SST 7.1 or greater has been installed and is running on
-your system.
+your system. The tool will also read your EDITOR environment
+variable and use your preferred editor if set. If the EDITOR
+environment variable is not set gedit is used by default.
 
 The tool is setup to step you through the model development
 process. Information about each step will be displayed in the 
@@ -24,16 +26,12 @@ Generate/Open Templates button - This button will first create a
   directory in your working directory with your model name, 
   inside this directory you will find your <model>.cc, <model>.h,
   Makefile, and tests/<model>.py templates. The templates will also
-  appear in the pop-up editor gedit, so you can complete the
+  appear in an editor of your choice, so you can complete the
   development of your model. Create your model by editing the
   templates, save and close the editor. The templates do generate a
   very simple model that can be compiled and run by the tool without
   any editing if you just want to try the tool out to see how it 
-  works before creating your own. It should be noted here that you
-  do not have to edit the files in the pop-up editor, you can close
-  the tool at this point and edit your templates off-line in the
-  editor of your choice and re-enter the tool and proceed to the
-  next step when you are ready. If model already exists in your 
+  works before creating your own. If model already exists in your 
   working directory with the same name and the Overwrite Existing
   Model check box is unchecked, the popup editor will open the 
   existing model this will allow you use the GUI to complete your
