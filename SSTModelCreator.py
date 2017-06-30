@@ -221,7 +221,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	window = MyApp()
-	QApplication.setStyle(QStyleFactory.create('plastique'))
 	window.show()
 	sys.exit(app.exec_())
 

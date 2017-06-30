@@ -50,7 +50,7 @@
          </font>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;This button will create your model templates (model.cc,model.h,simpleSimulation.cc,Makefile.am, and test_model.py The files will be placed in a  model directory in your working directory&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>This button will create your model files from a template. The files will be placed in a  model directory in your working directory</string>
         </property>
         <property name="text">
          <string>Generate/Open Templates</string>
@@ -60,7 +60,7 @@
       <item row="3" column="2" alignment="Qt::AlignRight">
        <widget class="QCheckBox" name="clean">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;If this box is checked a make clean will be run before make all install in the Configure step&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>If this box is checked a make clean will be run before make all in the Configure step</string>
         </property>
         <property name="text">
          <string>Make Clean</string>
@@ -76,7 +76,7 @@
          </font>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;This button will copy the model directory to the proper place inside the SST Framework then run autogen, configure and make all install&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>This button builds your SST model</string>
         </property>
         <property name="text">
          <string>Configure </string>
@@ -86,7 +86,7 @@
       <item row="3" column="4" alignment="Qt::AlignLeft">
        <widget class="QCheckBox" name="autoRun">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;If this box is checked it will proceed directly to the Run SST step without having to select the button on the GUI&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>If this box is checked it will proceed directly to the Run SST step without having to select the button on the GUI</string>
         </property>
         <property name="text">
          <string>Run After Build</string>
@@ -102,7 +102,7 @@
          </font>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;This button will run your new model inside the SST Framework by running sst model/tests/test_model.py&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>This button will run your new model inside the SST Framework by running sst model/tests/model.py</string>
         </property>
         <property name="text">
          <string>Run SST</string>
@@ -112,14 +112,14 @@
       <item row="0" column="3" colspan="2">
        <widget class="QLineEdit" name="modelName">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Type in the name of your new model. The tool will not proceed if this box is empty.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Type in the name of your new model. The tool will not proceed if this box is empty</string>
         </property>
        </widget>
       </item>
       <item row="0" column="5">
        <widget class="QCheckBox" name="overwrite">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;If this box is checked any model with the same name will be overwritten&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>If this box is checked any model with the same name will be overwritten</string>
         </property>
         <property name="text">
          <string>Overwrite Existing Model</string>
@@ -129,7 +129,7 @@
       <item row="1" column="2" alignment="Qt::AlignRight">
        <widget class="QCommandLinkButton" name="browse">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Opens a File Browser for you to select a template.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Opens a File Browser for you to select a template</string>
         </property>
         <property name="text">
          <string>Browse Templates</string>
@@ -139,7 +139,7 @@
       <item row="1" column="3" colspan="3">
        <widget class="QLineEdit" name="templateType">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Type in the full path to your template or use the Browse Templates button to navigate to a template folder.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Type in the full path to your template or use the Browse Templates button to navigate to a template folder</string>
         </property>
         <property name="readOnly">
          <bool>false</bool>
@@ -175,7 +175,7 @@
     <string>toolBar</string>
    </property>
    <property name="toolTip">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Help Button will display the README file in the information screen.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>Help Button will display the README file in the information screen</string>
    </property>
    <property name="layoutDirection">
     <enum>Qt::RightToLeft</enum>
