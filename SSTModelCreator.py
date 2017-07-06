@@ -39,8 +39,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	### Browse the templates folder
 	def browseTemplates(self):
-		templatePath = QFileDialog.getExistingDirectory(self, "Select Template", "./templates/", QFileDialog.ShowDirsOnly)
-		self.templateType.setText(str(templatePath))
+		templates = os.walk('./templates/').next()[1]
+		item, ok = QInputDialog.getItem(self, "Select Template", "Select Cancel if you don't see your template listed", templates, 0, False)
+		if ok and item:
+			self.templateType.setText(str(os.getcwd() + '/templates/' + item))
+		else:
+			templatePath = QFileDialog.getExistingDirectory(self, "Select Template", "./templates/", QFileDialog.ShowDirsOnly)
+			self.templateType.setText(str(templatePath))
 	
 	
 	### Generate Templates Button main function
