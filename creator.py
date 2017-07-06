@@ -4,8 +4,8 @@
 # integrate and run a new model in SST. The code is setup
 # in a menu option and each menu option corresponds to a
 # button on the GUI. There should be a modelCreator.ui file,
-# a README file and a sst-logo-small.png file in the same
-# directory to run this script.
+# a README.creator.txt file and a sst-logo-small.png file
+# in the same directory to run this script.
 
 import sys
 import os
@@ -15,7 +15,7 @@ from PyQt4.QtGui import *
 from PyQt4 import uic
 
 # Load the UI
-Ui_MainWindow, QtBaseClass = uic.loadUiType("modelCreator.ui")
+Ui_MainWindow, QtBaseClass = uic.loadUiType("creator.ui")
 
 
 ##### Main Application Class
@@ -215,7 +215,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Help Menu
 	def help(self):
-		with open('README.modelCreator.txt', 'r') as fp:
+		with open('README.creator.txt', 'r') as fp:
 			text = fp.read()
 		self.write_info(text)
 
