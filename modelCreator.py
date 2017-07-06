@@ -215,7 +215,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Help Menu
 	def help(self):
-		with open('README', 'r') as fp:
+		with open('README.modelCreator.txt', 'r') as fp:
 			text = fp.read()
 		self.write_info(text)
 
