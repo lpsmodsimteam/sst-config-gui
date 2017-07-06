@@ -6,147 +6,225 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1141</width>
-    <height>439</height>
+    <width>953</width>
+    <height>712</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>SST Model Creator</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0">
-     <layout class="QGridLayout" name="gridLayout" rowstretch="1,1,10,1" columnstretch="1,1,2,1,2,2">
-      <item row="0" column="0" rowspan="2">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>sst-logo-small.png</pixmap>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" alignment="Qt::AlignRight">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Enter Model Name --&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="6">
-       <widget class="QPlainTextEdit" name="info">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QCommandLinkButton" name="templates">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>This button will create your model files from a template. The files will be placed in a  model directory in your working directory</string>
-        </property>
-        <property name="text">
-         <string>Generate/Open Templates</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2" alignment="Qt::AlignRight">
-       <widget class="QCheckBox" name="clean">
-        <property name="toolTip">
-         <string>If this box is checked a make clean will be run before make all in the Configure step</string>
-        </property>
-        <property name="text">
-         <string>Make Clean</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QCommandLinkButton" name="Configure">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>This button builds your SST model</string>
-        </property>
-        <property name="text">
-         <string>Configure </string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4" alignment="Qt::AlignLeft">
-       <widget class="QCheckBox" name="autoRun">
-        <property name="toolTip">
-         <string>If this box is checked it will proceed directly to the Run SST step without having to select the button on the GUI</string>
-        </property>
-        <property name="text">
-         <string>Run After Build</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="5">
-       <widget class="QCommandLinkButton" name="RunSST">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>This button will run your new model inside the SST Framework by running sst model/tests/model.py</string>
-        </property>
-        <property name="text">
-         <string>Run SST</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3" colspan="2">
-       <widget class="QLineEdit" name="modelName">
-        <property name="toolTip">
-         <string>Type in the name of your new model. The tool will not proceed if this box is empty</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="5">
-       <widget class="QCheckBox" name="overwrite">
-        <property name="toolTip">
-         <string>If this box is checked any model with the same name will be overwritten</string>
-        </property>
-        <property name="text">
-         <string>Overwrite Existing Model</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" alignment="Qt::AlignRight">
-       <widget class="QCommandLinkButton" name="browse">
-        <property name="toolTip">
-         <string>Opens a File Browser for you to select a template</string>
-        </property>
-        <property name="text">
-         <string>Browse Templates</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3" colspan="3">
-       <widget class="QLineEdit" name="templateType">
-        <property name="toolTip">
-         <string>Type in the full path to your template or use the Browse Templates button to navigate to a template folder</string>
-        </property>
-        <property name="readOnly">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
+   <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,2,10,0">
+    <item row="0" column="0" rowspan="2">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>logo.png</pixmap>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="2" alignment="Qt::AlignRight">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Enter Model Name --&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3" colspan="3">
+     <widget class="QLineEdit" name="modelName">
+      <property name="toolTip">
+       <string>Type in the name of your new model. The tool will not proceed if this box is empty</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QCheckBox" name="overwrite">
+      <property name="toolTip">
+       <string>If this box is checked any model with the same name will be overwritten</string>
+      </property>
+      <property name="text">
+       <string>Overwrite Existing Model</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="6">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="modelCreator">
+       <attribute name="title">
+        <string>Model Creator</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QCommandLinkButton" name="templateBrowse">
+          <property name="toolTip">
+           <string>Opens a File Browser for you to select a template</string>
+          </property>
+          <property name="text">
+           <string>Browse Templates</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="templateType">
+          <property name="toolTip">
+           <string>Type in the full path to your template or use the Browse Templates button to navigate to a template folder</string>
+          </property>
+          <property name="readOnly">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="modelConnector">
+       <attribute name="title">
+        <string>Model Connector</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="sstModels">
+          <property name="text">
+           <string>Default SST Models</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="localModels">
+          <property name="text">
+           <string>Local Models</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QCommandLinkButton" name="modelBrowse">
+          <property name="text">
+           <string>Browse Models</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QCommandLinkButton" name="add">
+          <property name="text">
+           <string>Add Model</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QCommandLinkButton" name="remove">
+          <property name="text">
+           <string>Remove Model</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="3">
+         <widget class="QListWidget" name="available"/>
+        </item>
+        <item row="1" column="3" colspan="2">
+         <widget class="QListWidget" name="selected"/>
+        </item>
+        <item row="2" column="0" colspan="3" alignment="Qt::AlignHCenter">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Available Models</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3" colspan="2" alignment="Qt::AlignHCenter">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Selected Models</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="6">
+     <widget class="QPlainTextEdit" name="info">
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0" colspan="2">
+     <widget class="QCommandLinkButton" name="generate">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="toolTip">
+       <string>This button will create your model files from a template. The files will be placed in a  model directory in your working directory</string>
+      </property>
+      <property name="text">
+       <string>Generate/Open Files</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="2">
+     <widget class="QCheckBox" name="clean">
+      <property name="toolTip">
+       <string>If this box is checked a make clean will be run before make all in the Configure step</string>
+      </property>
+      <property name="text">
+       <string>Make Clean</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="3">
+     <widget class="QCommandLinkButton" name="compile">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="toolTip">
+       <string>This button builds your SST model</string>
+      </property>
+      <property name="text">
+       <string>Compile Model</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="4">
+     <widget class="QCheckBox" name="autoRun">
+      <property name="toolTip">
+       <string>If this box is checked it will proceed directly to the Run SST step without having to select the button on the GUI</string>
+      </property>
+      <property name="text">
+       <string>Run After Build</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="5">
+     <widget class="QCommandLinkButton" name="run">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="toolTip">
+       <string>This button will run your new model inside the SST Framework by running sst model/tests/model.py</string>
+      </property>
+      <property name="text">
+       <string>Run Model</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -155,7 +233,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1141</width>
+     <width>953</width>
      <height>25</height>
     </rect>
    </property>
