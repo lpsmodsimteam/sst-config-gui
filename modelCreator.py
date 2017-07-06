@@ -15,7 +15,7 @@ from PyQt4.QtGui import *
 from PyQt4 import uic
 
 # Load the UI
-Ui_MainWindow, QtBaseClass = uic.loadUiType("sstGUI.ui")
+Ui_MainWindow, QtBaseClass = uic.loadUiType("modelCreator.ui")
 
 
 ##### Main Application Class
