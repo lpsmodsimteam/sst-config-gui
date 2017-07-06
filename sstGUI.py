@@ -3,8 +3,8 @@
 # This is a model development script to help you develop,
 # integrate and run a new model in SST. The code is setup
 # in a menu option and each menu option corresponds to a
-# button on the GUI. There should be a modelCreator.ui file,
-# a README.creator.txt file and a sst-logo-small.png file
+# button on the GUI. There should be a sstGUI.ui file,
+# a README file and a logo.png file
 # in the same directory to run this script.
 
 import sys
@@ -15,7 +15,7 @@ from PyQt4.QtGui import *
 from PyQt4 import uic
 
 # Load the UI
-Ui_MainWindow, QtBaseClass = uic.loadUiType("creator.ui")
+Ui_MainWindow, QtBaseClass = uic.loadUiType("sstGUI.ui")
 
 
 ##### Main Application Class
@@ -26,7 +26,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		QMainWindow.__init__(self)
 		Ui_MainWindow.__init__(self)
 		self.setupUi(self)
-		self.setWindowIcon(QIcon('sst-logo-small.png'))
+		self.setWindowIcon(QIcon('logo.png'))
 		self.browse.clicked.connect(self.browseTemplates)
 		self.templates.clicked.connect(self.MakeTemplates)
 		self.Configure.clicked.connect(self.ConfigureSST)
@@ -215,7 +215,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Help Menu
 	def help(self):
-		with open('README.creator.txt', 'r') as fp:
+		with open('README', 'r') as fp:
 			text = fp.read()
 		self.write_info(text)
 
