@@ -240,6 +240,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				item = os.path.basename(str(self.selected.item(i).text()))
 				fp.write('obj' + str(i) + ' = sst.Component("' + item + str(i) + '", "' + item + '.' + item + '")\n')
 				fp.write('obj' + str(i) + '.addParams({\n\t"param1" : "val1",\n\t"param2" : "val2"\n\t})\n\n')
+			fp.write('sst.Link("MyLink").connect( (obj0, "port", "15ns"), (obj1, "port", "15ns") )')
 	
 	
 	# Write to information screen
