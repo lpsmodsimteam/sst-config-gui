@@ -16,7 +16,7 @@ from PyQt4.QtGui import *
 from PyQt4 import uic
 
 # Load the UI
-Ui_MainWindow, QtBaseClass = uic.loadUiType("sstGUI.ui")
+Ui_MainWindow, QtBaseClass = uic.loadUiType('resources/sstGUI.ui')
 
 
 ##### Main Application Class
@@ -27,12 +27,16 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		QMainWindow.__init__(self)
 		Ui_MainWindow.__init__(self)
 		self.setupUi(self)
-		self.setWindowIcon(QIcon('logo.png'))
+		self.setWindowIcon(QIcon('resources/logo.png'))
+		self.logo.setPixmap(QPixmap('resources/logo.png'))
 		self.generate.clicked.connect(self.generateOpenFiles)
 		self.compile.clicked.connect(self.compileModel)
 		self.run.clicked.connect(self.runModel)
-		self.actionOpen_Help.triggered.connect(self.help)
-		self.actionModel2Template.triggered.connect(self.model2Template)
+		self.actionAbout.triggered.connect(self.helpAbout)
+		self.actionModel_Creator.triggered.connect(self.helpCreator)
+		self.actionModel_Connector.triggered.connect(self.helpConnector)
+		self.actionModel_to_Template_Converter.triggered.connect(self.helpConverter)
+		self.actionRun.triggered.connect(self.model2Template)
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
@@ -143,7 +147,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if self.localModels.isChecked():
 			items = os.walk('./').next()[1]
 			for item in items:
-				if item != 'templates' and item != '.git':
+				if item != 'templates' and item != 'resources' and item != '.git':
 					self.available.addItem(str('./' + item))
 		if self.sstModels.isChecked():
 			[path, version] = str(os.getenv('SST_ELEMENTS_HOME')).split('/local/sstelements-')
@@ -340,11 +344,24 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo('New template created: ' + path + '\n\n')
 		
 	
-	# Help Menu
-	def help(self):
-		with open('README', 'r') as fp:
+	### Help Menu
+	# Help
+	def help(self, f):
+		with open(f, 'r') as fp:
 			text = fp.read()
 		self.writeInfo(text)
+	# About
+	def helpAbout(self):
+		self.help('resources/about')
+	# Creator
+	def helpCreator(self):
+		self.help('resources/creator')
+	# Connector
+	def helpConnector(self):
+		self.help('resources/connector')
+	# Model2Template
+	def helpConverter(self):
+		self.help('resources/model2template')
 
 ##### Main Application Class End 
 
