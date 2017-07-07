@@ -138,12 +138,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if self.templates.currentItem():
 			self.templateType.setText(str(os.getcwd() + '/templates/' + self.templates.currentItem().text()))
 	
-	
 	# Browse for templates
 	def browseTemplates(self):
 		templatePath = QFileDialog.getExistingDirectory(self, 'Select Template', './templates/', QFileDialog.ShowDirsOnly)
 		self.templateType.setText(str(templatePath))
-	
 	
 	# Update the Avaiable Templates
 	def updateTemplates(self):
@@ -377,6 +375,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					fp.write(str(new + ' ' + tmp + '\n'))
 		self.writeInfo('\nNew template created: ' + path + '\n' + self.separator + '\n')
 		self.updateTemplates()
+		# Open the new template in an editor
+		f = path + '/template '
+		for new in newFiles:
+			f += path + '/' + new + ' '
+		os.system(str(self.editor + ' ' + f + '&'))
+			
 		
 	
 	### Help Menu
