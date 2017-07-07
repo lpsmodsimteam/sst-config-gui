@@ -1,17 +1,14 @@
 #!/usr/bin/python
 
 # This is a model development script to help you develop,
-# integrate and run a new model in SST. The code is setup
-# in a menu option and each menu option corresponds to a
-# button on the GUI. There should be a sstGUI.ui file,
-# a README file and a logo.png file
-# in the same directory to run this script.
+# integrate and run a new model in SST. There should be
+# a sstGUI.ui file, a logo.png file, and several help files
+# in the resources directory. Templates can be found in
+# the templates directory
 
 import sys
 import os
 import subprocess
-import re
-import fileinput
 from PyQt4.QtGui import *
 from PyQt4 import uic
 
@@ -29,14 +26,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.setupUi(self)
 		self.setWindowIcon(QIcon('resources/logo.png'))
 		self.logo.setPixmap(QPixmap('resources/logo.png'))
+		# Main buttons
 		self.generate.clicked.connect(self.generateOpenFiles)
 		self.compile.clicked.connect(self.compileModel)
 		self.run.clicked.connect(self.runModel)
+		# Menu actions
 		self.actionAbout.triggered.connect(self.helpAbout)
 		self.actionModel_Creator.triggered.connect(self.helpCreator)
 		self.actionModel_Connector.triggered.connect(self.helpConnector)
 		self.actionModel_to_Template_Converter.triggered.connect(self.helpConverter)
 		self.actionRun.triggered.connect(self.model2Template)
+		# General setup
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
@@ -51,7 +51,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.remove.clicked.connect(self.removeModel)
 		self.available.setSelectionMode(QAbstractItemView.ExtendedSelection)
 		self.selected.setSelectionMode(QAbstractItemView.ExtendedSelection)
-		self.updateModels()
 	
 	
 	### Generate/Open Files
@@ -67,15 +66,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Check local models
 		if (workingModels.count(self.model) != 0):
 			if self.overwrite.isChecked():
-				text = "Do you really want to overwrite your local version of " + self.model + "?"
-				val = self.warningPopup(text, "Overwrite Model?")
+				text = 'Do you really want to overwrite your local version of ' + self.model + '?'
+				val = self.warningPopup(text, 'Overwrite Model?')
 				if (val == QMessageBox.No):
 					makefiles = 0
 			else:
 				makefiles = 0
 		files = ''
+		# Overwrite the model
 		if (makefiles == 1):
 			os.system(str('rm -rf ' + self.model))
+		# Create/Open the files
 		if self.tabWidget.currentIndex() == 0:
 			if (makefiles == 1):
 				self.createModel()
@@ -89,6 +90,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			files += './' + self.model + '/Makefile ./' + self.model + '/tests/' + self.model + '.py '
 		# Open files
 		os.system(str(self.editor + ' ' + files + '&'))
+
 
 	### Configure Button main function
 	def compileModel(self):
@@ -117,6 +119,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	### Run SST Button main function
 	def runModel(self):
 		if not self.getModel(): return
+		# Run all files under the tests directory
 		testfiles = os.listdir('./' + self.model + '/tests/')
 		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
 		for testfile in testfiles:
@@ -130,12 +133,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	### Model Creator Tab
 	# Browse the templates folder
 	def browseTemplates(self):
+		# Bring up a list with provided templates before letting the user browse to any location
 		templates = os.walk('./templates/').next()[1]
-		item, ok = QInputDialog.getItem(self, "Select Template", "Select Cancel if you don't see your template listed", templates, 0, False)
+		item, ok = QInputDialog.getItem(self, 'Select Template', 'Select Cancel if you dont see your template listed', templates, 0, False)
 		if ok and item:
 			self.templateType.setText(str(os.getcwd() + '/templates/' + item))
 		else:
-			templatePath = QFileDialog.getExistingDirectory(self, "Select Template", "./templates/", QFileDialog.ShowDirsOnly)
+			templatePath = QFileDialog.getExistingDirectory(self, 'Select Template', './templates/', QFileDialog.ShowDirsOnly)
 			self.templateType.setText(str(templatePath))
 	
 	
@@ -144,29 +148,28 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Update the Available Models
 	def updateModels(self):
 		self.available.clear()
+		# Display the local models on top
 		if self.localModels.isChecked():
 			items = os.walk('./').next()[1]
 			for item in items:
 				if item != 'templates' and item != 'resources' and item != '.git':
 					self.available.addItem(str('./' + item))
+		# Display SST models on bottom
 		if self.sstModels.isChecked():
 			[path, version] = str(os.getenv('SST_ELEMENTS_HOME')).split('/local/sstelements-')
 			self.elements = path + '/scratch/src/sst-elements-library-' + version + '/src/sst/elements/'
 			self.available.addItems(os.walk(self.elements).next()[1])
 	
-	
 	# Browse for additional models
 	def browseModels(self):
-		modelDir = QFileDialog.getExistingDirectory(self, "Select Model", "./", QFileDialog.ShowDirsOnly)
+		modelDir = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
 		if modelDir:
 			self.selected.addItem(modelDir)
-	
 	
 	# Add Models
 	def addModel(self):
 		for item in self.available.selectedItems():
 			self.selected.addItem(item.text())
-	
 	
 	# Remove Models
 	def removeModel(self):
@@ -187,23 +190,28 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Gets the template information
 	def getTemplate(self):
+		# Get template path from GUI
 		self.templatePath = str(self.templateType.text())
 		self.template = os.path.basename(self.templatePath)
+		# Check for empty string
 		if (self.template == ''):
 			self.writeInfo('*** PLEASE SELECT A TEMPLATE ***\n\n')
 			return False
+		# Check for a valid template
 		if not os.path.isfile(self.templatePath + '/template'):
 			self.writeInfo('*** TEMPLATE PATH IS INCORRECT OR TEMPLATE IS SETUP WRONG ***\n\n')
 			return False
+		# Read template sources and destinations
 		with open(self.templatePath + '/template', 'r') as fp:
 			structure = fp.read()
 		self.source = structure.split()[0::2]
 		destination = structure.split()[1::2]
 		self.dest=[]
 		self.sourceFiles=[]
+		# Replace <model> tag with the model name
 		for item in destination:
 			self.dest.append(item.replace('<model>', str(self.model)))
-			if (".cc" in item) | (".h" in item):
+			if ('.cc' in item) | ('.h' in item):
 				self.sourceFiles.append(item.replace('<model>', str(self.model)))
 		return True
 	
@@ -223,9 +231,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		make = '\t$(MAKE) -C '
 		# Write the Makefile
 		with open(str(self.model + '/Makefile'), 'w') as fp:
+			# Make all command
 			fp.write('all:\n')
 			for i in xrange(self.selected.count()):
 				item = str(self.selected.item(i).text())
+				# Handle full paths, local paths, and no paths
+				# Browsed models, local models, SST default models respectively
 				if item.startswith('/'):
 					fp.write(make + item + ' all\n')
 				elif item.startswith('./'):
@@ -244,10 +255,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Write the test python file
 		with open(str(self.model + '/tests/' + self.model + '.py'), 'w') as fp:
 			fp.write('import sst\n\n')
+			# Add in the component declarations
 			for i in xrange(self.selected.count()):
 				item = os.path.basename(str(self.selected.item(i).text()))
 				fp.write('obj' + str(i) + ' = sst.Component("' + item + str(i) + '", "' + item + '.' + item + '")\n')
 				fp.write('obj' + str(i) + '.addParams({\n\t"param1" : "val1",\n\t"param2" : "val2"\n\t})\n\n')
+			# Add an example link at the end to show how to connect objects
 			fp.write('sst.Link("MyLink").connect( (obj0, "port", "15ns"), (obj1, "port", "15ns") )')
 	
 	
@@ -267,7 +280,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			if output == '' and process.poll() is not None:
 				break
 			if output:
-			 	self.writeInfo(output.decode("utf-8"))
+			 	self.writeInfo(output.decode('utf-8'))
 		return process.poll()
 	
 	
@@ -282,7 +295,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		text += 'the pop-up editor, save your file then close the editor or you can close the pop-up\n'
 		text += 'editor and the GUI, then proceed to editing the files in the editor of your choice\n'
 		text += 'they reside in your working directory under ' + self.model + '/. \n'
-		text += 'After your are done you can proceed to the next step "Compile Model".\n'
+		text += 'After your are done you can proceed to the next step Compile Model.\n'
 		text += self.separator + '\n'
 		self.writeInfo(text)
 	
@@ -304,44 +317,52 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Convert a model into a template
 	def model2Template(self):
-		model = QFileDialog.getExistingDirectory(self, "Select Model", "./", QFileDialog.ShowDirsOnly)
-		templates = os.listdir('./templates/')
+		# Prompt for a Model to convert
+		model = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
 		if not model:
 			self.writeInfo('*** PLEASE SELECT A MODEL TO CONVERT ***\n\n')
 			return
-		self.writeInfo('Model to convert: ' + model + '\n\n')
-		text, ok = QInputDialog.getText(self, "Enter Template Name", "", QLineEdit.Normal)
+		# Get the new template name
+		text, ok = QInputDialog.getText(self, 'Enter Template Name', '', QLineEdit.Normal)
 		if not ok or not text:
 			self.writeInfo('*** PLEASE ENTER A TEMPLATE NAME ***\n\n')
 			return
+		# Check to see if the template exists already
+		templates = os.listdir('./templates/')
 		if text in templates:
 			self.writeInfo('*** TEMPLATE ALREADY EXISTS ***\n\n')
 			return
+		self.writeInfo(self.separator + '***** Converting Model into Template *****\n\n')
+		self.writeInfo('Converting ' + model + ' to ' + text + '\n\n')
 		path = './templates/' + text
+		# Copy the model into the templates directory, clean the model
 		os.system(str('cp -r ' + model + ' ' + path))
-		os.system(str('make clean -C ' + path))
-		os.system(str('mv ' + path + '/tests/* ' + path + '/.'))
+		self.runCommand(str('make clean -C ' + path))
+		# Move any test files into the main directory with and add test- prefix
+		for item in os.listdir(str(path + '/tests/')):
+			os.system(str('mv ' + path + '/tests/' + item + ' ' + path + '/test-' + item))
 		os.system(str('rmdir ' + path + '/tests'))
 		modelName = os.path.basename(str(model))
-		pattern = re.compile(modelName, re.IGNORECASE)
 		files = os.listdir(path)
 		newFiles = []
 		templateNames = []
+		# For each file move the file to its new name
 		for item in files:
-			new = pattern.sub(str(text), item)
+			new = item.replace(modelName, str(text))
 			newFiles.append(new)
-			templateNames.append(pattern.sub('<model>', item))
-			os.system(str('mv ' + path + '/' + item + ' ' + path + '/' + new))
+			templateNames.append(item.replace(modelName, '<model>'))
+			self.runCommand(str('mv ' + path + '/' + item + ' ' + path + '/' + new))
+		# For all the new files replace the strings within
 		for new in newFiles:
-			for line in fileinput.input(str(path + '/' + new), inplace=True):
-				print pattern.sub('<model>', line),
+			os.system(str('sed -i \'s/' + modelName + '/<model>/Ig\' ' + path + '/' + new))
+		# Create the template file
 		with open(str(path + '/template'), 'w') as fp:
 			for new, tmp in zip(newFiles, templateNames):
 				if new.endswith('.py'):
 					fp.write(str(new + ' tests/' + tmp + '\n'))
 				else:
 					fp.write(str(new + ' ' + tmp + '\n'))
-		self.writeInfo('New template created: ' + path + '\n\n')
+		self.writeInfo('\nNew template created: ' + path + '\n' + self.separator + '\n')
 		
 	
 	### Help Menu
@@ -367,7 +388,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 
 ##### Main Function
-if __name__ == "__main__":
+if __name__ == '__main__':
 	app = QApplication(sys.argv)
 	window = MyApp()
 	window.show()

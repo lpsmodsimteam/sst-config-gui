@@ -55,6 +55,9 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="modelCreator">
+       <property name="toolTip">
+        <string>Create a model from a template</string>
+       </property>
        <attribute name="title">
         <string>Model Creator</string>
        </attribute>
@@ -82,12 +85,18 @@
        </layout>
       </widget>
       <widget class="QWidget" name="modelConnector">
+       <property name="toolTip">
+        <string>Connect multiple models together</string>
+       </property>
        <attribute name="title">
         <string>Model Connector</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <widget class="QCheckBox" name="sstModels">
+          <property name="toolTip">
+           <string>Show/Hide the models provided with sst-elements</string>
+          </property>
           <property name="text">
            <string>Default SST Models</string>
           </property>
@@ -98,6 +107,9 @@
         </item>
         <item row="0" column="1">
          <widget class="QCheckBox" name="localModels">
+          <property name="toolTip">
+           <string>Show/Hide your local models</string>
+          </property>
           <property name="text">
            <string>Local Models</string>
           </property>
@@ -108,6 +120,9 @@
         </item>
         <item row="0" column="2">
          <widget class="QCommandLinkButton" name="modelBrowse">
+          <property name="toolTip">
+           <string>Browse for a model not provided by SST or in your local directory</string>
+          </property>
           <property name="text">
            <string>Browse Models</string>
           </property>
@@ -115,6 +130,9 @@
         </item>
         <item row="0" column="3">
          <widget class="QCommandLinkButton" name="add">
+          <property name="toolTip">
+           <string>Add selected models from the Available Models List to the Selected Models List</string>
+          </property>
           <property name="text">
            <string>Add Model</string>
           </property>
@@ -122,16 +140,27 @@
         </item>
         <item row="0" column="4">
          <widget class="QCommandLinkButton" name="remove">
+          <property name="toolTip">
+           <string>Remove selected models from the Selected Models List</string>
+          </property>
           <property name="text">
            <string>Remove Model</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0" colspan="3">
-         <widget class="QListWidget" name="available"/>
+         <widget class="QListWidget" name="available">
+          <property name="toolTip">
+           <string>Models available for use</string>
+          </property>
+         </widget>
         </item>
         <item row="1" column="3" colspan="2">
-         <widget class="QListWidget" name="selected"/>
+         <widget class="QListWidget" name="selected">
+          <property name="toolTip">
+           <string>Models to be connected</string>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0" colspan="3" alignment="Qt::AlignHCenter">
          <widget class="QLabel" name="label_3">
@@ -264,20 +293,32 @@
    <property name="text">
     <string>Model Creator</string>
    </property>
+   <property name="toolTip">
+    <string>Model Creator Help</string>
+   </property>
   </action>
   <action name="actionModel_Connector">
    <property name="text">
     <string>Model Connector</string>
+   </property>
+   <property name="toolTip">
+    <string>Model Connector Help</string>
    </property>
   </action>
   <action name="actionModel_to_Template_Converter">
    <property name="text">
     <string>Model to Template Converter</string>
    </property>
+   <property name="toolTip">
+    <string>Model to Template Converter Help</string>
+   </property>
   </action>
   <action name="actionRun">
    <property name="text">
     <string>Run</string>
+   </property>
+   <property name="toolTip">
+    <string>Run the Model2Template Converter</string>
    </property>
   </action>
  </widget>
