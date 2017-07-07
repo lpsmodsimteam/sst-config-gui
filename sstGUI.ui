@@ -246,7 +246,14 @@
     </property>
     <addaction name="actionOpen_Help"/>
    </widget>
+   <widget class="QMenu" name="menuModel2Template">
+    <property name="title">
+     <string>Model2Template</string>
+    </property>
+    <addaction name="actionModel2Template"/>
+   </widget>
    <addaction name="menuHelp"/>
+   <addaction name="menuModel2Template"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -265,10 +272,16 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen_Help"/>
+   <addaction name="actionModel2Template"/>
   </widget>
   <action name="actionOpen_Help">
    <property name="text">
     <string>Help</string>
+   </property>
+  </action>
+  <action name="actionModel2Template">
+   <property name="text">
+    <string>Model2Template</string>
    </property>
   </action>
  </widget>

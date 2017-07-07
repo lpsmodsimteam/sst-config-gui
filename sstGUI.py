@@ -10,6 +10,8 @@
 import sys
 import os
 import subprocess
+import re
+import fileinput
 from PyQt4.QtGui import *
 from PyQt4 import uic
 
@@ -30,12 +32,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.compile.clicked.connect(self.compileModel)
 		self.run.clicked.connect(self.runModel)
 		self.actionOpen_Help.triggered.connect(self.help)
+		self.actionModel2Template.triggered.connect(self.model2Template)
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
 		# Model Creator Tab
 		self.templateBrowse.clicked.connect(self.browseTemplates)
 		# Model Connector Tab
+		self.tabWidget.currentChanged.connect(self.updateModels)
 		self.sstModels.stateChanged.connect(self.updateModels)
 		self.localModels.stateChanged.connect(self.updateModels)
 		self.modelBrowse.clicked.connect(self.browseModels)
@@ -293,6 +297,48 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def warningButton(self, button):
 		return button
 	
+	
+	# Convert a model into a template
+	def model2Template(self):
+		model = QFileDialog.getExistingDirectory(self, "Select Model", "./", QFileDialog.ShowDirsOnly)
+		templates = os.listdir('./templates/')
+		if not model:
+			self.writeInfo('*** PLEASE SELECT A MODEL TO CONVERT ***\n\n')
+			return
+		self.writeInfo('Model to convert: ' + model + '\n\n')
+		text, ok = QInputDialog.getText(self, "Enter Template Name", "", QLineEdit.Normal)
+		if not ok or not text:
+			self.writeInfo('*** PLEASE ENTER A TEMPLATE NAME ***\n\n')
+			return
+		if text in templates:
+			self.writeInfo('*** TEMPLATE ALREADY EXISTS ***\n\n')
+			return
+		path = './templates/' + text
+		os.system(str('cp -r ' + model + ' ' + path))
+		os.system(str('make clean -C ' + path))
+		os.system(str('mv ' + path + '/tests/* ' + path + '/.'))
+		os.system(str('rmdir ' + path + '/tests'))
+		modelName = os.path.basename(str(model))
+		pattern = re.compile(modelName, re.IGNORECASE)
+		files = os.listdir(path)
+		newFiles = []
+		templateNames = []
+		for item in files:
+			new = pattern.sub(str(text), item)
+			newFiles.append(new)
+			templateNames.append(pattern.sub('<model>', item))
+			os.system(str('mv ' + path + '/' + item + ' ' + path + '/' + new))
+		for new in newFiles:
+			for line in fileinput.input(str(path + '/' + new), inplace=True):
+				print pattern.sub('<model>', line),
+		with open(str(path + '/template'), 'w') as fp:
+			for new, tmp in zip(newFiles, templateNames):
+				if new.endswith('.py'):
+					fp.write(str(new + ' tests/' + tmp + '\n'))
+				else:
+					fp.write(str(new + ' ' + tmp + '\n'))
+		self.writeInfo('New template created: ' + path + '\n\n')
+		
 	
 	# Help Menu
 	def help(self):
