@@ -14,7 +14,7 @@
    <string>SST Model Creator</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,2,10,0">
+   <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,1,10,0">
     <item row="0" column="0" rowspan="2">
      <widget class="QLabel" name="logo">
       <property name="text">
@@ -61,8 +61,42 @@
        <attribute name="title">
         <string>Model Creator</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout">
+       <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0">
+        <item row="6" column="0" colspan="3">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Selected Template</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="3">
+         <widget class="QLineEdit" name="templateType">
+          <property name="toolTip">
+           <string>Type in the full path to your template or use the Browse Templates button to navigate to a template folder</string>
+          </property>
+          <property name="readOnly">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Available Templates</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" alignment="Qt::AlignTop">
+         <widget class="QCommandLinkButton" name="templateSelect">
+          <property name="toolTip">
+           <string>Chooses the selected template from the Available Templates List</string>
+          </property>
+          <property name="text">
+           <string>Select Template</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1" alignment="Qt::AlignBottom">
          <widget class="QCommandLinkButton" name="templateBrowse">
           <property name="toolTip">
            <string>Opens a File Browser for you to select a template</string>
@@ -72,13 +106,10 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="templateType">
+        <item row="4" column="0" rowspan="2">
+         <widget class="QListWidget" name="templates">
           <property name="toolTip">
-           <string>Type in the full path to your template or use the Browse Templates button to navigate to a template folder</string>
-          </property>
-          <property name="readOnly">
-           <bool>false</bool>
+           <string>Available Templates</string>
           </property>
          </widget>
         </item>
@@ -180,13 +211,6 @@
       </widget>
      </widget>
     </item>
-    <item row="3" column="0" colspan="6">
-     <widget class="QPlainTextEdit" name="info">
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
     <item row="4" column="0" colspan="2">
      <widget class="QCommandLinkButton" name="generate">
       <property name="font">
@@ -252,6 +276,13 @@
       </property>
       <property name="text">
        <string>Run Model</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="6">
+     <widget class="QPlainTextEdit" name="info">
+      <property name="readOnly">
+       <bool>true</bool>
       </property>
      </widget>
     </item>

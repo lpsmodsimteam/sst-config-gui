@@ -41,9 +41,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
 		# Model Creator Tab
+		self.templateSelect.clicked.connect(self.selectTemplate)
 		self.templateBrowse.clicked.connect(self.browseTemplates)
+		self.updateTemplates()
 		# Model Connector Tab
-		self.tabWidget.currentChanged.connect(self.updateModels)
+		self.tabWidget.currentChanged.connect(self.updateTabs)
 		self.sstModels.stateChanged.connect(self.updateModels)
 		self.localModels.stateChanged.connect(self.updateModels)
 		self.modelBrowse.clicked.connect(self.browseModels)
@@ -131,16 +133,22 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 
 	### Model Creator Tab
-	# Browse the templates folder
+	# Select template
+	def selectTemplate(self):
+		if self.templates.currentItem():
+			self.templateType.setText(str(os.getcwd() + '/templates/' + self.templates.currentItem().text()))
+	
+	
+	# Browse for templates
 	def browseTemplates(self):
-		# Bring up a list with provided templates before letting the user browse to any location
-		templates = os.walk('./templates/').next()[1]
-		item, ok = QInputDialog.getItem(self, 'Select Template', 'Select Cancel if you dont see your template listed', templates, 0, False)
-		if ok and item:
-			self.templateType.setText(str(os.getcwd() + '/templates/' + item))
-		else:
-			templatePath = QFileDialog.getExistingDirectory(self, 'Select Template', './templates/', QFileDialog.ShowDirsOnly)
-			self.templateType.setText(str(templatePath))
+		templatePath = QFileDialog.getExistingDirectory(self, 'Select Template', './templates/', QFileDialog.ShowDirsOnly)
+		self.templateType.setText(str(templatePath))
+	
+	
+	# Update the Avaiable Templates
+	def updateTemplates(self):
+		self.templates.clear()
+		self.templates.addItems(os.walk('./templates/').next()[1])
 	
 	
 	
@@ -284,6 +292,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		return process.poll()
 	
 	
+	# Update available models and templates
+	def updateTabs(self):
+		self.updateModels()
+		self.updateTemplates()
+	
 	
 	# Information for template generation
 	def templatesMessage(self, files):
@@ -363,6 +376,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				else:
 					fp.write(str(new + ' ' + tmp + '\n'))
 		self.writeInfo('\nNew template created: ' + path + '\n' + self.separator + '\n')
+		self.updateTemplates()
 		
 	
 	### Help Menu
