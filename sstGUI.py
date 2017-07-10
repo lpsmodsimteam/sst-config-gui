@@ -24,8 +24,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		QMainWindow.__init__(self)
 		Ui_MainWindow.__init__(self)
 		self.setupUi(self)
-		self.setWindowIcon(QIcon('resources/logo.png'))
-		self.logo.setPixmap(QPixmap('resources/logo.png'))
 		# Main buttons
 		self.generate.clicked.connect(self.generateOpenFiles)
 		self.compile.clicked.connect(self.compileModel)

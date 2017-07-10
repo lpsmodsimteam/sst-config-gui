@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>SST Model Creator</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>resources/logo.png</normaloff>resources/logo.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,1,10,0">
     <item row="0" column="0" rowspan="2">
@@ -21,7 +25,7 @@
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>logo.png</pixmap>
+       <pixmap>resources/logo.png</pixmap>
       </property>
      </widget>
     </item>
@@ -94,6 +98,10 @@
           <property name="text">
            <string>Select Template</string>
           </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/select.png</normaloff>resources/select.png</iconset>
+          </property>
          </widget>
         </item>
         <item row="5" column="1" alignment="Qt::AlignBottom">
@@ -103,6 +111,10 @@
           </property>
           <property name="text">
            <string>Browse Templates</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/find.png</normaloff>resources/find.png</iconset>
           </property>
          </widget>
         </item>
@@ -157,6 +169,10 @@
           <property name="text">
            <string>Browse Models</string>
           </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/find.png</normaloff>resources/find.png</iconset>
+          </property>
          </widget>
         </item>
         <item row="0" column="3">
@@ -166,6 +182,10 @@
           </property>
           <property name="text">
            <string>Add Model</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/add.png</normaloff>resources/add.png</iconset>
           </property>
          </widget>
         </item>
@@ -177,12 +197,16 @@
           <property name="text">
            <string>Remove Model</string>
           </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/delete.png</normaloff>resources/delete.png</iconset>
+          </property>
          </widget>
         </item>
         <item row="1" column="0" colspan="3">
          <widget class="QListWidget" name="available">
           <property name="toolTip">
-           <string>Models available for use</string>
+           <string>Models available for use. You can select multiple models at once</string>
           </property>
          </widget>
         </item>
@@ -225,6 +249,10 @@
       <property name="text">
        <string>Generate/Open Files</string>
       </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
+      </property>
      </widget>
     </item>
     <item row="4" column="2">
@@ -234,6 +262,10 @@
       </property>
       <property name="text">
        <string>Make Clean</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>resources/broom.png</normaloff>resources/broom.png</iconset>
       </property>
      </widget>
     </item>
@@ -250,6 +282,10 @@
       </property>
       <property name="text">
        <string>Compile Model</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>resources/gears.png</normaloff>resources/gears.png</iconset>
       </property>
      </widget>
     </item>
@@ -276,6 +312,10 @@
       </property>
       <property name="text">
        <string>Run Model</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>resources/run.png</normaloff>resources/run.png</iconset>
       </property>
      </widget>
     </item>
