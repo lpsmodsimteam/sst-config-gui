@@ -1,7 +1,9 @@
 The Model Creator tab will step you through the development
 of models based on stored templates in the templates folder.
 The tool comes with a series of simple templates that is updated
-when appropriate. Since this tool is run from your working own
+when appropriate. All available templates will be displayed in
+the Available Templates window when you select the Model Creator 
+tab. Since this tool is run from your working own
 working directory you may add your own templates when you feel
 it is appropriate. The tool comes equipped with button that 
 will quickly convert models with proper directory structure
@@ -12,11 +14,24 @@ Enter Model Name text box - Simply enter the name of your
   your files and your model's directory. If you do not enter
   a name the GUI will not continue until a name is entered.
 
-Browse Templates button & text box - You can manually type in
-  the path to a template of your choosing or you can use the
-  button to open a file browser where you can select the folder
-  that contains the template you wish to use. A template must be
-  selected in order to Generate/Open templates and to run sst.
+Select Template button - If you want to use on the supplied
+  templates that appear in the Available Templates window
+  as the basis for your model simply select the desired
+  template by highlighting it with your mouse and press
+  the Select Template button. The full path will appear 
+  in the Selected Template text box.
+
+Browse Templates button - If you want to use a
+  template that is not already in the templates directory you
+  can use the Browse Templates button. When you press the 
+  button a file browers will appear and "browse" to location
+  that contains your desired template. Then select "Open" in 
+  the file browser and your template will be select. The full
+  path will appear in the Selected Template text box.
+
+Selected Template text box - If you already know the full path
+  and name of the template you want to use you can simply type
+  it in the Selected Template text box. 
 
 Generate/Open Templates button - This button will first create a 
   directory in your working directory with your model name, 
@@ -34,28 +49,28 @@ Generate/Open Templates button - This button will first create a
   model. If the box is checked it will confirm if you want to overwrite
   the existing model, then overwrite the model. 
 
-Configure button - This button will run "make all" which builds the
+Compile Model button - This button will run "make all" which builds the
   sst library for your model and then links it into sst. If an 
   error occurs during the compile process you can correct the errors
   by opening the files using the Generate/Open Templates button, make
   sure Overwrite Existing Model is UNCHECKED, and recompile until 
   all errors are corrected. You do not need to close the editor
   each time simply just save the file update files and before
-  pressing the Configure button.
+  pressing the Compile Model button.
 
 Overwrite Existing Model check box - Generate Templates will check
   to see if a model is already present with the current name in your
   working directory. If this box is checked the old model will
   be overwritten with the new one you created.
 
-Make Clean check box - If you select this check box Configure will
+Make Clean check box - If you select this check box Compile Model will
   run a "make clean" before running "make all"
 
-Run SST button - This button will run the tests/<model>.py script
-  (basically running your model in SST) the results will
+Run SST button - This button will run the all the "test" files tests/
+  directory (basically running your model in SST) the results will
   be displayed in the information window.
 
 Run After Build check box - If you select this check box the tool
-  will proceed directly to Run SST after Configure. It is suggested
+  will proceed directly to Run SST after Compile Model. It is suggested
   that this box remain unchecked until you at least get your model
   to compile.
