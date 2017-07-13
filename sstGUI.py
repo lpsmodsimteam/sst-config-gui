@@ -17,7 +17,6 @@ from PyQt4 import uic
 # Load the UI
 Ui_MainWindow, QtBaseClass = uic.loadUiType('resources/sstGUI.ui')
 
-
 ##### Main Application Class
 class MyApp(QMainWindow, Ui_MainWindow):
 
