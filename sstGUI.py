@@ -38,12 +38,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# General setup
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
+		self.updateTabs()
 		self.separator = '********************************************************************************\n'
 		# Model Creator Tab
 		self.templates.itemDoubleClicked.connect(self.modelHelp)
 		self.templateSelect.clicked.connect(self.selectTemplate)
 		self.templateBrowse.clicked.connect(self.browseTemplates)
-		self.updateTemplates()
 		# Model Connector Tab
 		self.tabWidget.currentChanged.connect(self.updateTabs)
 		self.sstModels.stateChanged.connect(self.updateModels)
@@ -62,6 +62,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Check for template if in Creator Mode
 		if self.tabWidget.currentIndex() == 0:
 			if not self.getTemplate(): return
+		sstModels = os.walk(self.elements).next()[1]
+		if (sstModels.count(self.model) != 0):
+			text = self.separator + '*** There is a SST model with that name already!\n'
+			text += '*** Please choose another name.\n\n'
+			text += 'SST provided models:\n'
+			for item in sstModels:
+				text += item + '\n'
+			self.writeInfo(text + self.separator + '\n')
+			return
 		# Do some checking see if you already have a model in your working directory
 		# with the same name or if there is one in the element directory
 		workingModels = os.listdir('.')
@@ -106,14 +115,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		failed = self.runCommand(str('make all -C ' + self.model))
 		if failed:
 			text = '\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***\n'
-			text += self.separator + '\n'
-			self.writeInfo(text)
+			self.writeInfo(text + self.separator + '\n')
 			return
 		# make all passed
 		text = '\nSST has been configured to run your model you may now proceed to the next\n'
 		text += 'step Run Model\n'
-		text += self.separator + '\n'
-		self.writeInfo(text)
+		self.writeInfo(text + self.separator + '\n')
 		# Run the model if autorun is checked
 		if self.autoRun.isChecked():
 			self.runModel()
@@ -357,7 +364,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		files = os.listdir(path)
 		newFiles = []
 		templateNames = []
-		pattern = re.compile(modelName, re.IGNORECASE)
 		# For each file move the file to its new name and replace model with <model> tag
 		for item in files:
 			new = item.replace(modelName, str(text))
@@ -365,6 +371,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			templateNames.append(item.replace(modelName, '<model>'))
 			os.system(str('mv ' + path + '/' + item + ' ' + path + '/' + new))
 		# Case insensitive replacing modelName with <model> tag
+		pattern = re.compile(modelName, re.IGNORECASE)
 		for new in newFiles:
 			for line in fileinput.input(str(path + '/' + new), inplace=True):
 				print pattern.sub('<model>', line),
