@@ -9,6 +9,8 @@
 import sys
 import os
 import subprocess
+import re
+import fileinput
 from PyQt4.QtGui import *
 from PyQt4 import uic
 
@@ -18,7 +20,7 @@ Ui_MainWindow, QtBaseClass = uic.loadUiType('resources/sstGUI.ui')
 
 ##### Main Application Class
 class MyApp(QMainWindow, Ui_MainWindow):
-	
+
 	### Initialization Function
 	def __init__(self):
 		QMainWindow.__init__(self)
@@ -53,8 +55,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.available.setSelectionMode(QAbstractItemView.ExtendedSelection)
 		self.available.itemDoubleClicked.connect(self.modelHelp)
 		self.selected.setSelectionMode(QAbstractItemView.ExtendedSelection)
-	
-	
+
+
 	### Generate/Open Files
 	def generateOpenFiles(self):
 		if not self.getModel(): return
@@ -137,19 +139,19 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def selectTemplate(self):
 		if self.templates.currentItem():
 			self.templateType.setText(str(os.getcwd() + '/templates/' + self.templates.currentItem().text()))
-	
+
 	# Browse for templates
 	def browseTemplates(self):
 		templatePath = QFileDialog.getExistingDirectory(self, 'Select Template', './templates/', QFileDialog.ShowDirsOnly)
 		self.templateType.setText(str(templatePath))
-	
+
 	# Update the Avaiable Templates
 	def updateTemplates(self):
 		self.templates.clear()
 		self.templates.addItems(os.walk('./templates/').next()[1])
-	
-	
-	
+
+
+
 	### Model Connector Tab
 	# Update the Available Models
 	def updateModels(self):
@@ -165,24 +167,24 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			[path, version] = str(os.getenv('SST_ELEMENTS_HOME')).split('/local/sstelements-')
 			self.elements = path + '/scratch/src/sst-elements-library-' + version + '/src/sst/elements'
 			self.available.addItems(os.walk(self.elements).next()[1])
-	
+
 	# Browse for additional models
 	def browseModels(self):
 		modelDir = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
 		if modelDir:
 			self.selected.addItem(modelDir)
-	
+
 	# Add Models
 	def addModel(self):
 		for item in self.available.selectedItems():
 			self.selected.addItem(item.text())
-	
+
 	# Remove Models
 	def removeModel(self):
 		for item in self.selected.selectedItems():
 			self.selected.takeItem(self.selected.row(item))
-		
-	
+
+
 	### Application helper functions
 	# Gets the model name from the GUI
 	def getModel(self):
@@ -191,8 +193,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.writeInfo('*** PLEASE ENTER A MODEL NAME ***\n\n')
 			return False
 		return True
-	
-	
+
+
 	# Gets the template information
 	def getTemplate(self):
 		# Get template path from GUI
@@ -219,17 +221,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			if ('.cc' in item) | ('.h' in item):
 				self.sourceFiles.append(item.replace('<model>', str(self.model)))
 		return True
-	
-	
+
+
 	# Move and update the template files to create a new model
 	def createModel(self):
 		os.system(str('mkdir -p ' + self.model + '/tests'))
 		for s, d in zip(self.source, self.dest):
-			os.system(str('cp ' + self.templatePath + '/' + s + ' ' + self.model + '/' + d))
-			os.system(str('sed -i \'s/<model>/' + self.model + '/g\' ' + self.model + '/' + d))
-			os.system(str('sed -i \'s/<sourceFiles>/' + ' '.join(self.sourceFiles) + '/g\' ' + self.model + '/' + d))
-	
-	
+			with open(str(self.templatePath + '/' + s), 'r') as infile, open(str(self.model + '/' + d), 'w') as outfile:
+				for line in infile:
+					outfile.write(line.replace('<model>', str(self.model)))
+
+
 	# Connect various models together
 	def connectModels(self):
 		os.system(str('mkdir -p ' + self.model + '/tests'))
@@ -267,16 +269,16 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				fp.write('obj' + str(i) + '.addParams({\n\t"param1" : "val1",\n\t"param2" : "val2"\n\t})\n\n')
 			# Add an example link at the end to show how to connect objects
 			fp.write('sst.Link("MyLink").connect( (obj0, "port", "15ns"), (obj1, "port", "15ns") )')
-	
-	
+
+
 	# Write to information screen
 	def writeInfo(self, text):
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertPlainText(text)
 		self.info.moveCursor(QTextCursor.End)
 		app.processEvents() # force the GUI to display the text
-	
-	
+
+
 	# Runs a command and prints the output line by line
 	def runCommand(self, command):
 		process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -287,14 +289,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			if output:
 			 	self.writeInfo(output.decode('utf-8'))
 		return process.poll()
-	
-	
+
+
 	# Update available models and templates
 	def updateTabs(self):
 		self.updateModels()
 		self.updateTemplates()
-	
-	
+
+
 	# Information for template generation
 	def templatesMessage(self, files):
 		text = self.separator
@@ -308,8 +310,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		text += 'After your are done you can proceed to the next step Compile Model.\n'
 		text += self.separator + '\n'
 		self.writeInfo(text)
-	
-	
+
+
 	# Generates a warning pop-up when you try to overwrite existing files
 	def warningPopup(self, text, title):
 		msg = QMessageBox()
@@ -323,8 +325,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Button to go along with the popup
 	def warningButton(self, button):
 		return button
-	
-	
+
+
 	# Convert a model into a template
 	def model2Template(self):
 		# Prompt for a Model to convert
@@ -356,15 +358,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		files = os.listdir(path)
 		newFiles = []
 		templateNames = []
-		# For each file move the file to its new name
+		pattern = re.compile(modelName, re.IGNORECASE)
+		# For each file move the file to its new name and replace model with <model> tag
 		for item in files:
 			new = item.replace(modelName, str(text))
 			newFiles.append(new)
 			templateNames.append(item.replace(modelName, '<model>'))
-			self.runCommand(str('mv ' + path + '/' + item + ' ' + path + '/' + new))
-		# For all the new files replace the strings within
+			os.system(str('mv ' + path + '/' + item + ' ' + path + '/' + new))
+		# Case insensitive replacing modelName with <model> tag
 		for new in newFiles:
-			os.system(str('sed -i \'s/' + modelName + '/<model>/Ig\' ' + path + '/' + new))
+			for line in fileinput.input(str(path + '/' + new), inplace=True):
+				print pattern.sub('<model>', line),
 		# Create the template file
 		with open(str(path + '/template'), 'w') as fp:
 			for new, tmp in zip(newFiles, templateNames):
@@ -379,8 +383,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		for new in newFiles:
 			f += path + '/' + new + ' '
 		os.system(str(self.editor + ' ' + f + '&'))
-	
-	
+
+
 	# Display model help
 	def modelHelp(self):
 		if self.tabWidget.currentIndex() == 0:
@@ -420,8 +424,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			else:
 				self.writeInfo('No help information for this model\n')
 			self.writeInfo(self.separator + '\n')
-	
-	
+
+
 	### Help Menu
 	# Help
 	def help(self, f):
@@ -441,7 +445,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def helpConverter(self):
 		self.help('resources/model2template')
 
-##### Main Application Class End 
+##### Main Application Class End
 
 
 ##### Main Function
@@ -450,4 +454,3 @@ if __name__ == '__main__':
 	window = MyApp()
 	window.show()
 	sys.exit(app.exec_())
-
