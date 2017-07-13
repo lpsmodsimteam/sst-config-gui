@@ -1,4 +1,4 @@
 Makefile Makefile
-model.cc <model>.cc
-model.h <model>.h
+simpleModelWithPort.cc <model>.cc
+simpleModelWithPort.h <model>.h
 test.py tests/<model>.py

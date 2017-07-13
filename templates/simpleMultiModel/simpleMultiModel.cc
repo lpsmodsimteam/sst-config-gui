@@ -1,3 +1,12 @@
+/**
+Simple Model with one clock that prints "Hello World!"
+
+Has a port that sends the string "Hello #" and also receives
+printing out "received an event:" followed by what was received
+
+Contains 2 separate models that talk to one another
+*/
+
 #include <sst/core/sst_config.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include "<model>.h"

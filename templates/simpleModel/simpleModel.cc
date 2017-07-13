@@ -1,3 +1,7 @@
+/**
+Simple Model with one clock that prints "Hello World!"
+*/
+
 #include <sst/core/sst_config.h>
 #include "<model>.h"
 

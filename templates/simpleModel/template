@@ -1,4 +1,4 @@
 Makefile Makefile
-model.cc <model>.cc
-model.h <model>.h
+simpleModel.cc <model>.cc
+simpleModel.h <model>.h
 test.py tests/<model>.py

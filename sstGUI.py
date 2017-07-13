@@ -39,6 +39,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
 		# Model Creator Tab
+		self.templates.itemDoubleClicked.connect(self.modelHelp)
 		self.templateSelect.clicked.connect(self.selectTemplate)
 		self.templateBrowse.clicked.connect(self.browseTemplates)
 		self.updateTemplates()
@@ -50,6 +51,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.add.clicked.connect(self.addModel)
 		self.remove.clicked.connect(self.removeModel)
 		self.available.setSelectionMode(QAbstractItemView.ExtendedSelection)
+		self.available.itemDoubleClicked.connect(self.modelHelp)
 		self.selected.setSelectionMode(QAbstractItemView.ExtendedSelection)
 	
 	
@@ -161,7 +163,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Display SST models on bottom
 		if self.sstModels.isChecked():
 			[path, version] = str(os.getenv('SST_ELEMENTS_HOME')).split('/local/sstelements-')
-			self.elements = path + '/scratch/src/sst-elements-library-' + version + '/src/sst/elements/'
+			self.elements = path + '/scratch/src/sst-elements-library-' + version + '/src/sst/elements'
 			self.available.addItems(os.walk(self.elements).next()[1])
 	
 	# Browse for additional models
@@ -179,8 +181,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def removeModel(self):
 		for item in self.selected.selectedItems():
 			self.selected.takeItem(self.selected.row(item))
-	
-	
+		
 	
 	### Application helper functions
 	# Gets the model name from the GUI
@@ -246,7 +247,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				elif item.startswith('./'):
 					fp.write(make + os.getcwd() + '/' + os.path.basename(item) + ' all\n')
 				else:
-					fp.write(make + self.elements + os.path.basename(item) + ' all\n')
+					fp.write(make + self.elements + '/' + os.path.basename(item) + ' all\n')
 			fp.write('\nclean:\n')
 			for i in xrange(self.selected.count()):
 				item = str(self.selected.item(i).text())
@@ -255,7 +256,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				elif item.startswith('./'):
 					fp.write(make + os.getcwd() + '/' + os.path.basename(item) + ' clean\n')
 				else:
-					fp.write(make + self.elements + os.path.basename(item) + ' clean\n')
+					fp.write(make + self.elements + '/' + os.path.basename(item) + ' clean\n')
 		# Write the test python file
 		with open(str(self.model + '/tests/' + self.model + '.py'), 'w') as fp:
 			fp.write('import sst\n\n')
@@ -378,8 +379,48 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		for new in newFiles:
 			f += path + '/' + new + ' '
 		os.system(str(self.editor + ' ' + f + '&'))
-			
-		
+	
+	
+	# Display model help
+	def modelHelp(self):
+		if self.tabWidget.currentIndex() == 0:
+			items = self.templates.selectedItems()
+		else:
+			items = self.available.selectedItems()
+		for i in items:
+			item = str(i.text())
+			# Handle full paths, local paths, and no paths
+			# Browsed models, local models, SST default models/templates respectively
+			if item.startswith('/'):
+				f = item
+			elif item.startswith('./'):
+				f = os.getcwd() + '/' + os.path.basename(item)
+			else:
+				if self.tabWidget.currentIndex() == 0:
+					f = os.getcwd() + '/templates/' + os.path.basename(item)
+				else:
+					f = self.elements + '/' + os.path.basename(item)
+			# Assuming there is a file in the model called <model>.cc
+			f += '/' + os.path.basename(item) + '.cc'
+			self.writeInfo(self.separator)
+			if os.path.isfile(f):
+				# Look for doxygen style comments
+				with open(f, 'r') as help:
+					incomment = False
+					for line in help:
+						if incomment:
+							if line.strip().startswith('*/'):
+								incomment = False
+								self.writeInfo('\n')
+							else:
+								self.writeInfo(line)
+						else:
+							if line.strip().startswith('/**'):
+								incomment = True
+			else:
+				self.writeInfo('No help information for this model\n')
+			self.writeInfo(self.separator + '\n')
+	
 	
 	### Help Menu
 	# Help

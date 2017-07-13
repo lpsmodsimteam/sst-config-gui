@@ -1,6 +1,6 @@
 import sst
 
-obj0 = sst.Component("<model>0", "<model>.<model>0")
+obj0 = sst.Component("<model>", "<model>.<model>")
 obj0.addParams({
     "printFrequency" : "5",
     "repeats" : "15"

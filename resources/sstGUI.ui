@@ -121,7 +121,7 @@
         <item row="4" column="0" rowspan="2">
          <widget class="QListWidget" name="templates">
           <property name="toolTip">
-           <string>Available Templates</string>
+           <string>Available Templates. Double click a template for help</string>
           </property>
          </widget>
         </item>
@@ -206,7 +206,7 @@
         <item row="1" column="0" colspan="3">
          <widget class="QListWidget" name="available">
           <property name="toolTip">
-           <string>Models available for use. You can select multiple models at once</string>
+           <string>Models available for use. You can select multiple models at once. Double click a model for help</string>
           </property>
          </widget>
         </item>
