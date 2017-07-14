@@ -18,7 +18,7 @@
     <normaloff>resources/logo.png</normaloff>resources/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,1,10,0">
+   <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,0,0,0">
     <item row="0" column="0" rowspan="2">
      <widget class="QLabel" name="logo">
       <property name="text">
@@ -320,7 +320,7 @@
      </widget>
     </item>
     <item row="3" column="0" colspan="6">
-     <widget class="QPlainTextEdit" name="info">
+     <widget class="QTextEdit" name="info">
       <property name="readOnly">
        <bool>true</bool>
       </property>

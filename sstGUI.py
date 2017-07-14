@@ -64,12 +64,16 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			if not self.getTemplate(): return
 		sstModels = os.walk(self.elements).next()[1]
 		if (sstModels.count(self.model) != 0):
-			text = self.separator + '*** There is a SST model with that name already!\n'
-			text += '*** Please choose another name.\n\n'
-			text += 'SST provided models:\n'
+			self.writeInfo(self.separator)
+			text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
+			text += '*** PLEASE CHOOSE ANOTHER NAME ***\n\n'
+			self.writeInfo(text, 'red')
+			self.writeInfo('SST provided models:\n')
+			text = ''
 			for item in sstModels:
 				text += item + '\n'
-			self.writeInfo(text + self.separator + '\n')
+			self.writeInfo(text, 'blue')
+			self.writeInfo(self.separator + '\n')
 			return
 		# Do some checking see if you already have a model in your working directory
 		# with the same name or if there is one in the element directory
@@ -115,7 +119,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		failed = self.runCommand(str('make all -C ' + self.model))
 		if failed:
 			text = '\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***\n'
-			self.writeInfo(text + self.separator + '\n')
+			self.writeInfo(text, 'red')
+			self.writeInfo(self.separator + '\n')
 			return
 		# make all passed
 		text = '\nSST has been configured to run your model you may now proceed to the next\n'
@@ -196,7 +201,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def getModel(self):
 		self.model = self.modelName.text()
 		if (self.model == ''):
-			self.writeInfo('*** PLEASE ENTER A MODEL NAME ***\n\n')
+			self.writeInfo('*** PLEASE ENTER A MODEL NAME ***\n\n', 'red')
 			return False
 		return True
 
@@ -208,11 +213,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.template = os.path.basename(self.templatePath)
 		# Check for empty string
 		if (self.template == ''):
-			self.writeInfo('*** PLEASE SELECT A TEMPLATE ***\n\n')
+			self.writeInfo('*** PLEASE SELECT A TEMPLATE ***\n\n', 'red')
 			return False
 		# Check for a valid template
 		if not os.path.isfile(self.templatePath + '/template'):
-			self.writeInfo('*** TEMPLATE PATH IS INCORRECT OR TEMPLATE IS SETUP WRONG ***\n\n')
+			self.writeInfo('*** TEMPLATE PATH IS INCORRECT OR TEMPLATE IS SETUP WRONG ***\n\n', 'red')
 			return False
 		# Read template sources and destinations
 		with open(self.templatePath + '/template', 'r') as fp:
@@ -278,9 +283,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 
 	# Write to information screen
-	def writeInfo(self, text):
+	# Available Colors:
+	# white, black, red, darkRed, green, darkGreen, blue, darkBlue, cyan, darkCyan,
+	# magenta, darkMagenta, yellow, darkYellow, gray, darkGray, lightGray
+	def writeInfo(self, text, color='black'):
+		colorText = '<span style="color:' + QColor(color).name() + ';">'
+		colorText += text.replace('\n', '<br>') + '</span>'
 		self.info.moveCursor(QTextCursor.End)
-		self.info.insertPlainText(text)
+		self.info.insertHtml(colorText)
 		self.info.moveCursor(QTextCursor.End)
 		app.processEvents() # force the GUI to display the text
 
@@ -338,17 +348,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Prompt for a Model to convert
 		model = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
 		if not model:
-			self.writeInfo('*** PLEASE SELECT A MODEL TO CONVERT ***\n\n')
+			self.writeInfo('*** PLEASE SELECT A MODEL TO CONVERT ***\n\n', 'red')
 			return
 		# Get the new template name
 		text, ok = QInputDialog.getText(self, 'Enter Template Name', '', QLineEdit.Normal)
 		if not ok or not text:
-			self.writeInfo('*** PLEASE ENTER A TEMPLATE NAME ***\n\n')
+			self.writeInfo('*** PLEASE ENTER A TEMPLATE NAME ***\n\n', 'red')
 			return
 		# Check to see if the template exists already
 		templates = os.listdir('./templates/')
 		if text in templates:
-			self.writeInfo('*** TEMPLATE ALREADY EXISTS ***\n\n')
+			self.writeInfo('*** TEMPLATE ALREADY EXISTS ***\n\n', 'red')
 			return
 		self.writeInfo(self.separator + '***** Converting Model into Template *****\n\n')
 		self.writeInfo('Converting ' + model + ' to ' + text + '\n\n')
@@ -436,8 +446,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Help
 	def help(self, f):
 		with open(f, 'r') as fp:
-			text = fp.read()
-		self.writeInfo(text)
+			for line in fp:
+				if ' - ' in line:
+					self.writeInfo(line.split(' - ')[0], 'darkBlue')
+					self.writeInfo(' - ' + line.split(' - ')[1])
+				else:
+					self.writeInfo(line)
 	# About
 	def helpAbout(self):
 		self.help('resources/about')
