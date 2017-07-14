@@ -11,6 +11,7 @@ import os
 import subprocess
 import re
 import fileinput
+import cgi
 from PyQt4.QtGui import *
 from PyQt4 import uic
 
@@ -288,8 +289,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# red, yellow, green, cyan, blue, magenta,
 	# darkred, darkyellow, darkgreen, darkcyan, darkblue, darkmagenta
 	def writeInfo(self, text, color='black'):
-		colorText = '<span style="color:' + QColor(color).name() + ';">'
-		colorText += text.replace('\n', '<br>') + '</span>'
+		colorText = '<span style="white-space:pre-wrap; color:' + QColor(color).name() + ';">'
+		colorText += cgi.escape(text, True) + '</span>'
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertHtml(colorText)
 		self.info.moveCursor(QTextCursor.End)
@@ -316,11 +317,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 	# Information for template generation
 	def templatesMessage(self, files):
-		text = self.separator
-		text += 'The following Templates should be displayed in the pop-up editor\n'
+		self.writeInfo(self.separator + 'The following Templates should be displayed in the pop-up editor\n')
+		text = ''
 		for item in files:
 			text += '\t- ' + item + '\n'
-		text += 'Please review/edit your files to create your model. You can make changes in\n'
+		self.writeInfo(text, 'green')
+		text = 'Please review/edit your files to create your model. You can make changes in\n'
 		text += 'the pop-up editor, save your file then close the editor or you can close the pop-up\n'
 		text += 'editor and the GUI, then proceed to editing the files in the editor of your choice\n'
 		text += 'they reside in your working directory under ' + self.model + '/. \n'
