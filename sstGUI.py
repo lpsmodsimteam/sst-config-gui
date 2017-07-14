@@ -448,7 +448,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		with open(f, 'r') as fp:
 			for line in fp:
 				if ' - ' in line:
-					self.writeInfo(line.split(' - ')[0], 'darkBlue')
+					self.writeInfo(line.split(' - ')[0], 'green')
 					self.writeInfo(' - ' + line.split(' - ')[1])
 				else:
 					self.writeInfo(line)
