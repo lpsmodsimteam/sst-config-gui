@@ -284,8 +284,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 	# Write to information screen
 	# Available Colors:
-	# white, black, red, darkRed, green, darkGreen, blue, darkBlue, cyan, darkCyan,
-	# magenta, darkMagenta, yellow, darkYellow, gray, darkGray, lightGray
+	# black(default), darkgray, gray, lightgray, white,
+	# red, yellow, green, cyan, blue, magenta,
+	# darkred, darkyellow, darkgreen, darkcyan, darkblue, darkmagenta
 	def writeInfo(self, text, color='black'):
 		colorText = '<span style="color:' + QColor(color).name() + ';">'
 		colorText += text.replace('\n', '<br>') + '</span>'
@@ -448,7 +449,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		with open(f, 'r') as fp:
 			for line in fp:
 				if ' - ' in line:
-					self.writeInfo(line.split(' - ')[0], 'green')
+					self.writeInfo(line.split(' - ')[0], 'darkcyan')
 					self.writeInfo(' - ' + line.split(' - ')[1])
 				else:
 					self.writeInfo(line)
