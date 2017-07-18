@@ -12,8 +12,9 @@ import subprocess
 import re
 import fileinput
 import cgi
-from PyQt4.QtGui import *
-from PyQt4 import uic
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5 import uic
 
 # Load the UI
 Ui_MainWindow, QtBaseClass = uic.loadUiType('resources/sstGUI.ui')
