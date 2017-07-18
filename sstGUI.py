@@ -432,7 +432,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					incomment = False
 					for line in help:
 						if incomment:
-							if line.strip().startswith('*/'):
+							if line.strip().endswith('*/'):
 								incomment = False
 								self.writeInfo('\n')
 							else:
