@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # This is a model development script to help you develop,
 # integrate and run a new model in SST. There should be
