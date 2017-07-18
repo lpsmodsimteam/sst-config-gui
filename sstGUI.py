@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # This is a model development script to help you develop,
 # integrate and run a new model in SST. There should be
@@ -64,7 +64,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Check for template if in Creator Mode
 		if self.tabWidget.currentIndex() == 0:
 			if not self.getTemplate(): return
-		sstModels = os.walk(self.elements).next()[1]
+		sstModels = next(os.walk(self.elements))[1]
 		if (sstModels.count(self.model) != 0):
 			self.writeInfo(self.separator)
 			text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
@@ -161,7 +161,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Update the Avaiable Templates
 	def updateTemplates(self):
 		self.templates.clear()
-		self.templates.addItems(os.walk('./templates/').next()[1])
+		self.templates.addItems(next(os.walk('./templates/'))[1])
 
 
 
@@ -171,7 +171,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.available.clear()
 		# Display the local models on top
 		if self.localModels.isChecked():
-			items = os.walk('./').next()[1]
+			items = next(os.walk('./'))[1]
 			for item in items:
 				if item != 'templates' and item != 'resources' and item != '.git':
 					self.available.addItem(str('./' + item))
@@ -179,7 +179,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if self.sstModels.isChecked():
 			[path, version] = str(os.getenv('SST_ELEMENTS_HOME')).split('/local/sstelements-')
 			self.elements = path + '/scratch/src/sst-elements-library-' + version + '/src/sst/elements'
-			self.available.addItems(os.walk(self.elements).next()[1])
+			self.available.addItems(next(os.walk(self.elements))[1])
 
 	# Browse for additional models
 	def browseModels(self):
@@ -253,7 +253,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		with open(str(self.model + '/Makefile'), 'w') as fp:
 			# Make all command
 			fp.write('all:\n')
-			for i in xrange(self.selected.count()):
+			for i in range(self.selected.count()):
 				item = str(self.selected.item(i).text())
 				# Handle full paths, local paths, and no paths
 				# Browsed models, local models, SST default models respectively
@@ -264,7 +264,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				else:
 					fp.write(make + self.elements + '/' + os.path.basename(item) + ' all\n')
 			fp.write('\nclean:\n')
-			for i in xrange(self.selected.count()):
+			for i in range(self.selected.count()):
 				item = str(self.selected.item(i).text())
 				if item.startswith('/'):
 					fp.write(make + item + ' clean\n')
@@ -276,7 +276,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		with open(str(self.model + '/tests/' + self.model + '.py'), 'w') as fp:
 			fp.write('import sst\n\n')
 			# Add in the component declarations
-			for i in xrange(self.selected.count()):
+			for i in range(self.selected.count()):
 				item = os.path.basename(str(self.selected.item(i).text()))
 				fp.write('obj' + str(i) + ' = sst.Component("' + item + str(i) + '", "' + item + '.' + item + '")\n')
 				fp.write('obj' + str(i) + '.addParams({\n\t"param1" : "val1",\n\t"param2" : "val2"\n\t})\n\n')
@@ -301,12 +301,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Runs a command and prints the output line by line
 	def runCommand(self, command):
 		process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-		while True:
+		output = process.stdout.readline()
+		while output != b'' or process.poll() is None:
 			output = process.stdout.readline()
-			if output == '' and process.poll() is not None:
-				break
-			if output:
-			 	self.writeInfo(output.decode('utf-8'))
+			self.writeInfo(output.decode("utf-8"))
 		return process.poll()
 
 
@@ -388,7 +386,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		pattern = re.compile(modelName, re.IGNORECASE)
 		for new in newFiles:
 			for line in fileinput.input(str(path + '/' + new), inplace=True):
-				print pattern.sub('<model>', line),
+				print(pattern.sub('<model>', line), end='')
 		# Create the template file
 		with open(str(path + '/template'), 'w') as fp:
 			for new, tmp in zip(newFiles, templateNames):
