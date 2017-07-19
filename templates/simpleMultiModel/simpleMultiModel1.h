@@ -16,7 +16,7 @@ public:
 
 	bool clockTick( SST::Cycle_t currentCycle );
 
-    void handleEvent(SST::Event *ev);
+	void handleEvent(SST::Event *ev);
 
 	SST_ELI_REGISTER_COMPONENT(
 		<model>1,
@@ -32,18 +32,17 @@ public:
 		{ "repeats", "Number of repetitions to make", "10" }
 	)
 
-    SST_ELI_DOCUMENT_PORTS(
-        { "port", "Port on which to send/recv messages", {"sst.Interfaces.StringEvent"}}
-    )
+	SST_ELI_DOCUMENT_PORTS(
+		{ "port", "Port on which to send/recv messages", {"sst.Interfaces.StringEvent"}}
+	)
 
-private:
+	private:
 	SST::Output output;
 	SST::Cycle_t printFreq;
 	SST::Cycle_t maxRepeats;
 	SST::Cycle_t repeats;
 
-    SST::Link *port;
+	SST::Link *port;
 };
-
 
 #endif

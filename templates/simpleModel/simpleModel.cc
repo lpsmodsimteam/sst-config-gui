@@ -5,8 +5,7 @@ Simple Model with one clock that prints "Hello World!"
 #include <sst/core/sst_config.h>
 #include "<model>.h"
 
-<model>::<model>( SST::ComponentId_t id, SST::Params& params ) :
-	SST::Component(id), repeats(0) {
+<model>::<model>( SST::ComponentId_t id, SST::Params& params ) : SST::Component(id), repeats(0) {
 
 	output.init("<model>-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 

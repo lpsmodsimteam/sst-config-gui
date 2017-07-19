@@ -14,7 +14,7 @@ Contains 1 model that gets instantiated twice in the test to talk to itself
 using SST::Interfaces::StringEvent;
 
 <model>::<model>( SST::ComponentId_t id, SST::Params& params ) :
-	SST::Component(id), repeats(0) {
+SST::Component(id), repeats(0) {
 
 	output.init("<model>-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
@@ -26,20 +26,19 @@ using SST::Interfaces::StringEvent;
 	}
 
 	output.verbose(CALL_INFO, 1, 0, "Config: maxRepeats=%" PRIu64 ", printFreq=%" PRIu64 "\n",
-		static_cast<uint64_t>(maxRepeats), static_cast<uint64_t>(printFreq));
+	static_cast<uint64_t>(maxRepeats), static_cast<uint64_t>(printFreq));
 
 	// Just register a plain clock for this simple example
-    registerClock("100MHz", new SST::Clock::Handler<<model>>(this, &<model>::clockTick));
-    // Configure our port
-    port = configureLink("port",
-            new SST::Event::Handler<<model>>(this, &<model>::handleEvent));
-    if ( !port ) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
-    }
+	registerClock("100MHz", new SST::Clock::Handler<<model>>(this, &<model>::clockTick));
+	// Configure our port
+	port = configureLink("port", new SST::Event::Handler<<model>>(this, &<model>::handleEvent));
+	if ( !port ) {
+		output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+	}
 
 	// Tell SST to wait until we authorize it to exit
-    registerAsPrimaryComponent();
-    primaryComponentDoNotEndSim();
+	registerAsPrimaryComponent();
+	primaryComponentDoNotEndSim();
 }
 
 <model>::~<model>() {
@@ -62,7 +61,7 @@ bool <model>::clockTick( SST::Cycle_t currentCycle ) {
 
 	repeats++;
 
-    port->send(new StringEvent(getName() + " Hello #" + std::to_string(repeats)));
+	port->send(new StringEvent(getName() + " Hello #" + std::to_string(repeats)));
 
 	if( repeats == maxRepeats ) {
 		primaryComponentOKToEndSim();
@@ -73,9 +72,9 @@ bool <model>::clockTick( SST::Cycle_t currentCycle ) {
 }
 
 void <model>::handleEvent(SST::Event *ev) {
-    StringEvent *se = dynamic_cast<StringEvent*>(ev);
-    if ( se != NULL ) {
-        output.output("%s recevied an event: \"%s\"\n", getName().c_str(), se->getString().c_str());
-    }
-    delete ev;
+	StringEvent *se = dynamic_cast<StringEvent*>(ev);
+	if ( se != NULL ) {
+		output.output("%s recevied an event: \"%s\"\n", getName().c_str(), se->getString().c_str());
+	}
+	delete ev;
 }
