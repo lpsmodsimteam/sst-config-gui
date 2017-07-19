@@ -40,8 +40,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# General setup
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
-		self.updateTabs()
 		self.separator = '********************************************************************************\n'
+		[path, version] = str(os.getenv('SST_ELEMENTS_HOME')).split('/local/sstelements-')
+		self.elementPath = path + '/scratch/src/sst-elements-library-' + version + '/src/sst/elements'
+		self.updateTabs()
 		# Model Creator Tab
 		self.templates.itemDoubleClicked.connect(self.templateHelp)
 		self.templateSelect.clicked.connect(self.selectTemplate)
@@ -65,7 +67,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Check for template if in Creator Mode
 		if self.tabWidget.currentIndex() == 0:
 			if not self.getTemplate(): return
-		sstModels = next(os.walk(self.elements))[1]
+		sstModels = next(os.walk(self.elementPath))[1]
 		if (sstModels.count(self.model) != 0):
 			self.writeInfo(self.separator)
 			text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
@@ -177,10 +179,24 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				if item != 'templates' and item != 'resources' and item != '.git':
 					self.available.addItem(str('./' + item))
 		# Display SST models on bottom
+		self.components = [[]]
 		if self.sstModels.isChecked():
-			[path, version] = str(os.getenv('SST_ELEMENTS_HOME')).split('/local/sstelements-')
-			self.elements = path + '/scratch/src/sst-elements-library-' + version + '/src/sst/elements'
-			self.available.addItems(next(os.walk(self.elements))[1])
+			info = subprocess.getoutput('sst-info')
+			element = re.compile('ELEMENT \d{1,} = ')
+			component = re.compile('COMPONENT \d{1,} = ')
+			i = 0
+			for line in iter(info.splitlines()):
+				if element.search(line):
+					i += 1
+					self.components.append([line.split(' = ')[1].split(' ')[0]])
+				if component.search(line):
+					self.components[i].append(line.split(' = ')[1].split(' ')[0])
+			self.components.pop(0)
+			#for i in range(len(self.components)):
+			#	print(self.components[i][0])
+			#	for j in range(len(self.components[i])-1):
+			#		print('\t' + str(self.components[i][j+1]))
+			self.available.addItems(next(os.walk(self.elementPath))[1])
 
 	# Browse for additional models
 	def browseModels(self):
@@ -263,7 +279,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				elif item.startswith('./'):
 					fp.write(make + os.getcwd() + '/' + os.path.basename(item) + ' all\n')
 				else:
-					fp.write(make + self.elements + '/' + os.path.basename(item) + ' all\n')
+					fp.write(make + self.elementPath + '/' + os.path.basename(item) + ' all\n')
 			fp.write('\nclean:\n')
 			for i in range(self.selected.count()):
 				item = str(self.selected.item(i).text())
@@ -272,7 +288,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				elif item.startswith('./'):
 					fp.write(make + os.getcwd() + '/' + os.path.basename(item) + ' clean\n')
 				else:
-					fp.write(make + self.elements + '/' + os.path.basename(item) + ' clean\n')
+					fp.write(make + self.elementPath + '/' + os.path.basename(item) + ' clean\n')
 		# Write the test python file
 		with open(str(self.model + '/tests/' + self.model + '.py'), 'w') as fp:
 			fp.write('import sst\n\n')
@@ -418,7 +434,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				if self.tabWidget.currentIndex() == 0:
 					f = os.getcwd() + '/templates/' + os.path.basename(item)
 				else:
-					f = self.elements + '/' + os.path.basename(item)
+					f = self.elementPath + '/' + os.path.basename(item)
 			# Assuming there is a file in the model called <model>.cc
 			f += '/' + os.path.basename(item) + '.cc'
 			self.writeInfo(self.separator)
