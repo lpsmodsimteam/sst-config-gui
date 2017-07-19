@@ -213,7 +213,7 @@
         <item row="1" column="3" colspan="2">
          <widget class="QListWidget" name="selected">
           <property name="toolTip">
-           <string>Models to be connected</string>
+           <string>Models to be connected. Double click for help and SST information</string>
           </property>
          </widget>
         </item>

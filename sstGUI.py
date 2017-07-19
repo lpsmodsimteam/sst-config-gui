@@ -43,7 +43,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.updateTabs()
 		self.separator = '********************************************************************************\n'
 		# Model Creator Tab
-		self.templates.itemDoubleClicked.connect(self.modelHelp)
+		self.templates.itemDoubleClicked.connect(self.templateHelp)
 		self.templateSelect.clicked.connect(self.selectTemplate)
 		self.templateBrowse.clicked.connect(self.browseTemplates)
 		# Model Connector Tab
@@ -54,8 +54,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.add.clicked.connect(self.addModel)
 		self.remove.clicked.connect(self.removeModel)
 		self.available.setSelectionMode(QAbstractItemView.ExtendedSelection)
-		self.available.itemDoubleClicked.connect(self.modelHelp)
+		self.available.itemDoubleClicked.connect(self.availableHelp)
 		self.selected.setSelectionMode(QAbstractItemView.ExtendedSelection)
+		self.selected.itemDoubleClicked.connect(self.selectedHelp)
 
 
 	### Generate/Open Files
@@ -403,12 +404,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		os.system(str(self.editor + ' ' + f + '&'))
 
 
+	def templateHelp(self):
+		self.modelHelp(self.templates.selectedItems())
+
+	def availableHelp(self):
+		self.modelHelp(self.available.selectedItems())
+
+	def selectedHelp(self):
+		self.modelHelp(self.selected.selectedItems(), True)
+
 	# Display model help
-	def modelHelp(self):
-		if self.tabWidget.currentIndex() == 0:
-			items = self.templates.selectedItems()
-		else:
-			items = self.available.selectedItems()
+	def modelHelp(self, items, elementInfo = False):
 		for i in items:
 			item = str(i.text())
 			# Handle full paths, local paths, and no paths
@@ -439,8 +445,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						else:
 							if line.strip().startswith('/**'):
 								incomment = True
-			else:
-				self.writeInfo('No help information for this model\n')
+				if elementInfo:
+					self.runCommand('sst-info ' + os.path.basename(item))
+			elif not elementInfo:
+				self.writeInfo('No help available for this model\n')
 			self.writeInfo(self.separator + '\n')
 
 
