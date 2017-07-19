@@ -404,15 +404,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		os.system(str(self.editor + ' ' + f + '&'))
 
 
-	def templateHelp(self):
-		self.modelHelp(self.templates.selectedItems())
-
-	def availableHelp(self):
-		self.modelHelp(self.available.selectedItems())
-
-	def selectedHelp(self):
-		self.modelHelp(self.selected.selectedItems(), True)
-
 	# Display model help
 	def modelHelp(self, items, elementInfo = False):
 		for i in items:
@@ -445,11 +436,21 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						else:
 							if line.strip().startswith('/**'):
 								incomment = True
+				# Show the element info from SST
 				if elementInfo:
 					self.runCommand('sst-info ' + os.path.basename(item))
 			elif not elementInfo:
 				self.writeInfo('No help available for this model\n')
 			self.writeInfo(self.separator + '\n')
+	# Template Help
+	def templateHelp(self):
+		self.modelHelp(self.templates.selectedItems())
+	# Available Models Help
+	def availableHelp(self):
+		self.modelHelp(self.available.selectedItems())
+	# Selected Models Help (show SST element info)
+	def selectedHelp(self):
+		self.modelHelp(self.selected.selectedItems(), True)
 
 
 	### Help Menu
