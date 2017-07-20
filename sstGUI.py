@@ -306,13 +306,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# black(default), darkgray, gray, lightgray, white,
 	# red, yellow, green, cyan, blue, magenta,
 	# darkred, darkyellow, darkgreen, darkcyan, darkblue, darkmagenta
-	def writeInfo(self, text, color='black'):
+	def writeInfo(self, text, color='black', update=True):
 		colorText = '<span style="white-space:pre-wrap; color:' + QColor(color).name() + ';">'
 		colorText += cgi.escape(text, True) + '</span>'
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertHtml(colorText)
 		self.info.moveCursor(QTextCursor.End)
-		app.processEvents() # force the GUI to display the text
+		if update:
+			app.processEvents() # force the GUI to display the text
 
 
 	# Runs a command and prints the output line by line while the command is running
@@ -477,13 +478,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	### Help Menu
 	# Help
 	def help(self, f):
+		self.writeInfo(self.separator)
 		with open(f, 'r') as fp:
 			for line in fp:
 				if ' - ' in line:
 					self.writeInfo(line.split(' - ')[0], 'darkcyan')
 					self.writeInfo(' - ' + line.split(' - ')[1])
 				else:
-					self.writeInfo(line)
+					self.writeInfo(line, 'black', False)
+		self.writeInfo(self.separator + '\n')
 	# About
 	def helpAbout(self):
 		self.help('resources/about')
