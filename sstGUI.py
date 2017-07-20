@@ -119,9 +119,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo(self.separator + '***** Building Model *****\n\n')
 		# make clean
 		if self.clean.isChecked():
-			self.runCommand(str('make clean -C ' + self.model))
-		# runCommand returns the make return value (0 success, others fail)
-		failed = self.runCommand(str('make all -C ' + self.model))
+			self.runCmdByLine(str('make clean -C ' + self.model))
+		# runCmdByLine returns the make return value (0 success, others fail)
+		failed = self.runCmdByLine(str('make all -C ' + self.model))
 		if failed:
 			text = '\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***\n'
 			self.writeInfo(text, 'red')
@@ -144,7 +144,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
 		for testfile in testfiles:
 			self.writeInfo('*** ' + testfile + ' ***\n')
-			self.runCommand(str('sst ' + self.model + '/tests/' + testfile))
+			self.runCmdByLine(str('sst ' + self.model + '/tests/' + testfile))
 			self.writeInfo('\n')
 		self.writeInfo(self.separator + '\n')
 
@@ -192,10 +192,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				if component.search(line):
 					self.components[i].append(line.split(' = ')[1].split(' ')[0])
 			self.components.pop(0)
-			#for i in range(len(self.components)):
-			#	print(self.components[i][0])
-			#	for j in range(len(self.components[i])-1):
-			#		print('\t' + str(self.components[i][j+1]))
+			for i in range(len(self.components)):
+				print(self.components[i][0])
+				for j in range(len(self.components[i])-1):
+					print('\t' + str(self.components[i][j+1]))
 			self.available.addItems(next(os.walk(self.elementPath))[1])
 
 	# Browse for additional models
@@ -315,15 +315,20 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		app.processEvents() # force the GUI to display the text
 
 
-	# Runs a command and prints the output line by line
-	def runCommand(self, command):
+	# Runs a command and prints the output line by line while the command is running
+	# Returns the exit status of the command
+	def runCmdByLine(self, command, color='black'):
 		process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		output = process.stdout.readline()
 		while output != b'' or process.poll() is None:
 			output = process.stdout.readline()
-			self.writeInfo(output.decode("utf-8"))
+			self.writeInfo(output.decode("utf-8"), color)
 		return process.poll()
 
+	# Runs a command and prints out the output when the command has completed
+	def runCommand(self, command, color='black'):
+		process = subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		self.writeInfo(process.stdout.decode("utf-8"), color)
 
 	# Update available models and templates
 	def updateTabs(self):
@@ -384,7 +389,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		path = './templates/' + text
 		# Copy the model into the templates directory, clean the model
 		os.system(str('cp -r ' + model + ' ' + path))
-		self.runCommand(str('make clean -C ' + path))
+		self.runCmdByLine(str('make clean -C ' + path))
 		# Move any test files into the main directory with and add test- prefix
 		for item in os.listdir(str(path + '/tests/')):
 			os.system(str('mv ' + path + '/tests/' + item + ' ' + path + '/test-' + item))
@@ -454,7 +459,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 								incomment = True
 				# Show the element info from SST
 				if elementInfo:
-					self.runCommand('sst-info ' + os.path.basename(item))
+					self.runCommand('sst-info ' + os.path.basename(item), 'gray')
 			elif not elementInfo:
 				self.writeInfo('No help available for this model\n')
 			self.writeInfo(self.separator + '\n')
