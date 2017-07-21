@@ -41,6 +41,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
+		#TODO Get from sst-config
 		[path, version] = str(os.getenv('SST_ELEMENTS_HOME')).split('/local/sstelements-')
 		self.elementPath = path + '/scratch/src/sst-elements-library-' + version + '/src/sst/elements'
 		self.updateTabs()
@@ -181,6 +182,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Display SST models on bottom
 		self.components = [[]]
 		if self.sstModels.isChecked():
+			#TODO use xml and parse that way? https://stackoverflow.com/questions/39089776/python-read-named-pipe
 			info = subprocess.getoutput('sst-info')
 			element = re.compile('ELEMENT \d{1,} = ')
 			component = re.compile('COMPONENT \d{1,} = ')
