@@ -15,7 +15,6 @@ import cgi
 import xml.etree.ElementTree as ET
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
 from PyQt5 import uic
 
 # Load the UI
@@ -43,7 +42,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
-		self.elementPath = os.getenv('SST_ELEMENTS_SRC', '../scratch/src/sst-elements-library-7.1.0/src/sst/elements/')
 		self.updateTabs()
 		# Model Creator Tab
 		self.templates.itemDoubleClicked.connect(self.templateHelp)
@@ -105,44 +103,53 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		elif self.tabWidget.currentIndex() == 1:
 			if makefiles:
 				self.connectModels()
-			self.templatesMessage(['Makefile', '/tests/' + self.model + '.py'])
-			files += './' + self.model + '/Makefile ./' + self.model + '/tests/' + self.model + '.py '
+			self.templatesMessage([self.model + '.py'])
+			files += './' + self.model + '/' + self.model + '.py '
 		# Open files
 		os.system(str(self.editor + ' ' + files + '&'))
 
 
 	### Configure Button main function
 	def compileModel(self):
-		if not self.getModel(): return
-		self.writeInfo(self.separator + '***** Building Model *****\n\n')
-		# make clean
-		if self.clean.isChecked():
-			self.runCmdByLine(str('make clean -C ' + self.model))
-		# runCmdByLine returns the make return value (0 success, others fail)
-		failed = self.runCmdByLine(str('make all -C ' + self.model))
-		if failed:
-			text = '\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***\n'
-			self.writeInfo(text, 'red')
-			self.writeInfo(self.separator + '\n')
-			return
-		# make all passed
-		text = '\nSST has been configured to run your model you may now proceed to the next\n'
-		text += 'step Run Model\n'
-		self.writeInfo(text + self.separator + '\n')
-		# Run the model if autorun is checked
-		if self.autoRun.isChecked():
-			self.runModel()
+		if self.tabWidget.currentIndex() == 0:
+			if not self.getModel(): return
+			self.writeInfo(self.separator + '***** Building Model *****\n\n')
+			# make clean
+			if self.clean.isChecked():
+				self.runCmdByLine(str('make clean -C ' + self.model))
+			# runCmdByLine returns the make return value (0 success, others fail)
+			failed = self.runCmdByLine(str('make all -C ' + self.model))
+			if failed:
+				text = '\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***\n'
+				self.writeInfo(text, 'red')
+				self.writeInfo(self.separator + '\n')
+				return
+			# make all passed
+			text = '\nSST has been configured to run your model you may now proceed to the next\n'
+			text += 'step Run Model\n'
+			self.writeInfo(text + self.separator + '\n')
+			# Run the model if autorun is checked
+			if self.autoRun.isChecked():
+				self.runModel()
+		else:
+			self.writeInfo('Nothing to compile when connecting models\n\n', 'cyan')
 
 
 	### Run SST Button main function
 	def runModel(self):
 		if not self.getModel(): return
-		# Run all files under the tests directory
-		testfiles = os.listdir('./' + self.model + '/tests/')
+		# Run all tests
+		if self.tabWidget.currentIndex() == 0:
+			testfiles = os.listdir('./' + self.model + '/tests/')
+		else:
+			testfiles = os.listdir('./' + self.model)
 		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
 		for testfile in testfiles:
 			self.writeInfo('*** ' + testfile + ' ***\n')
-			self.runCmdByLine(str('sst ' + self.model + '/tests/' + testfile))
+			if self.tabWidget.currentIndex() == 0:
+				self.runCmdByLine(str('sst ' + self.model + '/tests/' + testfile))
+			else:
+				self.runCmdByLine(str('sst ' + self.model + '/' + testfile))
 			self.writeInfo('\n')
 		self.writeInfo(self.separator + '\n')
 
@@ -170,7 +177,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Update the Available Models
 	def updateModels(self):
 		self.available.clear()
-		#elements = ET.fromstring(subprocess.run('sst-info -qnxo /dev/stdout'.split(), stdout=subprocess.PIPE).stdout.decode("utf-8"))
 		self.elements = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
 		self.components = []
 		for element in self.elements.findall('Element'):
@@ -257,22 +263,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Connect various models together
 	def connectModels(self):
 		root = self.selected.invisibleRootItem()
-		os.system(str('mkdir -p ' + self.model + '/tests'))
-		make = '\t$(MAKE) -C '
-		# Write the Makefile
-		with open(str(self.model + '/Makefile'), 'w') as fp:
-			for text in ['all', 'clean']:
-				fp.write(text + ':\n')
-				for i in range(root.childCount()):
-					parent = root.child(i)
-					path = self.runCommand('sst-config ' + parent.text(0) + ' ' + parent.text(0) + '_LIBDIR').strip()
-					if path != '':
-						fp.write(make + path + ' ' + text + '\n')
-					else:
-						fp.write(make + self.elementPath + '/' + parent.text(0) + ' ' + text + '\n')
+		os.system(str('mkdir -p ' + self.model))
 		self.elements = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
 		# Write the test python file
-		with open(str(self.model + '/tests/' + self.model + '.py'), 'w') as fp:
+		with open(str(self.model + '/' + self.model + '.py'), 'w') as fp:
 			fp.write('import sst\n\n')
 			# Add in the component declarations
 			for i in range(root.childCount()):
@@ -282,14 +276,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					item = os.path.basename(child.text(0))
 					fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + item + str(i) + str(j) + '", "' + parent.text(0) + '.' + item + '")\n')
 					fp.write('obj' + str(i) + str(j) + '.addParams({\n')
-					params = self.elements.find("*/Component[@Name='" + item + "']").findall('Parameter')
+					components = self.elements.find("*/Component[@Name='" + item + "']")
+					params = components.findall('Parameter')
 					for k in range(len(params)):
 						if k == len(params) - 1:
-							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n\n')
+							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n')
 						else:
 							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
-			# Add an example link at the end to show how to connect objects
-			fp.write('sst.Link("MyLink").connect( (obj00, "port", "15ns"), (obj10, "port", "15ns") )')
+					ports = components.findall('Port')
+					for k in range(len(ports)):
+						fp.write('sst.Link("' + ports[k].get('Name') + '").connect( (obj' + str(i) + str(j) + ', "' + ports[k].get('Name') + '", "15ns"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
+				fp.write('\n')
 
 
 	# Write to information screen
@@ -424,6 +421,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			if elementInfo:
 				if item.parent():
 					self.writeInfo(self.runCommand('sst-info ' + item.parent().text(0) + '.' + item.text(0)), 'gray')
+				else:
+					self.writeInfo(self.runCommand('sst-info ' + item.text(0)), 'gray')
 			else:
 				f = os.getcwd() + '/templates/' + item.text() + '/' + item.text() + '.cc'
 				if os.path.isfile(f):
