@@ -43,7 +43,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
-		self.elementPath = self.runCommand('sst-config SST_ELEMENT_LIBRARY SST_ELEMENT_LIBRARY_LIBDIR').strip()
+		self.elementPath = os.getenv('SST_ELEMENTS_SRC', '../scratch/src/sst-elements-library-7.1.0/src/sst/elements/')
 		self.updateTabs()
 		# Model Creator Tab
 		self.templates.itemDoubleClicked.connect(self.templateHelp)
@@ -51,7 +51,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.templateBrowse.clicked.connect(self.browseTemplates)
 		# Model Connector Tab
 		self.tabWidget.currentChanged.connect(self.updateTabs)
-		self.modelBrowse.clicked.connect(self.browseModels)
 		self.add.clicked.connect(self.addModel)
 		self.remove.clicked.connect(self.removeModel)
 		self.available.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -67,10 +66,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if self.tabWidget.currentIndex() == 0:
 			if not self.getTemplate(): return
 		self.updateModels()
+		local = next(os.walk('.'))[1]
 		makefiles = True
-		if self.components.count(self.model) != 0:
+		if self.components.count(self.model) != 0 or self.model in local:
 			lib = self.runCommand('sst-config ' + self.model + ' ' + self.model + '_LIBDIR')
-			if lib != '':
+			if lib != '' or self.model in local:
 				# local model, can overwrite
 				if self.overwrite.isChecked():
 					text = 'Do you really want to overwrite your local version of ' + self.model + '?'
@@ -183,19 +183,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					child.setText(0, component.get('Name'))
 				self.components.extend(components)
 
-	# Browse for additional models
-	def browseModels(self):
-		modelDir = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
-		if modelDir:
-			browsed = self.selected.findItems('Browsed Models', Qt.MatchExactly, 0)
-			if browsed:
-				parent = browsed[0]
-			else:
-				parent = QTreeWidgetItem(self.selected)
-				parent.setText(0, 'Browsed Models')
-			child = QTreeWidgetItem(parent)
-			child.setText(0, modelDir)
-
 	# Add Models
 	def addModel(self):
 		root = self.selected.invisibleRootItem()
@@ -217,6 +204,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		root = self.selected.invisibleRootItem()
 		for item in self.selected.selectedItems():
 			(item.parent() or root).removeChild(item)
+
 
 
 	### Application helper functions
@@ -278,10 +266,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				for i in range(root.childCount()):
 					parent = root.child(i)
 					path = self.runCommand('sst-config ' + parent.text(0) + ' ' + parent.text(0) + '_LIBDIR').strip()
-					# TODO fix this for Browsed Models
-					if parent.text(0).startswith('/'):
-						fp.write(make + child.text(0) + ' ' + text + '\n')
-					elif path != '':
+					if path != '':
 						fp.write(make + path + ' ' + text + '\n')
 					else:
 						fp.write(make + self.elementPath + '/' + parent.text(0) + ' ' + text + '\n')
@@ -295,18 +280,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				for j in range(parent.childCount()):
 					child = parent.child(j)
 					item = os.path.basename(child.text(0))
-					if parent.text(0) != 'Browsed Models':
-						fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + item + str(i) + str(j) + '", "' + parent.text(0) + '.' + item + '")\n')
-						fp.write('obj' + str(i) + str(j) + '.addParams({\n')
-						params = self.elements.find("*/Component[@Name='" + item + "']").findall('Parameter')
-						for k in range(len(params)):
-							if k == len(params) - 1:
-								fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n\n')
-							else:
-								fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
-					else:
-						fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + item + str(i) + str(j) + '", "' + item + '.' + item + '")\n')
-						fp.write('obj' + str(i) + str(j) + '.addParams({\n\t"param1" : "val1",\n\t"param2" : "val2"\n\t})\n\n')
+					fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + item + str(i) + str(j) + '", "' + parent.text(0) + '.' + item + '")\n')
+					fp.write('obj' + str(i) + str(j) + '.addParams({\n')
+					params = self.elements.find("*/Component[@Name='" + item + "']").findall('Parameter')
+					for k in range(len(params)):
+						if k == len(params) - 1:
+							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n\n')
+						else:
+							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
 			# Add an example link at the end to show how to connect objects
 			fp.write('sst.Link("MyLink").connect( (obj00, "port", "15ns"), (obj10, "port", "15ns") )')
 
@@ -339,6 +320,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Runs a command and returns the output when the command has completed
 	def runCommand(self, command):
 		return subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8")
+
 
 	# Update available models and templates
 	def updateTabs(self):
@@ -437,48 +419,34 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 	# Display model help
 	def modelHelp(self, items, elementInfo = False):
-		for i in items:
-			item = str(i.text())
-			# Handle full paths, local paths, and no paths
-			# Browsed models, local models, SST default models/templates respectively
-			if item.startswith('/'):
-				f = item
-			elif item.startswith('./'):
-				f = os.getcwd() + '/' + os.path.basename(item)
-			else:
-				if self.tabWidget.currentIndex() == 0:
-					f = os.getcwd() + '/templates/' + os.path.basename(item)
-				else:
-					f = self.elementPath + '/' + os.path.basename(item)
-			# Assuming there is a file in the model called <model>.cc
-			f += '/' + os.path.basename(item) + '.cc'
+		for item in items:
 			self.writeInfo(self.separator)
-			if os.path.isfile(f):
-				# Look for doxygen style comments
-				with open(f, 'r') as help:
-					incomment = False
-					for line in help:
-						if incomment:
-							if line.strip().endswith('*/'):
-								incomment = False
-								self.writeInfo('\n')
+			if elementInfo:
+				if item.parent():
+					self.writeInfo(self.runCommand('sst-info ' + item.parent().text(0) + '.' + item.text(0)), 'gray')
+			else:
+				f = os.getcwd() + '/templates/' + item.text() + '/' + item.text() + '.cc'
+				if os.path.isfile(f):
+					# Look for doxygen style comments
+					with open(f, 'r') as help:
+						incomment = False
+						for line in help:
+							if incomment:
+								if line.strip().endswith('*/'):
+									incomment = False
+									self.writeInfo('\n')
+								else:
+									self.writeInfo(line)
 							else:
-								self.writeInfo(line)
-						else:
-							if line.strip().startswith('/**'):
-								incomment = True
-				# Show the element info from SST
-				if elementInfo:
-					self.writeInfo(self.runCommand('sst-info ' + os.path.basename(item)), 'gray')
-			elif not elementInfo:
-				self.writeInfo('No help available for this model\n')
+								if line.strip().startswith('/**'):
+									incomment = True
 			self.writeInfo(self.separator + '\n')
 	# Template Help
 	def templateHelp(self):
 		self.modelHelp(self.templates.selectedItems())
 	# Available Models Help
 	def availableHelp(self):
-		self.modelHelp(self.available.selectedItems())
+		self.modelHelp(self.available.selectedItems(), True)
 	# Selected Models Help (show SST element info)
 	def selectedHelp(self):
 		self.modelHelp(self.selected.selectedItems(), True)

@@ -135,20 +135,6 @@
         <string>Model Connector</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,1,1">
-        <item row="0" column="0" alignment="Qt::AlignLeft">
-         <widget class="QCommandLinkButton" name="modelBrowse">
-          <property name="toolTip">
-           <string>Browse for a model not provided by SST or in your local directory</string>
-          </property>
-          <property name="text">
-           <string>Browse For Component</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>resources/find.png</normaloff>resources/find.png</iconset>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1" alignment="Qt::AlignLeft">
          <widget class="QCommandLinkButton" name="add">
           <property name="toolTip">
@@ -177,18 +163,6 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QTreeWidget" name="available">
-          <property name="toolTip">
-           <string>Models Available for use. Double click for help</string>
-          </property>
-          <column>
-           <property name="text">
-            <string>Available Components</string>
-           </property>
-          </column>
-         </widget>
-        </item>
         <item row="1" column="1" colspan="2">
          <widget class="QTreeWidget" name="selected">
           <property name="toolTip">
@@ -197,6 +171,18 @@
           <column>
            <property name="text">
             <string>Selected Components</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="2">
+         <widget class="QTreeWidget" name="available">
+          <property name="toolTip">
+           <string>Models Available for use. Double click for help</string>
+          </property>
+          <column>
+           <property name="text">
+            <string>Available Components</string>
            </property>
           </column>
          </widget>
