@@ -63,6 +63,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Check for template if in Creator Mode
 		if self.tabWidget.currentIndex() == 0:
 			if not self.getTemplate(): return
+		# Check SST Registered Models and local folders
 		self.updateModels()
 		local = next(os.walk('.'))[1]
 		makefiles = True
@@ -111,6 +112,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 	### Configure Button main function
 	def compileModel(self):
+		# Configure does nothing for connector mode
 		if self.tabWidget.currentIndex() == 0:
 			if not self.getModel(): return
 			self.writeInfo(self.separator + '***** Building Model *****\n\n')
@@ -131,7 +133,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			# Run the model if autorun is checked
 			if self.autoRun.isChecked():
 				self.runModel()
-		else:
+		elif self.tabWidget.currentIndex() == 1:
 			self.writeInfo('Nothing to compile when connecting models\n\n', 'cyan')
 
 
@@ -141,14 +143,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Run all tests
 		if self.tabWidget.currentIndex() == 0:
 			testfiles = os.listdir('./' + self.model + '/tests/')
-		else:
+		elif self.tabWidget.currentIndex() == 1:
 			testfiles = os.listdir('./' + self.model)
 		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
 		for testfile in testfiles:
 			self.writeInfo('*** ' + testfile + ' ***\n')
 			if self.tabWidget.currentIndex() == 0:
 				self.runCmdByLine(str('sst ' + self.model + '/tests/' + testfile))
-			else:
+			elif self.tabWidget.currentIndex() == 1:
 				self.runCmdByLine(str('sst ' + self.model + '/' + testfile))
 			self.writeInfo('\n')
 		self.writeInfo(self.separator + '\n')
@@ -177,14 +179,19 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Update the Available Models
 	def updateModels(self):
 		self.available.clear()
+		# Store an ElementTree with all the xml data from sst-info
 		self.elements = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
+		# Store a list of the components SST knows about
 		self.components = []
 		for element in self.elements.findall('Element'):
 			components = element.findall('Component')
+			# Make sure the Element has Components the user can use
 			if components:
+				# Create a parent item in the TreeWidget
 				parent = QTreeWidgetItem(self.available)
 				parent.setText(0, element.get('Name'))
 				for component in components:
+					# Create child items in the parent item
 					child = QTreeWidgetItem(parent)
 					child.setText(0, component.get('Name'))
 				self.components.extend(components)
@@ -193,15 +200,19 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def addModel(self):
 		root = self.selected.invisibleRootItem()
 		for item in self.available.selectedItems():
+			# Make sure the item has a parent (it is a child, not a parent itself)
 			if item.parent():
 				parentExists = False
+				# Loop through the parents to see if we have a parent that matches already
 				for i in range(root.childCount()):
 					parent = root.child(i)
 					if item.parent().text(0) == parent.text(0):
 						parentExists = True
+				# No parent exists in the selected tree, create one
 				if not parentExists:
 					parent = QTreeWidgetItem(self.selected)
 					parent.setText(0, item.parent().text(0))
+				# Connect the child to the proper parent
 				child = QTreeWidgetItem(parent)
 				child.setText(0, item.text(0))
 
@@ -254,8 +265,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Move and update the template files to create a new model
 	def createModel(self):
 		os.system(str('mkdir -p ' + self.model + '/tests'))
+		# Loop through sources and destinations at the same time
 		for s, d in zip(self.source, self.dest):
 			with open(str(self.templatePath + '/' + s), 'r') as infile, open(str(self.model + '/' + d), 'w') as outfile:
+				# Copy from source to destination while replacing <model> tags
 				for line in infile:
 					outfile.write(line.replace('<model>', str(self.model)))
 
@@ -268,22 +281,27 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Write the test python file
 		with open(str(self.model + '/' + self.model + '.py'), 'w') as fp:
 			fp.write('import sst\n\n')
-			# Add in the component declarations
+			# Loop through all the parents
 			for i in range(root.childCount()):
 				parent = root.child(i)
+				# Loop through all the children
 				for j in range(parent.childCount()):
 					child = parent.child(j)
-					item = os.path.basename(child.text(0))
+					item = child.text(0)
+					# Write the Component Definition
 					fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + item + str(i) + str(j) + '", "' + parent.text(0) + '.' + item + '")\n')
 					fp.write('obj' + str(i) + str(j) + '.addParams({\n')
 					components = self.elements.find("*/Component[@Name='" + item + "']")
 					params = components.findall('Parameter')
+					# Write out all of the available parameters with their defaults and description
 					for k in range(len(params)):
 						if k == len(params) - 1:
 							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n')
 						else:
 							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
 					ports = components.findall('Port')
+					# Write out all of the available ports with their descriptions
+					# These need to be modified by the user to actually connect components
 					for k in range(len(ports)):
 						fp.write('sst.Link("' + ports[k].get('Name') + '").connect( (obj' + str(i) + str(j) + ', "' + ports[k].get('Name') + '", "15ns"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
 				fp.write('\n')
@@ -418,11 +436,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def modelHelp(self, items, elementInfo = False):
 		for item in items:
 			self.writeInfo(self.separator)
+			# Write the sst-info output of the item
 			if elementInfo:
 				if item.parent():
 					self.writeInfo(self.runCommand('sst-info ' + item.parent().text(0) + '.' + item.text(0)), 'gray')
 				else:
 					self.writeInfo(self.runCommand('sst-info ' + item.text(0)), 'gray')
+			# Find doxygen comments from template
 			else:
 				f = os.getcwd() + '/templates/' + item.text() + '/' + item.text() + '.cc'
 				if os.path.isfile(f):
@@ -446,7 +466,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Available Models Help
 	def availableHelp(self):
 		self.modelHelp(self.available.selectedItems(), True)
-	# Selected Models Help (show SST element info)
+	# Selected Models Help
 	def selectedHelp(self):
 		self.modelHelp(self.selected.selectedItems(), True)
 

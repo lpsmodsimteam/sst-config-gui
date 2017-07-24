@@ -121,7 +121,7 @@
         <item row="4" column="0" rowspan="2">
          <widget class="QListWidget" name="templates">
           <property name="toolTip">
-           <string>Available Templates. Double click a template for help</string>
+           <string>Available Templates. Double click for help</string>
           </property>
          </widget>
         </item>
@@ -166,7 +166,7 @@
         <item row="1" column="1" colspan="2">
          <widget class="QTreeWidget" name="selected">
           <property name="toolTip">
-           <string>Models to be connected. Double click for help and SST information</string>
+           <string>Models to be connected. Double click for help</string>
           </property>
           <column>
            <property name="text">
