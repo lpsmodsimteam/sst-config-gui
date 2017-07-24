@@ -134,40 +134,14 @@
        <attribute name="title">
         <string>Model Connector</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="sstModels">
-          <property name="toolTip">
-           <string>Show/Hide the models provided with sst-elements</string>
-          </property>
-          <property name="text">
-           <string>Default SST Models</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QCheckBox" name="localModels">
-          <property name="toolTip">
-           <string>Show/Hide your local models</string>
-          </property>
-          <property name="text">
-           <string>Local Models</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
+       <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,1,1">
+        <item row="0" column="0" alignment="Qt::AlignLeft">
          <widget class="QCommandLinkButton" name="modelBrowse">
           <property name="toolTip">
            <string>Browse for a model not provided by SST or in your local directory</string>
           </property>
           <property name="text">
-           <string>Browse Models</string>
+           <string>Browse For Component</string>
           </property>
           <property name="icon">
            <iconset>
@@ -175,13 +149,13 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
+        <item row="0" column="1" alignment="Qt::AlignLeft">
          <widget class="QCommandLinkButton" name="add">
           <property name="toolTip">
            <string>Add selected models from the Available Models List to the Selected Models List</string>
           </property>
           <property name="text">
-           <string>Add Model</string>
+           <string>Add Component</string>
           </property>
           <property name="icon">
            <iconset>
@@ -189,13 +163,13 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="4">
+        <item row="0" column="2" alignment="Qt::AlignRight">
          <widget class="QCommandLinkButton" name="remove">
           <property name="toolTip">
            <string>Remove selected models from the Selected Models List</string>
           </property>
           <property name="text">
-           <string>Remove Model</string>
+           <string>Remove Component</string>
           </property>
           <property name="icon">
            <iconset>
@@ -203,32 +177,28 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0" colspan="3">
-         <widget class="QListWidget" name="available">
+        <item row="1" column="0">
+         <widget class="QTreeWidget" name="available">
           <property name="toolTip">
-           <string>Models available for use. You can select multiple models at once. Double click a model for help</string>
+           <string>Models Available for use. Double click for help</string>
           </property>
+          <column>
+           <property name="text">
+            <string>Available Components</string>
+           </property>
+          </column>
          </widget>
         </item>
-        <item row="1" column="3" colspan="2">
-         <widget class="QListWidget" name="selected">
+        <item row="1" column="1" colspan="2">
+         <widget class="QTreeWidget" name="selected">
           <property name="toolTip">
            <string>Models to be connected. Double click for help and SST information</string>
           </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="3" alignment="Qt::AlignHCenter">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Available Models</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3" colspan="2" alignment="Qt::AlignHCenter">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Selected Models</string>
-          </property>
+          <column>
+           <property name="text">
+            <string>Selected Components</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>

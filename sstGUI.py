@@ -12,8 +12,10 @@ import subprocess
 import re
 import fileinput
 import cgi
+import xml.etree.ElementTree as ET
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
 
 # Load the UI
@@ -41,9 +43,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
-		#TODO Get from sst-config
-		[path, version] = str(os.getenv('SST_ELEMENTS_HOME')).split('/local/sstelements-')
-		self.elementPath = path + '/scratch/src/sst-elements-library-' + version + '/src/sst/elements'
+		self.elementPath = self.runCommand('sst-config SST_ELEMENT_LIBRARY SST_ELEMENT_LIBRARY_LIBDIR').strip()
 		self.updateTabs()
 		# Model Creator Tab
 		self.templates.itemDoubleClicked.connect(self.templateHelp)
@@ -51,8 +51,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.templateBrowse.clicked.connect(self.browseTemplates)
 		# Model Connector Tab
 		self.tabWidget.currentChanged.connect(self.updateTabs)
-		self.sstModels.stateChanged.connect(self.updateModels)
-		self.localModels.stateChanged.connect(self.updateModels)
 		self.modelBrowse.clicked.connect(self.browseModels)
 		self.add.clicked.connect(self.addModel)
 		self.remove.clicked.connect(self.removeModel)
@@ -68,45 +66,44 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Check for template if in Creator Mode
 		if self.tabWidget.currentIndex() == 0:
 			if not self.getTemplate(): return
-		sstModels = next(os.walk(self.elementPath))[1]
-		if (sstModels.count(self.model) != 0):
-			self.writeInfo(self.separator)
-			text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
-			text += '*** PLEASE CHOOSE ANOTHER NAME ***\n\n'
-			self.writeInfo(text, 'red')
-			self.writeInfo('SST provided models:\n')
-			text = ''
-			for item in sstModels:
-				text += item + '\n'
-			self.writeInfo(text, 'blue')
-			self.writeInfo(self.separator + '\n')
-			return
-		# Do some checking see if you already have a model in your working directory
-		# with the same name or if there is one in the element directory
-		workingModels = os.listdir('.')
-		makefiles = 1
-		# Check local models
-		if (workingModels.count(self.model) != 0):
-			if self.overwrite.isChecked():
-				text = 'Do you really want to overwrite your local version of ' + self.model + '?'
-				val = self.warningPopup(text, 'Overwrite Model?')
-				if (val == QMessageBox.No):
-					makefiles = 0
+		self.updateModels()
+		makefiles = True
+		if self.components.count(self.model) != 0:
+			lib = self.runCommand('sst-config ' + self.model + ' ' + self.model + '_LIBDIR')
+			if lib != '':
+				# local model, can overwrite
+				if self.overwrite.isChecked():
+					text = 'Do you really want to overwrite your local version of ' + self.model + '?'
+					val = self.warningPopup(text, 'Overwrite Model?')
+					if val == QMessageBox.No:
+						makefiles = False
+				else:
+					makefiles = False
 			else:
-				makefiles = 0
+				self.writeInfo(self.separator)
+				text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
+				text += '*** PLEASE CHOOSE ANOTHER NAME ***\n\n'
+				self.writeInfo(text, 'red')
+				self.writeInfo('SST provided models:\n')
+				text = ''
+				for item in self.components:
+					text += item + '\n'
+				self.writeInfo(text, 'blue')
+				self.writeInfo(self.separator + '\n')
+				return
 		files = ''
 		# Overwrite the model
-		if (makefiles == 1):
+		if makefiles:
 			os.system(str('rm -rf ' + self.model))
 		# Create/Open the files
 		if self.tabWidget.currentIndex() == 0:
-			if (makefiles == 1):
+			if makefiles:
 				self.createModel()
 			self.templatesMessage(self.dest)
 			for item in self.dest:
 				files += './' + self.model + '/' + item + ' '
 		elif self.tabWidget.currentIndex() == 1:
-			if (makefiles == 1):
+			if makefiles:
 				self.connectModels()
 			self.templatesMessage(['Makefile', '/tests/' + self.model + '.py'])
 			files += './' + self.model + '/Makefile ./' + self.model + '/tests/' + self.model + '.py '
@@ -173,55 +170,60 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Update the Available Models
 	def updateModels(self):
 		self.available.clear()
-		# Display the local models on top
-		if self.localModels.isChecked():
-			items = next(os.walk('./'))[1]
-			for item in items:
-				if item != 'templates' and item != 'resources' and item != '.git':
-					self.available.addItem(str('./' + item))
-		# Display SST models on bottom
-		self.components = [[]]
-		if self.sstModels.isChecked():
-			#TODO use xml and parse that way? https://stackoverflow.com/questions/39089776/python-read-named-pipe
-			info = subprocess.getoutput('sst-info')
-			element = re.compile('ELEMENT \d{1,} = ')
-			component = re.compile('COMPONENT \d{1,} = ')
-			i = 0
-			for line in iter(info.splitlines()):
-				if element.search(line):
-					i += 1
-					self.components.append([line.split(' = ')[1].split(' ')[0]])
-				if component.search(line):
-					self.components[i].append(line.split(' = ')[1].split(' ')[0])
-			self.components.pop(0)
-			for i in range(len(self.components)):
-				print(self.components[i][0])
-				for j in range(len(self.components[i])-1):
-					print('\t' + str(self.components[i][j+1]))
-			self.available.addItems(next(os.walk(self.elementPath))[1])
+		#elements = ET.fromstring(subprocess.run('sst-info -qnxo /dev/stdout'.split(), stdout=subprocess.PIPE).stdout.decode("utf-8"))
+		self.elements = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
+		self.components = []
+		for element in self.elements.findall('Element'):
+			components = element.findall('Component')
+			if components:
+				parent = QTreeWidgetItem(self.available)
+				parent.setText(0, element.get('Name'))
+				for component in components:
+					child = QTreeWidgetItem(parent)
+					child.setText(0, component.get('Name'))
+				self.components.extend(components)
 
 	# Browse for additional models
 	def browseModels(self):
 		modelDir = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
 		if modelDir:
-			self.selected.addItem(modelDir)
+			browsed = self.selected.findItems('Browsed Models', Qt.MatchExactly, 0)
+			if browsed:
+				parent = browsed[0]
+			else:
+				parent = QTreeWidgetItem(self.selected)
+				parent.setText(0, 'Browsed Models')
+			child = QTreeWidgetItem(parent)
+			child.setText(0, modelDir)
 
 	# Add Models
 	def addModel(self):
+		root = self.selected.invisibleRootItem()
 		for item in self.available.selectedItems():
-			self.selected.addItem(item.text())
+			if item.parent():
+				parentExists = False
+				for i in range(root.childCount()):
+					parent = root.child(i)
+					if item.parent().text(0) == parent.text(0):
+						parentExists = True
+				if not parentExists:
+					parent = QTreeWidgetItem(self.selected)
+					parent.setText(0, item.parent().text(0))
+				child = QTreeWidgetItem(parent)
+				child.setText(0, item.text(0))
 
 	# Remove Models
 	def removeModel(self):
+		root = self.selected.invisibleRootItem()
 		for item in self.selected.selectedItems():
-			self.selected.takeItem(self.selected.row(item))
+			(item.parent() or root).removeChild(item)
 
 
 	### Application helper functions
 	# Gets the model name from the GUI
 	def getModel(self):
 		self.model = self.modelName.text()
-		if (self.model == ''):
+		if self.model == '':
 			self.writeInfo('*** PLEASE ENTER A MODEL NAME ***\n\n', 'red')
 			return False
 		return True
@@ -233,7 +235,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.templatePath = str(self.templateType.text())
 		self.template = os.path.basename(self.templatePath)
 		# Check for empty string
-		if (self.template == ''):
+		if self.template == '':
 			self.writeInfo('*** PLEASE SELECT A TEMPLATE ***\n\n', 'red')
 			return False
 		# Check for a valid template
@@ -250,7 +252,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Replace <model> tag with the model name
 		for item in destination:
 			self.dest.append(item.replace('<model>', str(self.model)))
-			if ('.cc' in item) | ('.h' in item):
+			if '.cc' in item or '.h' in item:
 				self.sourceFiles.append(item.replace('<model>', str(self.model)))
 		return True
 
@@ -266,41 +268,47 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 	# Connect various models together
 	def connectModels(self):
+		root = self.selected.invisibleRootItem()
 		os.system(str('mkdir -p ' + self.model + '/tests'))
 		make = '\t$(MAKE) -C '
 		# Write the Makefile
 		with open(str(self.model + '/Makefile'), 'w') as fp:
-			# Make all command
-			fp.write('all:\n')
-			for i in range(self.selected.count()):
-				item = str(self.selected.item(i).text())
-				# Handle full paths, local paths, and no paths
-				# Browsed models, local models, SST default models respectively
-				if item.startswith('/'):
-					fp.write(make + item + ' all\n')
-				elif item.startswith('./'):
-					fp.write(make + os.getcwd() + '/' + os.path.basename(item) + ' all\n')
-				else:
-					fp.write(make + self.elementPath + '/' + os.path.basename(item) + ' all\n')
-			fp.write('\nclean:\n')
-			for i in range(self.selected.count()):
-				item = str(self.selected.item(i).text())
-				if item.startswith('/'):
-					fp.write(make + item + ' clean\n')
-				elif item.startswith('./'):
-					fp.write(make + os.getcwd() + '/' + os.path.basename(item) + ' clean\n')
-				else:
-					fp.write(make + self.elementPath + '/' + os.path.basename(item) + ' clean\n')
+			for text in ['all', 'clean']:
+				fp.write(text + ':\n')
+				for i in range(root.childCount()):
+					parent = root.child(i)
+					path = self.runCommand('sst-config ' + parent.text(0) + ' ' + parent.text(0) + '_LIBDIR').strip()
+					# TODO fix this for Browsed Models
+					if parent.text(0).startswith('/'):
+						fp.write(make + child.text(0) + ' ' + text + '\n')
+					elif path != '':
+						fp.write(make + path + ' ' + text + '\n')
+					else:
+						fp.write(make + self.elementPath + '/' + parent.text(0) + ' ' + text + '\n')
+		self.elements = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
 		# Write the test python file
 		with open(str(self.model + '/tests/' + self.model + '.py'), 'w') as fp:
 			fp.write('import sst\n\n')
 			# Add in the component declarations
-			for i in range(self.selected.count()):
-				item = os.path.basename(str(self.selected.item(i).text()))
-				fp.write('obj' + str(i) + ' = sst.Component("' + item + str(i) + '", "' + item + '.' + item + '")\n')
-				fp.write('obj' + str(i) + '.addParams({\n\t"param1" : "val1",\n\t"param2" : "val2"\n\t})\n\n')
+			for i in range(root.childCount()):
+				parent = root.child(i)
+				for j in range(parent.childCount()):
+					child = parent.child(j)
+					item = os.path.basename(child.text(0))
+					if parent.text(0) != 'Browsed Models':
+						fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + item + str(i) + str(j) + '", "' + parent.text(0) + '.' + item + '")\n')
+						fp.write('obj' + str(i) + str(j) + '.addParams({\n')
+						params = self.elements.find("*/Component[@Name='" + item + "']").findall('Parameter')
+						for k in range(len(params)):
+							if k == len(params) - 1:
+								fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n\n')
+							else:
+								fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
+					else:
+						fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + item + str(i) + str(j) + '", "' + item + '.' + item + '")\n')
+						fp.write('obj' + str(i) + str(j) + '.addParams({\n\t"param1" : "val1",\n\t"param2" : "val2"\n\t})\n\n')
 			# Add an example link at the end to show how to connect objects
-			fp.write('sst.Link("MyLink").connect( (obj0, "port", "15ns"), (obj1, "port", "15ns") )')
+			fp.write('sst.Link("MyLink").connect( (obj00, "port", "15ns"), (obj10, "port", "15ns") )')
 
 
 	# Write to information screen
@@ -328,10 +336,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.writeInfo(output.decode("utf-8"), color)
 		return process.poll()
 
-	# Runs a command and prints out the output when the command has completed
-	def runCommand(self, command, color='black'):
-		process = subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-		self.writeInfo(process.stdout.decode("utf-8"), color)
+	# Runs a command and returns the output when the command has completed
+	def runCommand(self, command):
+		return subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8")
 
 	# Update available models and templates
 	def updateTabs(self):
@@ -462,7 +469,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 								incomment = True
 				# Show the element info from SST
 				if elementInfo:
-					self.runCommand('sst-info ' + os.path.basename(item), 'gray')
+					self.writeInfo(self.runCommand('sst-info ' + os.path.basename(item)), 'gray')
 			elif not elementInfo:
 				self.writeInfo('No help available for this model\n')
 			self.writeInfo(self.separator + '\n')
