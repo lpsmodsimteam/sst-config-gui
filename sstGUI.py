@@ -215,6 +215,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				# Connect the child to the proper parent
 				child = QTreeWidgetItem(parent)
 				child.setText(0, item.text(0))
+		self.selected.expandToDepth(0)
 
 	# Remove Models
 	def removeModel(self):
@@ -280,31 +281,39 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.elements = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
 		# Write the test python file
 		with open(str(self.model + '/' + self.model + '.py'), 'w') as fp:
-			fp.write('import sst\n\n')
+			fp.write('import sst\n\n# TODO: Check the parameters for all components and connect the links at the bottom before running!!!\n\n')
 			# Loop through all the parents
 			for i in range(root.childCount()):
 				parent = root.child(i)
 				# Loop through all the children
 				for j in range(parent.childCount()):
-					child = parent.child(j)
-					item = child.text(0)
+					child = parent.child(j).text(0)
 					# Write the Component Definition
-					fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + item + str(i) + str(j) + '", "' + parent.text(0) + '.' + item + '")\n')
+					fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + child + str(i) + str(j) + '", "' + parent.text(0) + '.' + child + '")\n')
 					fp.write('obj' + str(i) + str(j) + '.addParams({\n')
-					components = self.elements.find("*/Component[@Name='" + item + "']")
-					params = components.findall('Parameter')
+					params = self.elements.find("*/Component[@Name='" + child + "']").findall('Parameter')
 					# Write out all of the available parameters with their defaults and description
 					for k in range(len(params)):
 						if k == len(params) - 1:
-							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n')
+							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n\n')
 						else:
 							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
-					ports = components.findall('Port')
+			fp.write('\n###################################################################\n')
+			fp.write('# TODO: Links have the first port connected but need to be manually\n')
+			fp.write('# connected to a second port to work. Delays also should be edited\n\n')
+			# After all components have been declared, write links
+			for i in range(root.childCount()):
+				parent = root.child(i)
+				# Loop through all the children
+				for j in range(parent.childCount()):
+					child = parent.child(j).text(0)
+					ports = self.elements.find("*/Component[@Name='" + child + "']").findall('Port')
+					fp.write('# ' + child + ' Links\n')
 					# Write out all of the available ports with their descriptions
 					# These need to be modified by the user to actually connect components
 					for k in range(len(ports)):
-						fp.write('sst.Link("' + ports[k].get('Name') + '").connect( (obj' + str(i) + str(j) + ', "' + ports[k].get('Name') + '", "15ns"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
-				fp.write('\n')
+						fp.write('sst.Link("' + child + '_' + ports[k].get('Name') + '").connect( (obj' + str(i) + str(j) + ', "' + ports[k].get('Name') + '", "15ns"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
+					fp.write('\n')
 
 
 	# Write to information screen
