@@ -187,34 +187,34 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			components = element.findall('Component')
 			# Make sure the Element has Components the user can use
 			if components:
-				# Create a parent item in the TreeWidget
-				parent = QTreeWidgetItem(self.available)
-				parent.setText(0, element.get('Name'))
+				# Create an element item in the TreeWidget
+				e = QTreeWidgetItem(self.available)
+				e.setText(0, element.get('Name'))
 				for component in components:
-					# Create child items in the parent item
-					child = QTreeWidgetItem(parent)
-					child.setText(0, component.get('Name'))
+					# Create component items in the element item
+					c = QTreeWidgetItem(e)
+					c.setText(0, component.get('Name'))
 				self.components.extend(components)
 
 	# Add Models
 	def addModel(self):
 		root = self.selected.invisibleRootItem()
 		for item in self.available.selectedItems():
-			# Make sure the item has a parent (it is a child, not a parent itself)
+			# Make sure the item has a element (it is a component, not an element itself)
 			if item.parent():
-				parentExists = False
-				# Loop through the parents to see if we have a parent that matches already
+				elementExists = False
+				# Loop through the elements to see if we have a element that matches already
 				for i in range(root.childCount()):
-					parent = root.child(i)
-					if item.parent().text(0) == parent.text(0):
-						parentExists = True
-				# No parent exists in the selected tree, create one
-				if not parentExists:
-					parent = QTreeWidgetItem(self.selected)
-					parent.setText(0, item.parent().text(0))
-				# Connect the child to the proper parent
-				child = QTreeWidgetItem(parent)
-				child.setText(0, item.text(0))
+					element = root.child(i)
+					if item.parent().text(0) == element.text(0):
+						elementExists = True
+				# No element exists in the selected tree, create one
+				if not elementExists:
+					element = QTreeWidgetItem(self.selected)
+					element.setText(0, item.parent().text(0))
+				# Connect the component to the proper element
+				component = QTreeWidgetItem(element)
+				component.setText(0, item.text(0))
 		self.selected.expandToDepth(0)
 
 	# Remove Models
@@ -254,12 +254,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.source = structure.split()[0::2]
 		destination = structure.split()[1::2]
 		self.dest=[]
-		self.sourceFiles=[]
 		# Replace <model> tag with the model name
 		for item in destination:
 			self.dest.append(item.replace('<model>', str(self.model)))
-			if '.cc' in item or '.h' in item:
-				self.sourceFiles.append(item.replace('<model>', str(self.model)))
 		return True
 
 
@@ -282,16 +279,21 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Write the test python file
 		with open(str(self.model + '/' + self.model + '.py'), 'w') as fp:
 			fp.write('import sst\n\n# TODO: Check the parameters for all components and connect the links at the bottom before running!!!\n\n')
-			# Loop through all the parents
+			# Loop through all the elements
 			for i in range(root.childCount()):
-				parent = root.child(i)
-				# Loop through all the children
-				for j in range(parent.childCount()):
-					child = parent.child(j).text(0)
+				element = root.child(i)
+				# Loop through all the components
+				for j in range(element.childCount()):
+					comp = element.child(j).text(0)
 					# Write the Component Definition
-					fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + child + str(i) + str(j) + '", "' + parent.text(0) + '.' + child + '")\n')
+					fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + comp + str(i) + str(j) + '", "' + element.text(0) + '.' + comp + '")\n')
 					fp.write('obj' + str(i) + str(j) + '.addParams({\n')
-					params = self.elements.find("*/Component[@Name='" + child + "']").findall('Parameter')
+					parameters = self.elements.find("*/Component[@Name='" + comp + "']").findall('Parameter')
+					# Remove the DEPRECATED parameters
+					params = []
+					for param in parameters:
+						if not param.get('Description').strip().startswith('DEPRECATED'):
+							params.append(param)
 					# Write out all of the available parameters with their defaults and description
 					for k in range(len(params)):
 						if k == len(params) - 1:
@@ -303,16 +305,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			fp.write('# connected to a second port to work. Delays also should be edited\n\n')
 			# After all components have been declared, write links
 			for i in range(root.childCount()):
-				parent = root.child(i)
-				# Loop through all the children
-				for j in range(parent.childCount()):
-					child = parent.child(j).text(0)
-					ports = self.elements.find("*/Component[@Name='" + child + "']").findall('Port')
-					fp.write('# ' + child + ' Links\n')
+				element = root.child(i)
+				# Loop through all the components
+				for j in range(element.childCount()):
+					comp = element.child(j).text(0)
+					ports = self.elements.find("*/Component[@Name='" + comp + "']").findall('Port')
+					fp.write('# ' + comp + ' Links\n')
 					# Write out all of the available ports with their descriptions
 					# These need to be modified by the user to actually connect components
 					for k in range(len(ports)):
-						fp.write('sst.Link("' + child + '_' + ports[k].get('Name') + '").connect( (obj' + str(i) + str(j) + ', "' + ports[k].get('Name') + '", "15ns"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
+						
+						fp.write('sst.Link("' + comp + '_' + ports[k].get('Name') + '").connect( (obj' + str(i) + str(j) + ', "' + ports[k].get('Name') + '", "1ps"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
 					fp.write('\n')
 
 
