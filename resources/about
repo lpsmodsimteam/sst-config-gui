@@ -8,7 +8,7 @@ files. The tool tool will use your EDITOR environment
 variable as the preferred editor if it is set. If the EDITOR
 environment variable is not set gedit is used by default.
 The editors will be brought up when necessary in the model
-development process. Tool allows you to exit and edit off-line
+development process. The tool allows you to exit and edit off-line
 if you prefer and re-enter the process at point where you 
 left off.
 
