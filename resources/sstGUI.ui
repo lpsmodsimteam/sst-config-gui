@@ -300,16 +300,18 @@
     <addaction name="actionAbout"/>
     <addaction name="actionModel_Creator"/>
     <addaction name="actionModel_Connector"/>
+    <addaction name="actionModel_Grapher"/>
     <addaction name="actionModel_to_Template_Converter"/>
    </widget>
-   <widget class="QMenu" name="menuModel2Template">
+   <widget class="QMenu" name="menuGraph">
     <property name="title">
-     <string>Model2Template</string>
+     <string>Tools</string>
     </property>
-    <addaction name="actionRun"/>
+    <addaction name="actionGraph"/>
+    <addaction name="actionModel2Template"/>
    </widget>
    <addaction name="menuHelp"/>
-   <addaction name="menuModel2Template"/>
+   <addaction name="menuGraph"/>
   </widget>
   <action name="actionAbout">
    <property name="text">
@@ -340,12 +342,19 @@
     <string>Model to Template Converter Help</string>
    </property>
   </action>
-  <action name="actionRun">
+  <action name="actionModel2Template">
    <property name="text">
-    <string>Run</string>
+    <string>Model2Template</string>
    </property>
-   <property name="toolTip">
-    <string>Run the Model2Template Converter</string>
+  </action>
+  <action name="actionGraph">
+   <property name="text">
+    <string>Graph Model</string>
+   </property>
+  </action>
+  <action name="actionModel_Grapher">
+   <property name="text">
+    <string>Model Grapher</string>
    </property>
   </action>
  </widget>

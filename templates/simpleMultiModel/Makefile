@@ -11,4 +11,4 @@ install:
 	sst-register <model> <model>_LIBDIR=$(CURDIR)
 
 clean:
-	rm -f *.o lib<model>.so
+	rm -f *.o *.dot *.ps lib<model>.so

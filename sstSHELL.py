@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
 # This is a model development script to help you develop,
-# integrate and run a new model in SST. There should be
-# a sstGUI.ui file, a logo.png file, and several help files
-# in the resources directory. Templates can be found in
-# the templates directory
+# integrate and run a new model in SST. There are functions
+# to create, connect, convert, and graph models
 
-import sys
+# WARNING: These functions have no error checking as they
+# are meant to be called from other code which should
+# already have done error checking
+
 import os
 import subprocess
 import re
 import fileinput
-import cgi
 import xml.etree.ElementTree as ET
 import argparse
 
@@ -19,17 +19,15 @@ import argparse
 # Move and update the template files to create a new model
 def createModel(model, template):
 	os.system(str('rm -rf ' + model))
-	# Check for a valid template
-	if os.path.isfile(template + '/template'):
-		# Read template sources and destinations
-		with open(template + '/template', 'r') as fp:
-			structure = fp.read()
-		source = structure.split()[0::2]
-		destination = structure.split()[1::2]
-		dest=[]
-		# Replace <model> tag with the model name
-		for item in destination:
-			dest.append(item.replace('<model>', str(model)))
+	# Read template sources and destinations
+	with open(template + '/template', 'r') as fp:
+		structure = fp.read()
+	source = structure.split()[0::2]
+	destination = structure.split()[1::2]
+	dest=[]
+	# Replace <model> tag with the model name
+	for item in destination:
+		dest.append(item.replace('<model>', str(model)))
 	os.system(str('mkdir -p ' + model + '/tests'))
 	# Loop through sources and destinations at the same time
 	for s, d in zip(source, dest):
@@ -84,15 +82,53 @@ def connectModels(model, componentList):
 			fp.write('\n')
 
 
+# Graph a Model using the python test script
+def graphModel(model, test):
+	comp = [{}]
+	sub = [{}]
+	link = [{}]
+	modelName = os.path.basename(str(model.rstrip('/')))
+	with open(str(test), 'r') as infile:
+		for line in infile:
+			tmp = {}
+			if 'sst.Component' in line:
+				tmp['Name'] = re.split('\'|"', line)[1].strip()
+				tmp['Obj'] = line.split('=')[0].strip()
+				comp.append(tmp)
+			if '.setSubComponent' in line:
+				tmp['Name'] = re.split('\'|"', line)[1].strip()
+				tmp['Obj'] = line.split('=')[0].strip()
+				tmp['Comp'] = line.split('.setSubComponent')[0].split('=')[1].strip()
+				sub.append(tmp)
+			if 'sst.Link' in line:
+				tmp['Name'] = re.split('\'|"', line)[1].strip()
+				tmp['A'] = line.split(',')[0].strip().split('(')[-1]
+				tmp['B'] = line.split(',')[3].strip().split('(')[-1]
+				link.append(tmp)
+	# remove empty item from the beginning of the lists
+	comp = list(filter(None,comp))
+	sub = list(filter(None,sub))
+	link = list(filter(None,link))
+	path = modelName + '/' + modelName
+	with open(str(path + '.dot'),'w') as outfile:
+		outfile.write(str('graph ' + modelName + ' {\n\n'))
+		for item in comp:
+			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '" shape=box];\n\n'))
+		for item in sub:
+			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '"];\n'))
+			outfile.write(str('\t' + item['Comp'] + ' -- ' + item['Obj'] + ' [style=dotted];\n\n'))
+		for item in link:
+			outfile.write(str('\t' + item['A'] + ' -- ' + item['B'] + '[label="' + item['Name'] + '"];\n\n'))
+		outfile.write('}')
+	os.system(str('dot -Tps ' + path + '.dot -o ' + path + '.ps'))
+	return str(path + '.dot ' + path + '.ps')
+
+
 # Convert a model into a template
 def model2Template(model, template):
-	# Check to see if the template exists already
-	templates = os.listdir('./templates/')
-	if template in templates:
-		print('*** TEMPLATE ALREADY EXISTS ***\n\n')
-		return
 	path = './templates/' + template
 	# Copy the model into the templates directory, clean the model
+	os.system(str('rm -rf ' + path))
 	os.system(str('cp -r ' + model + ' ' + path))
 	os.system(str('make clean -C ' + path))
 	# Move any test files into the main directory with and add test- prefix
@@ -121,48 +157,11 @@ def model2Template(model, template):
 				fp.write(str(new + ' tests/' + tmp + '\n'))
 			else:
 				fp.write(str(new + ' ' + tmp + '\n'))
-	print('\nNew template created: ' + path + '\n')
-
-
-def graphModel(model):
-	path = model + '/tests/'
-	tests = os.listdir(path)
-	comp = [{}]
-	sub = [{}]
-	link = [{}]
-	with open(str(path + tests[0]), 'r') as infile:
-		for line in infile:
-			tmp = {}
-			if 'sst.Component' in line:
-				tmp['Name'] = re.split('\'|"', line)[1].strip()
-				tmp['Obj'] = line.split('=')[0].strip()
-				comp.append(tmp)
-			if '.setSubComponent' in line:
-				tmp['Name'] = re.split('\'|"', line)[1].strip()
-				tmp['Obj'] = line.split('=')[0].strip()
-				tmp['Comp'] = line.split('.setSubComponent')[0].split('=')[1].strip()
-				sub.append(tmp)
-			if 'sst.Link' in line:
-				tmp['Name'] = re.split('\'|"', line)[1].strip()
-				tmp['A'] = line.split(',')[0].strip().split('(')[-1]
-				tmp['B'] = line.split(',')[3].strip().split('(')[-1]
-				link.append(tmp)
-	# remove empty item from the beginning of the lists
-	comp = list(filter(None,comp))
-	sub = list(filter(None,sub))
-	link = list(filter(None,link))
-	with open(str(model + '/' + model + '.dot'),'w') as outfile:
-		outfile.write(str('graph ' + model + ' {\n\n'))
-		for item in comp:
-			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '" shape=box];\n\n'))
-		for item in sub:
-			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '"];\n'))
-			outfile.write(str('\t' + item['Comp'] + ' -- ' + item['Obj'] + ' [style=dotted];\n\n'))
-		for item in link:
-			outfile.write(str('\t' + item['A'] + ' -- ' + item['B'] + '[label="' + item['Name'] + '"];\n\n'))
-		outfile.write('}')
-	os.system(str('dot -Tps ' + model + '/' + model + '.dot -o ' + model + '/' + model + '.ps'))
-
+	f = path + '/template '
+	for new in newFiles:
+		f += path + '/' + new + ' '
+	return f
+	
 
 # Runs a command and returns the output when the command has completed
 def runCommand(command):
@@ -171,18 +170,28 @@ def runCommand(command):
 
 ##### Main Function
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser()
-	parser.add_argument("function", help="The function you wish to run", choices=['create','connect','convert','graph'])
-	parser.add_argument("model", help="The name of the model")
-	parser.add_argument("-t", "--template", help="The path to the template")
-	parser.add_argument("-c", "--components", help="The components you want to connect. Format is <element>.<component> with commas separating, NO spaces")
+	parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+	parser.add_argument("function", help="The function you wish to run\n\n", choices=['create','connect','convert','graph'])
+	parser.add_argument("model",
+			help=str("Function       | Help\n" + 
+					 "---------------+--------------------------------------------------\n"
+					 "Create/Connect | Name of the model to create\n" + 
+					 "Convert/Graph  | The path to the model\n\n"))
+	parser.add_argument("args",
+			help=str("Function  | Help\n" + 
+					 "----------+-------------------------------------------------------\n"
+					 "Create    | The path to the template\n" + 
+					 "Connect   | The components you want to connect\n" + 
+					 "          | Format is <element>.<component> with commas separating\n" + 
+					 "Convert   | The destination template name\n" + 
+					 "Graph     | The path to the python test file to graph\n"))
 	args = parser.parse_args()
 	if args.function == 'create':
-		createModel(args.model, args.template)
+		createModel(args.model, args.args)
 	elif args.function == 'connect':
-		connectModels(args.model, args.components)
+		connectModels(args.model, args.args)
 	elif args.function == 'convert':
-		model2Template(args.model, args.template)
+		model2Template(args.model, args.args)
 	elif args.function == 'graph':
-		graphModel(args.model)
+		graphModel(args.model, args.args)
 

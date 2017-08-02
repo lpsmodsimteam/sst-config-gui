@@ -2,9 +2,9 @@
 
 # This is a model development script to help you develop,
 # integrate and run a new model in SST. There should be
-# a sstGUI.ui file, a logo.png file, and several help files
-# in the resources directory. Templates can be found in
-# the templates directory
+# a sstGUI.ui file, a logo.png file, several other .png files
+# and several help files in the resources directory.
+# Templates can be found in the templates directory
 
 import sys
 import os
@@ -16,13 +16,16 @@ import xml.etree.ElementTree as ET
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
+import sstSHELL
 
 # Load the UI
 Ui_MainWindow, QtBaseClass = uic.loadUiType('resources/sstGUI.ui')
 
+####################################################################################
 ##### Main Application Class
 class MyApp(QMainWindow, Ui_MainWindow):
-
+	
+	############################################################################
 	### Initialization Function
 	def __init__(self):
 		QMainWindow.__init__(self)
@@ -36,14 +39,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.actionAbout.triggered.connect(self.helpAbout)
 		self.actionModel_Creator.triggered.connect(self.helpCreator)
 		self.actionModel_Connector.triggered.connect(self.helpConnector)
+		self.actionModel_Grapher.triggered.connect(self.helpGrapher)
 		self.actionModel_to_Template_Converter.triggered.connect(self.helpConverter)
-		self.actionRun.triggered.connect(self.model2Template)
+		self.actionGraph.triggered.connect(self.graphModel)
+		self.actionModel2Template.triggered.connect(self.model2Template)
 		# General setup
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
 		self.SSTinstalled = None
-		self.isSSTinstalled()
 		self.updateTabs()
 		# Model Creator Tab
 		self.templates.itemDoubleClicked.connect(self.templateHelp)
@@ -57,9 +61,16 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.available.itemDoubleClicked.connect(self.availableHelp)
 		self.selected.setSelectionMode(QAbstractItemView.ExtendedSelection)
 		self.selected.itemDoubleClicked.connect(self.selectedHelp)
-
-
+	############################################################################
+	
+	
+	
+	############################################################################
+	### Main Buttons at the bottom of the GUI
+	
+	########################################################################
 	### Generate/Open Files
+	### Creates or opens model files for both Model Creator and Model Connector tabs
 	def generateOpenFiles(self):
 		if not self.getModel(): return
 		# Check for template if in Creator Mode
@@ -70,7 +81,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		local = next(os.walk('.'))[1]
 		makefiles = True
 		if self.model in self.elements or self.model in local:
-			lib = self.runCommand('sst-config ' + self.model + ' ' + self.model + '_LIBDIR')
+			# Model is already registered with SST or it is a local model
+			lib = sstSHELL.runCommand('sst-config ' + self.model + ' ' + self.model + '_LIBDIR')
 			if lib != '' or self.model in local:
 				# local model, can overwrite
 				if self.overwrite.isChecked():
@@ -81,6 +93,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				else:
 					makefiles = False
 			else:
+				# SST provided model
 				self.writeInfo(self.separator)
 				text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
 				text += '*** PLEASE CHOOSE ANOTHER NAME ***\n\n'
@@ -92,27 +105,41 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.writeInfo(text, 'blue')
 				self.writeInfo(self.separator + '\n')
 				return
-		files = ''
-		# Overwrite the model
+		f = ''
 		if makefiles:
+			# Check for selected components
+			if self.tabWidget.currentIndex() == 1 and self.selected.invisibleRootItem().childCount() == 0:
+				self.writeInfo('*** NO COMPONENTS SELECTED ***\n\n', 'red')
+				return
 			os.system(str('rm -rf ' + self.model))
 		# Create/Open the files
 		if self.tabWidget.currentIndex() == 0:
+			# Create the model using the template
 			if makefiles:
-				self.createModel()
+				sstSHELL.createModel(self.model, self.templatePath)
 			self.templatesMessage(self.dest)
 			for item in self.dest:
-				files += './' + self.model + '/' + item + ' '
+				f += './' + self.model + '/' + item + ' '
 		elif self.tabWidget.currentIndex() == 1:
+			# Connect the model using the components
 			if makefiles:
-				self.connectModels()
+				components = []
+				root = self.selected.invisibleRootItem()
+				for i in range(root.childCount()):
+					element = root.child(i)
+					for j in range(element.childCount()):
+						components.append(element.text(0) + '.' + element.child(j).text(0))
+				sstSHELL.connectModels(self.model, ','.join(components))
 			self.templatesMessage([self.model + '.py'])
-			files += './' + self.model + '/' + self.model + '.py '
+			f += './' + self.model + '/' + self.model + '.py '
 		# Open files
-		os.system(str(self.editor + ' ' + files + '&'))
+		os.system(str(self.editor + ' ' + f + '&'))
+	########################################################################
 
-
-	### Configure Button main function
+	
+	########################################################################
+	### Compile Model
+	### Compiles and registers the model with SST for the Model Creator tab
 	def compileModel(self):
 		if not self.isSSTinstalled(): return
 		# Configure does nothing for connector mode
@@ -138,9 +165,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.runModel()
 		elif self.tabWidget.currentIndex() == 1:
 			self.writeInfo('Nothing to compile when connecting models\n\n', 'cyan')
-
-
-	### Run SST Button main function
+	########################################################################
+	
+	
+	########################################################################
+	### Run Model
+	### Runs the tests in the model folder for Connector or in the model/tests/
+	### for Creator mode
 	def runModel(self):
 		if not self.isSSTinstalled(): return
 		if not self.getModel(): return
@@ -150,6 +181,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		elif self.tabWidget.currentIndex() == 1:
 			testfiles = os.listdir('./' + self.model)
 		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
+		# Tests are in the model/tests/ folder for Creator mode
+		# Tests are in the model folder for Connector mode
 		for testfile in testfiles:
 			self.writeInfo('*** ' + testfile + ' ***\n')
 			if self.tabWidget.currentIndex() == 0:
@@ -158,10 +191,16 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.runCmdByLine(str('sst ' + self.model + '/' + testfile))
 			self.writeInfo('\n')
 		self.writeInfo(self.separator + '\n')
+	########################################################################
+	
+	### End Main Buttons at bottom of GUI
+	############################################################################
 
 
 
+	############################################################################
 	### Model Creator Tab
+	
 	# Select template
 	def selectTemplate(self):
 		if self.templates.currentItem():
@@ -176,15 +215,20 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def updateTemplates(self):
 		self.templates.clear()
 		self.templates.addItems(next(os.walk('./templates/'))[1])
+	
+	### End Model Creator Tab
+	############################################################################
 
 
 
+	############################################################################
 	### Model Connector Tab
+	
 	# Update the Available Models
 	def updateModels(self):
 		self.available.clear()
 		# Store an ElementTree with all the xml data from sst-info
-		self.sstinfo = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
+		self.sstinfo = ET.fromstring(sstSHELL.runCommand('sst-info -qnxo /dev/stdout'))
 		# Store a list of the elements SST knows about
 		self.elements = []
 		for element in self.sstinfo.findall('Element'):
@@ -199,7 +243,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					# Create component items in the element item
 					c = QTreeWidgetItem(e)
 					c.setText(0, component.get('Name'))
-	
 
 	# Add Models
 	def addModel(self):
@@ -227,10 +270,64 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		root = self.selected.invisibleRootItem()
 		for item in self.selected.selectedItems():
 			(item.parent() or root).removeChild(item)
+	
+	### End Model Connector Tab
+	############################################################################
+	
+	
+	
+	############################################################################
+	### Menu functions (not including Help)
+	
+	# Graph a model
+	def graphModel(self):
+		# Get the path to the python test file
+		path = QFileDialog.getOpenFileName(self, 'Select Python Test File', '.', 'Python files (*.py)')[0]
+		if not path:
+			self.writeInfo('*** PLEASE SELECT A PYTHON TEST FILE ***\n\n', 'red')
+			return
+		model = os.path.dirname(path)
+		if model.endswith('/tests'):
+			model = os.path.dirname(model)
+		self.writeInfo(self.separator + '***** Graphing Model *****\n')
+		f = sstSHELL.graphModel(model, path)
+		modelName = os.path.basename(str(model.rstrip('/')))
+		self.writeInfo('\nCreated ' + f + '\n' + self.separator + '\n')
+	
+	
+	# Convert a model into a template
+	def model2Template(self):
+		# Prompt for a Model to convert
+		model = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
+		if not model:
+			self.writeInfo('*** PLEASE SELECT A MODEL TO CONVERT ***\n\n', 'red')
+			return
+		# Get the new template name
+		text, ok = QInputDialog.getText(self, 'Enter Template Name', '', QLineEdit.Normal)
+		if not ok or not text:
+			self.writeInfo('*** PLEASE ENTER A TEMPLATE NAME ***\n\n', 'red')
+			return
+		# Check to see if the template exists already
+		templates = os.listdir('./templates/')
+		if text in templates:
+			self.writeInfo('*** TEMPLATE ALREADY EXISTS ***\n\n', 'red')
+			return
+		self.writeInfo(self.separator + '***** Converting Model into Template *****\n\n')
+		self.writeInfo('Converting ' + model + ' to ' + text + '\n\n')
+		f = sstSHELL.model2Template(model, text)
+		self.writeInfo('\nNew template created: ' + './templates/' + text + '\n' + self.separator + '\n')
+		self.updateTemplates()
+		# Open the new template in an editor
+		os.system(str(self.editor + ' ' + f + '&'))
+		
+	### End Menu Functions
+	############################################################################
+	
 
 
-
+	############################################################################
 	### Application helper functions
+	
 	# Checks whether SST is installed
 	def isSSTinstalled(self):
 		if self.SSTinstalled is None:
@@ -243,7 +340,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		else:
 			self.writeInfo('*** SST IS NOT INSTALLED. YOU WILL NOT BE ABLE TO COMPILE OR RUN ANYTHING, BUT YOU CAN STILL CREATE OR CONNECT MODELS ***\n\n', 'red')
 			return False
-	
 	
 	
 	# Gets the model name from the GUI
@@ -280,65 +376,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		return True
 
 
-	# Move and update the template files to create a new model
-	def createModel(self):
-		os.system(str('mkdir -p ' + self.model + '/tests'))
-		# Loop through sources and destinations at the same time
-		for s, d in zip(self.source, self.dest):
-			with open(str(self.templatePath + '/' + s), 'r') as infile, open(str(self.model + '/' + d), 'w') as outfile:
-				# Copy from source to destination while replacing <model> tags
-				for line in infile:
-					outfile.write(line.replace('<model>', str(self.model)))
-
-
-	# Connect various models together
-	def connectModels(self):
-		root = self.selected.invisibleRootItem()
-		os.system(str('mkdir -p ' + self.model))
-		self.sstinfo = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
-		# Write the test python file
-		with open(str(self.model + '/' + self.model + '.py'), 'w') as fp:
-			fp.write('import sst\n\n# TODO: Check the parameters for all components and connect the links at the bottom before running!!!\n\n')
-			# Loop through all the elements
-			for i in range(root.childCount()):
-				element = root.child(i)
-				# Loop through all the components
-				for j in range(element.childCount()):
-					comp = element.child(j).text(0)
-					# Write the Component Definition
-					fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + comp + str(i) + str(j) + '", "' + element.text(0) + '.' + comp + '")\n')
-					fp.write('obj' + str(i) + str(j) + '.addParams({\n')
-					parameters = self.sstinfo.find("*/Component[@Name='" + comp + "']").findall('Parameter')
-					# Remove the DEPRECATED parameters
-					params = []
-					for param in parameters:
-						if not param.get('Description').strip().startswith('DEPRECATED'):
-							params.append(param)
-					# Write out all of the available parameters with their defaults and description
-					for k in range(len(params)):
-						if k == len(params) - 1:
-							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n\n')
-						else:
-							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
-			fp.write('\n###################################################################\n')
-			fp.write('# TODO: Links have the first port connected but need to be manually\n')
-			fp.write('# connected to a second port to work. Delays also should be edited\n\n')
-			# After all components have been declared, write links
-			for i in range(root.childCount()):
-				element = root.child(i)
-				# Loop through all the components
-				for j in range(element.childCount()):
-					comp = element.child(j).text(0)
-					ports = self.sstinfo.find("*/Component[@Name='" + comp + "']").findall('Port')
-					fp.write('# ' + comp + ' Links\n')
-					# Write out all of the available ports with their descriptions
-					# These need to be modified by the user to actually connect components
-					for k in range(len(ports)):
-						
-						fp.write('sst.Link("' + comp + '_' + ports[k].get('Name') + '").connect( (obj' + str(i) + str(j) + ', "' + ports[k].get('Name') + '", "1ps"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
-					fp.write('\n')
-
-
 	# Write to information screen
 	# Available Colors:
 	# black(default), darkgray, gray, lightgray, white,
@@ -363,10 +400,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			output = process.stdout.readline()
 			self.writeInfo(output.decode("utf-8"), color)
 		return process.poll()
-
-	# Runs a command and returns the output when the command has completed
-	def runCommand(self, command):
-		return subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8")
 
 
 	# Update available models and templates
@@ -405,66 +438,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Button to go along with the popup
 	def warningButton(self, button):
 		return button
-
-
-	# Convert a model into a template
-	def model2Template(self):
-		# Prompt for a Model to convert
-		model = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
-		if not model:
-			self.writeInfo('*** PLEASE SELECT A MODEL TO CONVERT ***\n\n', 'red')
-			return
-		# Get the new template name
-		text, ok = QInputDialog.getText(self, 'Enter Template Name', '', QLineEdit.Normal)
-		if not ok or not text:
-			self.writeInfo('*** PLEASE ENTER A TEMPLATE NAME ***\n\n', 'red')
-			return
-		# Check to see if the template exists already
-		templates = os.listdir('./templates/')
-		if text in templates:
-			self.writeInfo('*** TEMPLATE ALREADY EXISTS ***\n\n', 'red')
-			return
-		self.writeInfo(self.separator + '***** Converting Model into Template *****\n\n')
-		self.writeInfo('Converting ' + model + ' to ' + text + '\n\n')
-		path = './templates/' + text
-		# Copy the model into the templates directory, clean the model
-		os.system(str('cp -r ' + model + ' ' + path))
-		self.runCmdByLine(str('make clean -C ' + path))
-		# Move any test files into the main directory with and add test- prefix
-		for item in os.listdir(str(path + '/tests/')):
-			os.system(str('mv ' + path + '/tests/' + item + ' ' + path + '/test-' + item))
-		os.system(str('rmdir ' + path + '/tests'))
-		modelName = os.path.basename(str(model))
-		files = os.listdir(path)
-		newFiles = []
-		templateNames = []
-		# For each file move the file to its new name and replace model with <model> tag
-		for item in files:
-			new = item.replace(modelName, str(text))
-			newFiles.append(new)
-			templateNames.append(item.replace(modelName, '<model>'))
-			os.system(str('mv ' + path + '/' + item + ' ' + path + '/' + new))
-		# Case insensitive replacing modelName with <model> tag
-		pattern = re.compile(modelName, re.IGNORECASE)
-		for new in newFiles:
-			for line in fileinput.input(str(path + '/' + new), inplace=True):
-				print(pattern.sub('<model>', line), end='')
-		# Create the template file
-		with open(str(path + '/template'), 'w') as fp:
-			for new, tmp in zip(newFiles, templateNames):
-				if new.endswith('.py'):
-					fp.write(str(new + ' tests/' + tmp + '\n'))
-				else:
-					fp.write(str(new + ' ' + tmp + '\n'))
-		self.writeInfo('\nNew template created: ' + path + '\n' + self.separator + '\n')
-		self.updateTemplates()
-		# Open the new template in an editor
-		f = path + '/template '
-		for new in newFiles:
-			f += path + '/' + new + ' '
-		os.system(str(self.editor + ' ' + f + '&'))
-
-
+	
+	
 	# Display model help
 	def modelHelp(self, items, elementInfo = False):
 		for item in items:
@@ -472,9 +447,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			# Write the sst-info output of the item
 			if elementInfo:
 				if item.parent():
-					self.writeInfo(self.runCommand('sst-info ' + item.parent().text(0) + '.' + item.text(0)), 'gray')
+					self.writeInfo(sstSHELL.runCommand('sst-info ' + item.parent().text(0) + '.' + item.text(0)), 'gray')
 				else:
-					self.writeInfo(self.runCommand('sst-info ' + item.text(0)), 'gray')
+					self.writeInfo(sstSHELL.runCommand('sst-info ' + item.text(0)), 'gray')
 			# Find doxygen comments from template
 			else:
 				f = os.getcwd() + '/templates/' + item.text() + '/' + item.text() + '.cc'
@@ -502,9 +477,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Selected Models Help
 	def selectedHelp(self):
 		self.modelHelp(self.selected.selectedItems(), True)
+	
+	### End Application Helper Functions
+	############################################################################
 
 
+
+	############################################################################
 	### Help Menu
+	
 	# Help
 	def help(self, f):
 		self.writeInfo(self.separator)
@@ -525,11 +506,19 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Connector
 	def helpConnector(self):
 		self.help('resources/connector')
+	# Grapher
+	def helpGrapher(self):
+		self.help('resources/grapher')
 	# Model2Template
 	def helpConverter(self):
 		self.help('resources/model2template')
+	
+	### End Help Menu
+	############################################################################
+	
 
 ##### Main Application Class End
+####################################################################################
 
 
 ##### Main Function
