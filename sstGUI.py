@@ -67,7 +67,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.updateModels()
 		local = next(os.walk('.'))[1]
 		makefiles = True
-		if self.model in self.components or self.model in local:
+		if self.model in self.names or self.model in local:
 			lib = self.runCommand('sst-config ' + self.model + ' ' + self.model + '_LIBDIR')
 			if lib != '' or self.model in local:
 				# local model, can overwrite
@@ -85,7 +85,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.writeInfo(text, 'red')
 				self.writeInfo('SST provided models:\n')
 				text = ''
-				for item in self.components:
+				for item in self.names:
 					text += item + '\n'
 				self.writeInfo(text, 'blue')
 				self.writeInfo(self.separator + '\n')
@@ -182,10 +182,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Store an ElementTree with all the xml data from sst-info
 		self.elements = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
 		# Store a list of the components SST knows about
-		self.components = []
+		self.names = []
 		for element in self.elements.findall('Element'):
 			components = element.findall('Component')
-			self.components.append(element.get('Name'))
+			self.names.append(element.get('Name'))
 			# Make sure the Element has Components the user can use
 			if components:
 				# Create an element item in the TreeWidget
@@ -195,7 +195,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					# Create component items in the element item
 					c = QTreeWidgetItem(e)
 					c.setText(0, component.get('Name'))
-					self.components.append(component.get('Name'))
+					#self.names.append('\t' + component.get('Name'))
+					#subs = component.findall('Subcomponent')
+					#if subs:
+					#	for sub in subs:
+					#		self.names.append('\t\t' + sub.get('Name'))
 
 	# Add Models
 	def addModel(self):
