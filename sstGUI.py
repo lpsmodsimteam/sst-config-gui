@@ -67,7 +67,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.updateModels()
 		local = next(os.walk('.'))[1]
 		makefiles = True
-		if self.components.count(self.model) != 0 or self.model in local:
+		if self.model in self.components or self.model in local:
 			lib = self.runCommand('sst-config ' + self.model + ' ' + self.model + '_LIBDIR')
 			if lib != '' or self.model in local:
 				# local model, can overwrite
@@ -185,6 +185,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.components = []
 		for element in self.elements.findall('Element'):
 			components = element.findall('Component')
+			self.components.append(element.get('Name'))
 			# Make sure the Element has Components the user can use
 			if components:
 				# Create an element item in the TreeWidget
@@ -194,7 +195,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					# Create component items in the element item
 					c = QTreeWidgetItem(e)
 					c.setText(0, component.get('Name'))
-				self.components.extend(components)
+					self.components.append(component.get('Name'))
 
 	# Add Models
 	def addModel(self):

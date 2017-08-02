@@ -124,6 +124,46 @@ def model2Template(model, template):
 	print('\nNew template created: ' + path + '\n')
 
 
+def graphModel(model):
+	path = model + '/tests/'
+	tests = os.listdir(path)
+	comp = [{}]
+	sub = [{}]
+	link = [{}]
+	with open(str(path + tests[0]), 'r') as infile:
+		for line in infile:
+			tmp = {}
+			if 'sst.Component' in line:
+				tmp['Name'] = re.split('\'|"', line)[1].strip()
+				tmp['Obj'] = line.split('=')[0].strip()
+				comp.append(tmp)
+			if '.setSubComponent' in line:
+				tmp['Name'] = re.split('\'|"', line)[1].strip()
+				tmp['Obj'] = line.split('=')[0].strip()
+				tmp['Comp'] = line.split('.setSubComponent')[0].split('=')[1].strip()
+				sub.append(tmp)
+			if 'sst.Link' in line:
+				tmp['Name'] = re.split('\'|"', line)[1].strip()
+				tmp['A'] = line.split(',')[0].strip().split('(')[-1]
+				tmp['B'] = line.split(',')[3].strip().split('(')[-1]
+				link.append(tmp)
+	# remove empty item from the beginning of the lists
+	comp = list(filter(None,comp))
+	sub = list(filter(None,sub))
+	link = list(filter(None,link))
+	with open(str(model + '/' + model + '.dot'),'w') as outfile:
+		outfile.write(str('graph ' + model + ' {\n\n'))
+		for item in comp:
+			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '" shape=box];\n\n'))
+		for item in sub:
+			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '"];\n'))
+			outfile.write(str('\t' + item['Comp'] + ' -- ' + item['Obj'] + ' [style=dotted];\n\n'))
+		for item in link:
+			outfile.write(str('\t' + item['A'] + ' -- ' + item['B'] + '[label="' + item['Name'] + '"];\n\n'))
+		outfile.write('}')
+	os.system(str('dot -Tps ' + model + '/' + model + '.dot -o ' + model + '/' + model + '.ps'))
+
+
 # Runs a command and returns the output when the command has completed
 def runCommand(command):
 	return subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8")
@@ -132,7 +172,7 @@ def runCommand(command):
 ##### Main Function
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument("function", help="The function you wish to run", choices=['create','connect','convert'])
+	parser.add_argument("function", help="The function you wish to run", choices=['create','connect','convert','graph'])
 	parser.add_argument("model", help="The name of the model")
 	parser.add_argument("-t", "--template", help="The path to the template")
 	parser.add_argument("-c", "--components", help="The components you want to connect. Format is <element>.<component> with commas separating, NO spaces")
@@ -143,4 +183,6 @@ if __name__ == '__main__':
 		connectModels(args.model, args.components)
 	elif args.function == 'convert':
 		model2Template(args.model, args.template)
+	elif args.function == 'graph':
+		graphModel(args.model)
 
