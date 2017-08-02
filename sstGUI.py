@@ -42,7 +42,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
-		self.updateTabs()
+		self.SSTinstalled = None
+		if self.isSSTinstalled():
+			self.updateTabs()
 		# Model Creator Tab
 		self.templates.itemDoubleClicked.connect(self.templateHelp)
 		self.templateSelect.clicked.connect(self.selectTemplate)
@@ -67,7 +69,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.updateModels()
 		local = next(os.walk('.'))[1]
 		makefiles = True
-		if self.model in self.names or self.model in local:
+		if self.model in self.elements or self.model in local:
 			lib = self.runCommand('sst-config ' + self.model + ' ' + self.model + '_LIBDIR')
 			if lib != '' or self.model in local:
 				# local model, can overwrite
@@ -85,7 +87,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.writeInfo(text, 'red')
 				self.writeInfo('SST provided models:\n')
 				text = ''
-				for item in self.names:
+				for item in self.elements:
 					text += item + '\n'
 				self.writeInfo(text, 'blue')
 				self.writeInfo(self.separator + '\n')
@@ -112,6 +114,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 	### Configure Button main function
 	def compileModel(self):
+		if not self.isSSTinstalled(): return
 		# Configure does nothing for connector mode
 		if self.tabWidget.currentIndex() == 0:
 			if not self.getModel(): return
@@ -139,6 +142,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 	### Run SST Button main function
 	def runModel(self):
+		if not self.isSSTinstalled(): return
 		if not self.getModel(): return
 		# Run all tests
 		if self.tabWidget.currentIndex() == 0:
@@ -180,12 +184,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def updateModels(self):
 		self.available.clear()
 		# Store an ElementTree with all the xml data from sst-info
-		self.elements = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
-		# Store a list of the components SST knows about
-		self.names = []
-		for element in self.elements.findall('Element'):
+		self.sstinfo = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
+		# Store a list of the elements SST knows about
+		self.elements = []
+		for element in self.sstinfo.findall('Element'):
 			components = element.findall('Component')
-			self.names.append(element.get('Name'))
+			self.elements.append(element.get('Name'))
 			# Make sure the Element has Components the user can use
 			if components:
 				# Create an element item in the TreeWidget
@@ -195,11 +199,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					# Create component items in the element item
 					c = QTreeWidgetItem(e)
 					c.setText(0, component.get('Name'))
-					#self.names.append('\t' + component.get('Name'))
-					#subs = component.findall('Subcomponent')
-					#if subs:
-					#	for sub in subs:
-					#		self.names.append('\t\t' + sub.get('Name'))
+	
 
 	# Add Models
 	def addModel(self):
@@ -231,6 +231,21 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 
 	### Application helper functions
+	# Checks whether SST is installed
+	def isSSTinstalled(self):
+		if self.SSTinstalled is None:
+			if subprocess.run(['bash', '-c', 'type sst'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8").startswith('sst is '):
+				self.SSTinstalled = True
+			else:
+				self.SSTinstalled = False
+		if self.SSTinstalled:
+			return True
+		else:
+			self.writeInfo('*** SST IS NOT INSTALLED. YOU WILL NOT BE ABLE TO COMPILE OR RUN ANYTHING, BUT YOU CAN STILL CREATE OR CONNECT MODELS ***\n\n', 'red')
+			return False
+	
+	
+	
 	# Gets the model name from the GUI
 	def getModel(self):
 		self.model = self.modelName.text()
@@ -280,7 +295,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def connectModels(self):
 		root = self.selected.invisibleRootItem()
 		os.system(str('mkdir -p ' + self.model))
-		self.elements = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
+		self.sstinfo = ET.fromstring(self.runCommand('sst-info -qnxo /dev/stdout'))
 		# Write the test python file
 		with open(str(self.model + '/' + self.model + '.py'), 'w') as fp:
 			fp.write('import sst\n\n# TODO: Check the parameters for all components and connect the links at the bottom before running!!!\n\n')
@@ -293,7 +308,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					# Write the Component Definition
 					fp.write('obj' + str(i) + str(j) + ' = sst.Component("' + comp + str(i) + str(j) + '", "' + element.text(0) + '.' + comp + '")\n')
 					fp.write('obj' + str(i) + str(j) + '.addParams({\n')
-					parameters = self.elements.find("*/Component[@Name='" + comp + "']").findall('Parameter')
+					parameters = self.sstinfo.find("*/Component[@Name='" + comp + "']").findall('Parameter')
 					# Remove the DEPRECATED parameters
 					params = []
 					for param in parameters:
@@ -314,7 +329,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				# Loop through all the components
 				for j in range(element.childCount()):
 					comp = element.child(j).text(0)
-					ports = self.elements.find("*/Component[@Name='" + comp + "']").findall('Port')
+					ports = self.sstinfo.find("*/Component[@Name='" + comp + "']").findall('Port')
 					fp.write('# ' + comp + ' Links\n')
 					# Write out all of the available ports with their descriptions
 					# These need to be modified by the user to actually connect components
