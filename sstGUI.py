@@ -43,8 +43,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.separator = '********************************************************************************\n'
 		self.SSTinstalled = None
-		if self.isSSTinstalled():
-			self.updateTabs()
+		self.isSSTinstalled()
+		self.updateTabs()
 		# Model Creator Tab
 		self.templates.itemDoubleClicked.connect(self.templateHelp)
 		self.templateSelect.clicked.connect(self.selectTemplate)
@@ -371,7 +371,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 	# Update available models and templates
 	def updateTabs(self):
-		self.updateModels()
+		if self.isSSTinstalled():
+			self.updateModels()
 		self.updateTemplates()
 
 
