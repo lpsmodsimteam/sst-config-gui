@@ -39,8 +39,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.actionAbout.triggered.connect(self.helpAbout)
 		self.actionModel_Creator.triggered.connect(self.helpCreator)
 		self.actionModel_Connector.triggered.connect(self.helpConnector)
-		self.actionModel_Grapher.triggered.connect(self.helpGrapher)
-		self.actionModel_to_Template_Converter.triggered.connect(self.helpConverter)
+		self.actionModel_Grapher.triggered.connect(self.helpTools)
 		self.actionGraph.triggered.connect(self.graphModel)
 		self.actionModel2Template.triggered.connect(self.model2Template)
 		# General setup
@@ -507,12 +506,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def helpConnector(self):
 		self.help('resources/connector')
 	# Grapher
-	def helpGrapher(self):
-		self.help('resources/grapher')
-	# Model2Template
-	def helpConverter(self):
-		self.help('resources/model2template')
-	
+	def helpTools(self):
+		self.help('resources/tools')
 	### End Help Menu
 	############################################################################
 	

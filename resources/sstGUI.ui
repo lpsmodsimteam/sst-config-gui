@@ -290,7 +290,7 @@
      <x>0</x>
      <y>0</y>
      <width>953</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -301,7 +301,6 @@
     <addaction name="actionModel_Creator"/>
     <addaction name="actionModel_Connector"/>
     <addaction name="actionModel_Grapher"/>
-    <addaction name="actionModel_to_Template_Converter"/>
    </widget>
    <widget class="QMenu" name="menuGraph">
     <property name="title">
@@ -354,7 +353,7 @@
   </action>
   <action name="actionModel_Grapher">
    <property name="text">
-    <string>Model Grapher</string>
+    <string>Tools</string>
    </property>
   </action>
  </widget>
