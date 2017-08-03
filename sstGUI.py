@@ -45,7 +45,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# General setup
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
-		self.separator = '********************************************************************************\n'
+		self.separator = '************************************************************************************************************************\n'
 		self.SSTinstalled = None
 		self.updateTabs()
 		# Model Creator Tab
@@ -285,12 +285,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if not path:
 			self.writeInfo('*** PLEASE SELECT A PYTHON TEST FILE ***\n\n', 'red')
 			return
-		model = os.path.dirname(path)
-		if model.endswith('/tests'):
-			model = os.path.dirname(model)
 		self.writeInfo(self.separator + '***** Graphing Model *****\n')
-		f = sstSHELL.graphModel(model, path)
-		modelName = os.path.basename(str(model.rstrip('/')))
+		f = sstSHELL.graphModel(path)
 		self.writeInfo('\nCreated ' + f + '\n' + self.separator + '\n')
 	
 	
@@ -440,39 +436,53 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	
 	# Display model help
-	def modelHelp(self, items, elementInfo = False):
+	def modelHelp(self, items, displayAll = False):
 		for item in items:
 			self.writeInfo(self.separator)
-			# Write the sst-info output of the item
-			if elementInfo:
-				if item.parent():
-					self.writeInfo(sstSHELL.runCommand('sst-info ' + item.parent().text(0) + '.' + item.text(0)), 'gray')
-				else:
-					self.writeInfo(sstSHELL.runCommand('sst-info ' + item.text(0)), 'gray')
-			# Find doxygen comments from template
-			else:
+			if self.tabWidget.currentIndex() == 0:
+				# Find doxygen comments from template
 				f = os.getcwd() + '/templates/' + item.text() + '/' + item.text() + '.cc'
 				if os.path.isfile(f):
-					# Look for doxygen style comments
+					# Look for a doxygen style comment block at the beginning of the file
 					with open(f, 'r') as help:
 						incomment = False
 						for line in help:
 							if incomment:
 								if line.strip().endswith('*/'):
 									incomment = False
-									self.writeInfo('\n')
+									break
 								else:
-									self.writeInfo(line)
+									self.writeInfo(line, 'gray')
 							else:
 								if line.strip().startswith('/**'):
 									incomment = True
-			self.writeInfo(self.separator + '\n')
+			elif self.tabWidget.currentIndex() == 1:
+				# Get sst-info description
+				if item.parent():
+					text = sstSHELL.runCommand('sst-info ' + item.parent().text(0) + '.' + item.text(0))
+				else:
+					text = sstSHELL.runCommand('sst-info ' + item.text(0))
+				# If we want to display all of the sst-info output, write it
+				if displayAll:
+					self.writeInfo(text, 'gray')
+				else:
+					# otherwise just print out the component/subcomponent selected
+					for line in text.split('\n'):
+						l = line.strip()
+						if item.parent():
+							if l.startswith('COMPONENT') or l.startswith('SUBCOMPONENT'):
+								self.writeInfo(l + '\n', 'gray')
+						else:
+							# If item is an element, print out the whole element with components and subcomponents
+							if l.startswith('ELEMENT') or l.startswith('COMPONENT') or l.startswith('SUBCOMPONENT'):
+								self.writeInfo(l + '\n', 'gray')
+			self.writeInfo(self.separator + '\n\n')
 	# Template Help
 	def templateHelp(self):
 		self.modelHelp(self.templates.selectedItems())
 	# Available Models Help
 	def availableHelp(self):
-		self.modelHelp(self.available.selectedItems(), True)
+		self.modelHelp(self.available.selectedItems())
 	# Selected Models Help
 	def selectedHelp(self):
 		self.modelHelp(self.selected.selectedItems(), True)
