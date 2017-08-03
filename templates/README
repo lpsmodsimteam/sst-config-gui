@@ -11,15 +11,17 @@ model.cc <model>.cc
 model.h <model>.h
 test.py tests/<model>.py
 
-Makefile doesn't change names and is located in the root of the model directory
+Makefile doesn't change names and is located in the top of the model directory.
 
-model.cc is placed in the root directory and uses the name <model> which is
-substituted with the first model name provided
+model.cc is placed in the top of the model directory and uses the name <model> 
+which is substituted with the first model name provided.
 
-model.h works the same as model.cc
+model.h is created the same as model.cc
 
-test.py is placed under the tests folder in the root directory and then named
-<model>.py which again is substituted with the first model name provided
+test.py is placed under the tests folder in the top of the model directory 
+and then named <model>.py which again is substituted with the first model 
+name provided.
 
 Any test files MUST be located under the tests/ folder otherwise the GUI will
-not be able to locate the test.
+not be able to locate the test. The GUI will run all files in the under the
+tests/ folder.
