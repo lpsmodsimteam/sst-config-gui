@@ -3,15 +3,14 @@ of models based on stored templates in the templates folder.
 The tool comes with a series of simple templates that is updated
 when appropriate. All available templates will be displayed in
 the Available Templates window when you select the Model Creator 
-tab. Since this tool is run from your own
-working directory you may add your own templates when you feel
-it is appropriate. The tool comes equipped with a button that 
-will quickly convert models with proper directory structure
-into templates for use later. If you would like to test the
-this functionality simply type in a model name and select a
-model from the Available Templates screen run through the 
-Generate -> Compile -> Run work flow and a simple model will
-be created. 
+tab. Since this tool is run from your own working directory you
+may add your own templates when you feel it is appropriate. The 
+tool comes equipped with a button that will quickly convert models 
+with proper directory structure into templates for use later. If 
+you would like to test the this functionality simply type in a model 
+name and select a model from the Available Templates screen run 
+through the Generate -> Compile -> Run work flow and a simple model 
+will be created. 
 
 Enter Model Name text box - Simply enter the name of your
   model, this name will be used as the base name for all of
@@ -19,10 +18,11 @@ Enter Model Name text box - Simply enter the name of your
   a name the GUI will not continue until a name is entered.
 
 Available Templates screen - This screen will display the 
-  the available templates that come with a tool. If you need
+  the available templates that come with a tool. A doxygen block
+  is included at the top of each Template, if you need a
   simple discription of each model just "double click" the 
   model in the screen and a simple description will be displayed
-  in the information screen.
+  in the information screen. 
 
 Select Template button - If you want to use one of the supplied
   templates that appear in the Available Templates window
