@@ -8,4 +8,6 @@ will appear in your chosen editor for your review. If you are satisfied with
 the way the template has been created simply save and exit the editor. It should
 be noted here that the template has been created from your model. The model you
 created will still be present as you coded it before creating the template. This function
-simply copies the model and converts it into a template for future use.
+simply copies the model and converts it into a template for future use. Any model
+created by other functions of this tool has the correct directory structure to be 
+convertted into a template.

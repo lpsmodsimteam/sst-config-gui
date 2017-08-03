@@ -1,12 +1,17 @@
 This is the SST Model Creation Tool it will assist your in developing
 models for the SST Simulation Framework. This tool assumes
 that SST 7.1 or greater has been installed and is running on
-your system. 
+your system. This tool will test to see if SST loaded onto your
+system. If SST is properly loaded all functionality is available
+to you. If it is not only the Generate Model functionality is
+available. This will allow you to create a model on your own machine
+then "copy" the model to "host" where SST is loaded and run your
+model from there using the command line execution methods.
 
 As part of the model development process you will be asked edit
-files. The tool tool will use your EDITOR environment
+files. This tool will use your EDITOR environment
 variable as the preferred editor if it is set. If the EDITOR
-environment variable is not set gedit is used by default.
+environment variable is not set GEDIT is used by default.
 The editors will be brought up when necessary in the model
 development process. The tool allows you to exit and edit off-line
 if you prefer and re-enter the process at point where you 

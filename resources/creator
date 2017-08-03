@@ -10,7 +10,7 @@ will quickly convert models with proper directory structure
 into templates for use later. If you would like to test the
 this functionality simply type in a model name and select a
 model from the Available Templates screen run through the 
-Generate -> Compile -> Run work flow and simple model will
+Generate -> Compile -> Run work flow and a simple model will
 be created. 
 
 Enter Model Name text box - Simply enter the name of your
@@ -29,8 +29,7 @@ Select Template button - If you want to use one of the supplied
   as the basis for your model simply select the desired
   template by highlighting it with your mouse and press
   the Select Template button. The full path will appear 
-  in the Selected Template text box. If you do not choose 
-  a template an error will appear and not let you continue.
+  in the Selected Template text box. 
 
 Browse Templates button - If you want to use a
   template that is not already in the templates directory you
@@ -42,7 +41,11 @@ Browse Templates button - If you want to use a
 
 Selected Template text box - If you already know the full path
   and name of the template you want to use you can simply type
-  it in the Selected Template text box. 
+  it in the Selected Template text box. If you do not choose a
+  template by one of the three methods listed (Select Template 
+  button, Browse Templates button, or typing in a template in 
+  the Selected Template box) and error will occur and the tool
+  will not continue until a template is selected.
 
 Generate/Open Templates button - This button will first create a 
   directory in your working directory with your model name, 
@@ -60,7 +63,13 @@ Generate/Open Templates button - This button will first create a
   Model check box is unchecked, the popup editor will open the 
   existing model this will allow you use the GUI to complete your
   model. If the box is checked it will confirm if you want to overwrite
-  the existing model, then overwrite the model.  
+  the existing model, then overwrite the model. If you select a name
+  that is the same as one of the elements already "registered" by
+  SST, for a new install they consist of elements in the delivery,
+  an error will be thrown and the tool will ask you to choose 
+  another name. A list of all "registered" SST elements will 
+  appear in the Information screen, so you can pick a unique
+  name.  
 
 Compile Model button - This button will run "make all" which builds the
   sst library for your model and then links it into sst. If an 
@@ -68,8 +77,8 @@ Compile Model button - This button will run "make all" which builds the
   by opening the files using the Generate/Open Templates button, make
   sure Overwrite Existing Model is UNCHECKED, and recompile until 
   all errors are corrected. You do not need to close the editor
-  each time simply just save the file update files before
-  pressing the Compile Model button.
+  each time simply just save the updated files before
+  pressing the Compile Model button again.
 
 Overwrite Existing Model check box - Generate Templates will check
   to see if a model is already present with the current name in your
