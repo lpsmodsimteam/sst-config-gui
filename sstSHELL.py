@@ -77,49 +77,76 @@ def connectModels(model, componentList):
 			# Write out all of the available ports with their descriptions
 			# These need to be modified by the user to actually connect components
 			for k in range(len(ports)):
-				
 				fp.write('sst.Link("' + comp + '_' + ports[k].get('Name') + '").connect( (obj' + str(i) + ', "' + ports[k].get('Name') + '", "1ps"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
 			fp.write('\n')
 
 
 # Graph a Model using the python test script
-def graphModel(model, test):
+def graphModel(test):
 	comp = [{}]
 	sub = [{}]
 	link = [{}]
-	modelName = os.path.basename(str(model.rstrip('/')))
+	# Get the name of the Model
+	model = os.path.dirname(test)
+	if model.endswith('/tests'):
+		model = os.path.dirname(model)
+	modelName = os.path.basename(test).split('.py')[0]
 	with open(str(test), 'r') as infile:
 		for line in infile:
-			tmp = {}
-			if 'sst.Component' in line:
-				tmp['Name'] = re.split('\'|"', line)[1].strip()
-				tmp['Obj'] = line.split('=')[0].strip()
-				comp.append(tmp)
-			if '.setSubComponent' in line:
-				tmp['Name'] = re.split('\'|"', line)[1].strip()
-				tmp['Obj'] = line.split('=')[0].strip()
-				tmp['Comp'] = line.split('.setSubComponent')[0].split('=')[1].strip()
-				sub.append(tmp)
-			if 'sst.Link' in line:
-				tmp['Name'] = re.split('\'|"', line)[1].strip()
-				tmp['A'] = line.split(',')[0].strip().split('(')[-1]
-				tmp['B'] = line.split(',')[3].strip().split('(')[-1]
-				link.append(tmp)
+			# Ignore commented out code
+			if not line.strip().startswith('#'):
+				tmp = {}
+				# Components store Name, Obj
+				if 'sst.Component' in line:
+					tmp['Name'] = re.split('\'|"', line)[1].strip()
+					tmp['Obj'] = line.split('=')[0].strip()
+					comp.append(tmp)
+				# Subcomponents store Name, Obj, and the parent Comp
+				if '.setSubComponent' in line:
+					tmp['Name'] = re.split('\'|"', line)[1].strip()
+					tmp['Obj'] = line.split('=')[0].strip()
+					tmp['Comp'] = line.split('.setSubComponent')[0].split('=')[1].strip()
+					sub.append(tmp)
+				# Links store Name, Obj, and ports A and B
+				if 'sst.Link' in line:
+					tmp['Name'] = re.split('\'|"', line)[1].strip()
+					tmp['Obj'] = line.split('=')[0].strip()
+					# Move to the line that contains the link connection
+					while not ('.connect' in line and tmp['Obj'] in line):
+						line = next(infile)
+					tmp['A'] = line.split(',')[0].strip().split('(')[-1]
+					tmp['B'] = line.split(',')[3].strip().split('(')[-1]
+					link.append(tmp)
 	# remove empty item from the beginning of the lists
 	comp = list(filter(None,comp))
 	sub = list(filter(None,sub))
 	link = list(filter(None,link))
-	path = modelName + '/' + modelName
+	path = model + '/' + modelName
+	# Create the .dot file
 	with open(str(path + '.dot'),'w') as outfile:
 		outfile.write(str('graph ' + modelName + ' {\n\n'))
+		# Components are boxes
 		for item in comp:
 			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '" shape=box];\n\n'))
+		# Subcomponents are ovals with a dotted line to the owning component
 		for item in sub:
 			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '"];\n'))
 			outfile.write(str('\t' + item['Comp'] + ' -- ' + item['Obj'] + ' [style=dotted];\n\n'))
+		# Links are solid lines connecting components
 		for item in link:
 			outfile.write(str('\t' + item['A'] + ' -- ' + item['B'] + '[label="' + item['Name'] + '"];\n\n'))
+		# Create Legend
+		outfile.write(str('\tsubgraph cluster_legend {\n'))
+		outfile.write(str('\t\tlabel="Legend";\n'))
+		outfile.write(str('\t\tcolor=blue;\n'))
+		outfile.write(str('\t\tcomp0 [label="Component" shape=box];\n'))
+		outfile.write(str('\t\tcomp1 [label="Component" shape=box];\n'))
+		outfile.write(str('\t\tsub [label="Subcomponent"];\n'))
+		outfile.write(str('\t\tsub -- comp0 [label="Subcomponent\\nConnection" style=dotted];\n'))
+		outfile.write(str('\t\tcomp1 -- sub [label="Link"];\n'))
+		outfile.write(str('\t}\n'))
 		outfile.write('}')
+	# Convert .dot file to a .ps file so you can open it like a pdf
 	os.system(str('dot -Tps ' + path + '.dot -o ' + path + '.ps'))
 	return str(path + '.dot ' + path + '.ps')
 
@@ -176,15 +203,15 @@ if __name__ == '__main__':
 			help=str("Function       | Help\n" + 
 					 "---------------+--------------------------------------------------\n"
 					 "Create/Connect | Name of the model to create\n" + 
-					 "Convert/Graph  | The path to the model\n\n"))
-	parser.add_argument("args",
+					 "Convert        | The path to the model\n" + 
+					 "Graph          | The path to the python test file\n\n"))
+	parser.add_argument("-a", "--args",
 			help=str("Function  | Help\n" + 
 					 "----------+-------------------------------------------------------\n"
 					 "Create    | The path to the template\n" + 
 					 "Connect   | The components you want to connect\n" + 
 					 "          | Format is <element>.<component> with commas separating\n" + 
-					 "Convert   | The destination template name\n" + 
-					 "Graph     | The path to the python test file to graph\n"))
+					 "Convert   | The destination template name\n"))
 	args = parser.parse_args()
 	if args.function == 'create':
 		createModel(args.model, args.args)
@@ -193,5 +220,5 @@ if __name__ == '__main__':
 	elif args.function == 'convert':
 		model2Template(args.model, args.args)
 	elif args.function == 'graph':
-		graphModel(args.model, args.args)
+		graphModel(args.model)
 
