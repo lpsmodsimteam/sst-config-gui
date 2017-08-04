@@ -1,0 +1,24 @@
+This is a suite of productivity tools for SST. The main executable a user should use is
+sstGUI.py, as it provides a simple GUI to help the user create new models, connect existing
+models, and compile and run the models. sstSHELL.py is a script which can be run from the command
+line, but should NOT be used directly by the user as there is no error checking on inputs. It does
+however provide the core functionality to the GUI, and should be usable from scripts or other GUIs.
+If you must run the sstSHELL.py executable, first run
+	./sstSHELL.py -h
+This will show you how to use the script, but again you must be careful with your input.
+
+Along with the two main executables, there is a resources folder and a templates folder included.
+The resources folder contains extra images and help files used by the GUI. If you want to learn
+about how to use the GUI, you can look at the about file in the resources directory, or you can
+use the Help menu from the GUI and click About.
+The templates folder contains some basic templates which are used to create a skeleton for your
+new model, more help on the templates can be found in the README in the templates folder.
+
+Requirements to run the GUI:
+	python3
+	PyQt5
+	graphviz (If you want to use the graphing capability to make a .ps from a .dot file)
+
+After running the GUI you will notice an extra folder created called __pycache__. This folder
+simply contains the compiled version of sstSHELL.py and can be safely removed if desired.
+If not removed, the startup time of the GUI will be slightly reduced.

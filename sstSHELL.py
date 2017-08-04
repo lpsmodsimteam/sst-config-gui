@@ -192,26 +192,26 @@ def model2Template(model, template):
 
 # Runs a command and returns the output when the command has completed
 def runCommand(command):
-	return subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8")
+	return subprocess.run(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8')
 
 
 ##### Main Function
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-	parser.add_argument("function", help="The function you wish to run\n\n", choices=['create','connect','convert','graph'])
-	parser.add_argument("model",
-			help=str("Function       | Help\n" + 
-					 "---------------+--------------------------------------------------\n"
-					 "Create/Connect | Name of the model to create\n" + 
-					 "Convert        | The path to the model\n" + 
-					 "Graph          | The path to the python test file\n\n"))
-	parser.add_argument("-a", "--args",
-			help=str("Function  | Help\n" + 
-					 "----------+-------------------------------------------------------\n"
-					 "Create    | The path to the template\n" + 
-					 "Connect   | The components you want to connect\n" + 
-					 "          | Format is <element>.<component> with commas separating\n" + 
-					 "Convert   | The destination template name\n"))
+	parser.add_argument('function', help='The function you wish to run\n\n', choices=['create','connect','convert','graph'])
+	parser.add_argument('model',
+			help=str('Function       | Help\n' + 
+					 '---------------+--------------------------------------------------\n' + 
+					 'Create/Connect | Name of the model to create\n' + 
+					 'Convert        | The path to the model\n' + 
+					 'Graph          | The path to the python test file\n'))
+	parser.add_argument('-a', '--args',
+			help=str('Function  | Help\n' + 
+					 '----------+-------------------------------------------------------\n' + 
+					 'Create    | The path to the template\n' + 
+					 'Connect   | The components you want to connect\n' + 
+					 '          | Format is <element>.<component> with commas separating\n' + 
+					 'Convert   | The destination template name\n'))
 	args = parser.parse_args()
 	if args.function == 'create':
 		createModel(args.model, args.args)

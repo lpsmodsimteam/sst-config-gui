@@ -268,7 +268,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def removeModel(self):
 		root = self.selected.invisibleRootItem()
 		for item in self.selected.selectedItems():
-			(item.parent() or root).removeChild(item)
+			if item.parent():
+				# If removing the last component, remove the whole element
+				if item.parent().childCount() == 1:
+					root.removeChild(item.parent())
+				else:
+					item.parent().removeChild(item)
+			else:
+				root.removeChild(item)
 	
 	### End Model Connector Tab
 	############################################################################
@@ -326,7 +333,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Checks whether SST is installed
 	def isSSTinstalled(self):
 		if self.SSTinstalled is None:
-			if subprocess.run(['bash', '-c', 'type sst'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8").startswith('sst is '):
+			if subprocess.run(['bash', '-c', 'type sst'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode('utf-8').startswith('sst is '):
 				self.SSTinstalled = True
 			else:
 				self.SSTinstalled = False
@@ -393,7 +400,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		output = process.stdout.readline()
 		while output != b'' or process.poll() is None:
 			output = process.stdout.readline()
-			self.writeInfo(output.decode("utf-8"), color)
+			self.writeInfo(output.decode('utf-8'), color)
 		return process.poll()
 
 
