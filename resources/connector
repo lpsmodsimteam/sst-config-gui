@@ -18,13 +18,11 @@ Available Models screen - This screen will list all of the model directories
   that have been registered with your version of SST, both SST supplied models and
   local models you have created. By clicking on the arrow next to the directory
   and expanding all of the register components in the directory will be displayed
-  Double clicking on any component will display a description of the component 
-  pulled from the doxygen information included in the file. If none is included
-  in the file a message will be printed stating no inforamtion is available.
-  To choose a model simply expand the directory in the available components screen 
-  (click on the arrow) and use your mouse to hightlight the specific element you 
-  want to choose. The tool will not move the entire directory without selecting 
-  an element underneath.
+  Double clicking on any component will display a description of the component. 
+  If none is included. To choose a model simply expand the directory in the 
+  available components screen (click on the arrow) and use your mouse to hightlight 
+  the specific element you want to choose. The tool will not move the entire 
+  directory without selecting an element underneath.
 
 Selected Models screen - All "Selected" models for your simimulation entity will
  appear in this screen. Double clicking on any component will display a detailed 
