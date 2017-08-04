@@ -19,6 +19,10 @@ Requirements to run the GUI:
 	PyQt5
 	graphviz (If you want to use the graphing capability to make a .ps from a .dot file)
 
+The scripts both sstGUI.py and sstSHELL.py should be run in your working directory. As you 
+create new models they will reside in seperate folders inside your working directory. The
+SST GUI will pick up any new models you register with your version of SST.
+
 After running the GUI you will notice an extra folder created called __pycache__. This folder
 simply contains the compiled version of sstSHELL.py and can be safely removed if desired.
 If not removed, the startup time of the GUI will be slightly reduced.
