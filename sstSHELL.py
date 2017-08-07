@@ -39,7 +39,7 @@ def createModel(model, template):
 
 # Connect various models together
 def connectModels(model, componentList):
-	components = componentList.split(',')
+	components = componentList.rstrip(';').split(';')
 	os.system(str('rm -rf ' + model))
 	os.system(str('mkdir -p ' + model))
 	elements = ET.fromstring(runCommand('sst-info -qnxo /dev/stdout'))
@@ -49,36 +49,77 @@ def connectModels(model, componentList):
 		# Loop through all the components
 		for i in range(len(components)):
 			component = components[i]
-			(element, comp) = component.split('.')
+			(element, comp, *sub) = component.split('.')
+			if sub:
+				sub = sub[0].split(',')
 			# Write the Component Definition
-			fp.write('obj' + str(i) + ' = sst.Component("' + comp + str(i) + '", "' + component + '")\n')
-			fp.write('obj' + str(i) + '.addParams({\n')
+			fp.write('obj' + str(i) + ' = sst.Component("' + comp + str(i) + '", "' + element + '.' + comp + '")\n')
 			parameters = elements.find("*/Component[@Name='" + comp + "']").findall('Parameter')
-			# Remove the DEPRECATED parameters
-			params = []
-			for param in parameters:
-				if not param.get('Description').strip().startswith('DEPRECATED'):
-					params.append(param)
-			# Write out all of the available parameters with their defaults and description
-			for k in range(len(params)):
-				if k == len(params) - 1:
-					fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n\n')
+			if parameters:
+				fp.write('obj' + str(i) + '.addParams({\n')
+				# Remove the DEPRECATED parameters
+				params = []
+				for param in parameters:
+					if not param.get('Description').strip().startswith('DEPRECATED'):
+						params.append(param)
+				# Write out all of the available parameters with their defaults and description
+				for k in range(len(params)):
+					if k == len(params) - 1:
+						fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n\n')
+					else:
+						fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
+			else:
+				fp.write('\n')
+			# Create any subcomponents
+			for j in range(len(sub)):
+				s = sub[j]
+				# Write the Subcomponent Definition
+				fp.write('sub' + str(i) + str(j) + ' = obj' + str(i) + '.setSubComponent("' + s + '", "' + element + '.' + s + '", ' + str(j) + ')\n')
+				parameters = elements.find("*/SubComponent[@Name='" + s + "']").findall('Parameter')
+				if parameters:
+					fp.write('sub' + str(i) + str(j) + '.addParams({\n')
+					# Remove the DEPRECATED parameters
+					params = []
+					for param in parameters:
+						if not param.get('Description').strip().startswith('DEPRECATED'):
+							params.append(param)
+					# Write out all of the available parameters with their defaults and description
+					for k in range(len(params)):
+						if k == len(params) - 1:
+							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '"}) # ' + params[k].get('Description') + '\n\n')
+						else:
+							fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
 				else:
-					fp.write('\t"' + params[k].get('Name') + '" : "' + params[k].get('Default') + '", # ' + params[k].get('Description') + '\n')
+					fp.write('\n')
+			fp.write('\n')
 		fp.write('\n###################################################################\n')
 		fp.write('# TODO: Links have the first port connected but need to be manually\n')
 		fp.write('# connected to a second port to work. Delays also should be edited\n\n')
 		# After all components have been declared, write links
 		for i in range(len(components)):
 			component = components[i]
-			(element, comp) = component.split('.')
+			(element, comp, *sub) = component.split('.')
 			ports = elements.find("*/Component[@Name='" + comp + "']").findall('Port')
-			fp.write('# ' + comp + ' Links\n')
+			if ports:
+				fp.write('# ' + 'obj' + str(i) + ' Links\n')
 			# Write out all of the available ports with their descriptions
 			# These need to be modified by the user to actually connect components
 			for k in range(len(ports)):
-				fp.write('sst.Link("' + comp + '_' + ports[k].get('Name') + '").connect( (obj' + str(i) + ', "' + ports[k].get('Name') + '", "1ps"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
-			fp.write('\n')
+				fp.write('sst.Link("' + comp + str(i) + '_' + ports[k].get('Name') + '").connect( (obj' + str(i) + ', "' + ports[k].get('Name') + '", "1ps"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
+			if ports:
+				fp.write('\n')
+			# Write links for subcomponents
+			if sub:
+				sub = sub[0].split(',')
+				for j in range(len(sub)):
+					s = sub[j]
+					ports = elements.find("*/SubComponent[@Name='" + s + "']").findall('Port')
+					if ports:
+						fp.write('# ' + 'sub' + str(i) + str(j) + ' Links\n')
+					for k in range(len(ports)):
+						fp.write('sst.Link("' + s + str(i) + str(j) + '_' + ports[k].get('Name') + '").connect( (sub' + str(i) + str(j) + ', "' + ports[k].get('Name') + '", "1ps"), (OBJNAME, "PORTNAME", "DELAY") ) # ' + ports[k].get('Description') + '\n')
+					if ports:
+						fp.write('\n')
 
 
 # Graph a Model using the python test script
@@ -147,8 +188,8 @@ def graphModel(test):
 		outfile.write(str('\t}\n'))
 		outfile.write('}')
 	# Convert .dot file to a .ps file so you can open it like a pdf
-	os.system(str('dot -Tps ' + path + '.dot -o ' + path + '.ps'))
-	return str(path + '.dot ' + path + '.ps')
+	os.system(str('dot -Tjpg ' + path + '.dot -o ' + path + '.jpg'))
+	return str(path + '.dot ' + path + '.jpg')
 
 
 # Convert a model into a template
@@ -210,7 +251,7 @@ if __name__ == '__main__':
 					 '----------+-------------------------------------------------------\n' + 
 					 'Create    | The path to the template\n' + 
 					 'Connect   | The components you want to connect\n' + 
-					 '          | Format is <element>.<component> with commas separating\n' + 
+					 '          | Format is <element>.<component>.<subcomponent>,<subcomponent>;\n' + 
 					 'Convert   | The destination template name\n'))
 	args = parser.parse_args()
 	if args.function == 'create':

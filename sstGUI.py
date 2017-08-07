@@ -39,7 +39,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.actionAbout.triggered.connect(self.helpAbout)
 		self.actionModel_Creator.triggered.connect(self.helpCreator)
 		self.actionModel_Connector.triggered.connect(self.helpConnector)
-		self.actionModel_Grapher.triggered.connect(self.helpTools)
+		self.actionTools.triggered.connect(self.helpTools)
 		self.actionGraph.triggered.connect(self.graphModel)
 		self.actionModel2Template.triggered.connect(self.model2Template)
 		# General setup
@@ -54,7 +54,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.templateBrowse.clicked.connect(self.browseTemplates)
 		# Model Connector Tab
 		self.tabWidget.currentChanged.connect(self.updateTabs)
-		self.add.clicked.connect(self.addModel)
+		self.newComp.clicked.connect(self.addModel)
+		self.addSub.clicked.connect(self.addSubcomponent)
 		self.remove.clicked.connect(self.removeModel)
 		self.available.setSelectionMode(QAbstractItemView.ExtendedSelection)
 		self.available.itemDoubleClicked.connect(self.availableHelp)
@@ -122,13 +123,24 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		elif self.tabWidget.currentIndex() == 1:
 			# Connect the model using the components
 			if makefiles:
-				components = []
+				components = ''
 				root = self.selected.invisibleRootItem()
 				for i in range(root.childCount()):
 					element = root.child(i)
 					for j in range(element.childCount()):
-						components.append(element.text(0) + '.' + element.child(j).text(0))
-				sstSHELL.connectModels(self.model, ','.join(components))
+						component = element.child(j)
+						components += element.text(0) + '.' + component.text(0)
+						if component.childCount() != 0:
+							components += '.'
+							for k in range(component.childCount()):
+								components += component.child(k).text(0)
+								if k == component.childCount() - 1:
+									components += ';'
+								else:
+									components += ','
+						else:
+							components += ';'
+				sstSHELL.connectModels(self.model, components)
 			self.templatesMessage([self.model + '.py'])
 			f += './' + self.model + '/' + self.model + '.py '
 		# Open files
@@ -230,6 +242,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.sstinfo = ET.fromstring(sstSHELL.runCommand('sst-info -qnxo /dev/stdout'))
 		# Store a list of the elements SST knows about
 		self.elements = []
+		# Grab the subcomponents
+		subs = self.sstinfo.findall('*/SubComponent')
 		for element in self.sstinfo.findall('Element'):
 			components = element.findall('Component')
 			self.elements.append(element.get('Name'))
@@ -242,6 +256,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					# Create component items in the element item
 					c = QTreeWidgetItem(e)
 					c.setText(0, component.get('Name'))
+					subcomponents = component.findall('SubComponentSlot')
+					if subcomponents:
+						for subcomponent in subcomponents:
+							# Create subcomponent items in the component item
+							# that have the correct interface
+							for sub in subs:
+								if subcomponent.get('Interface') == sub.get('Interface'):
+									s = QTreeWidgetItem(c)
+									s.setText(0, sub.get('Name'))
 
 	# Add Models
 	def addModel(self):
@@ -249,21 +272,47 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		for item in self.available.selectedItems():
 			# Make sure the item has a element (it is a component, not an element itself)
 			if item.parent():
+				# Subcomponent if it has 2 parents
+				if item.parent().parent():
+					c = item.parent()
+					e = item.parent().parent()
+				else:
+					c = item
+					e = item.parent()
 				elementExists = False
 				# Loop through the elements to see if we have a element that matches already
 				for i in range(root.childCount()):
 					element = root.child(i)
-					if item.parent().text(0) == element.text(0):
+					if e.text(0) == element.text(0):
 						elementExists = True
 				# No element exists in the selected tree, create one
 				if not elementExists:
 					element = QTreeWidgetItem(self.selected)
-					element.setText(0, item.parent().text(0))
+					element.setText(0, e.text(0))
 				# Connect the component to the proper element
 				component = QTreeWidgetItem(element)
-				component.setText(0, item.text(0))
-		self.selected.expandToDepth(0)
-
+				component.setText(0, c.text(0))
+				if item.parent().parent():
+					# Connect the subcomponent to the component
+					subcomponent = QTreeWidgetItem(component)
+					subcomponent.setText(0, item.text(0))
+		self.selected.expandToDepth(1)
+	
+	# Add subcomponent to existing component
+	def addSubcomponent(self):
+		root = self.selected.invisibleRootItem()
+		for item in self.available.selectedItems():
+			# Make sure the item is a subcomponent
+			if item.parent():
+				if item.parent().parent():
+					# Selected item needs to be a component
+					if self.selected.currentItem().parent():
+						if not self.selected.currentItem().parent().parent():
+							# Connect the subcomponent to the component
+							subcomponent = QTreeWidgetItem(self.selected.currentItem())
+							subcomponent.setText(0, item.text(0))
+		self.selected.expandToDepth(1)
+	
 	# Remove Models
 	def removeModel(self):
 		root = self.selected.invisibleRootItem()

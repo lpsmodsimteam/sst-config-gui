@@ -134,28 +134,28 @@
        <attribute name="title">
         <string>Model Connector</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,1,1">
+       <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,1,1,1">
         <item row="0" column="1" alignment="Qt::AlignLeft">
-         <widget class="QCommandLinkButton" name="add">
+         <widget class="QCommandLinkButton" name="newComp">
           <property name="toolTip">
-           <string>Add selected models from the Available Models List to the Selected Models List</string>
+           <string>Add selected components from the Available Components List to the Selected Components List</string>
           </property>
           <property name="text">
-           <string>Add Component</string>
+           <string>New Component</string>
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>resources/add.png</normaloff>resources/add.png</iconset>
+            <normaloff>resources/new.png</normaloff>resources/new.png</iconset>
           </property>
          </widget>
         </item>
-        <item row="0" column="2" alignment="Qt::AlignRight">
+        <item row="0" column="3" alignment="Qt::AlignRight">
          <widget class="QCommandLinkButton" name="remove">
           <property name="toolTip">
-           <string>Remove selected models from the Selected Models List</string>
+           <string>Remove selected models from the Selected Components List</string>
           </property>
           <property name="text">
-           <string>Remove Component</string>
+           <string>Remove</string>
           </property>
           <property name="icon">
            <iconset>
@@ -163,7 +163,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1" colspan="2">
+        <item row="1" column="1" colspan="3">
          <widget class="QTreeWidget" name="selected">
           <property name="toolTip">
            <string>Models to be connected. Double click for help</string>
@@ -185,6 +185,20 @@
             <string>Available Components</string>
            </property>
           </column>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QCommandLinkButton" name="addSub">
+          <property name="toolTip">
+           <string>Add selected subcomponents from the Available Components list to the selected component in the Selected Components list</string>
+          </property>
+          <property name="text">
+           <string>Add Subcomponent</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/add.png</normaloff>resources/add.png</iconset>
+          </property>
          </widget>
         </item>
        </layout>
@@ -290,7 +304,7 @@
      <x>0</x>
      <y>0</y>
      <width>953</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -300,7 +314,7 @@
     <addaction name="actionAbout"/>
     <addaction name="actionModel_Creator"/>
     <addaction name="actionModel_Connector"/>
-    <addaction name="actionModel_Grapher"/>
+    <addaction name="actionTools"/>
    </widget>
    <widget class="QMenu" name="menuGraph">
     <property name="title">
@@ -333,14 +347,6 @@
     <string>Model Connector Help</string>
    </property>
   </action>
-  <action name="actionModel_to_Template_Converter">
-   <property name="text">
-    <string>Model to Template Converter</string>
-   </property>
-   <property name="toolTip">
-    <string>Model to Template Converter Help</string>
-   </property>
-  </action>
   <action name="actionModel2Template">
    <property name="text">
     <string>Model2Template</string>
@@ -351,7 +357,7 @@
     <string>Graph Model</string>
    </property>
   </action>
-  <action name="actionModel_Grapher">
+  <action name="actionTools">
    <property name="text">
     <string>Tools</string>
    </property>
