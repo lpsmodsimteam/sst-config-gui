@@ -74,7 +74,11 @@ def connectModels(model, componentList):
 			for j in range(len(sub)):
 				s = sub[j]
 				# Write the Subcomponent Definition
-				fp.write('sub' + str(i) + str(j) + ' = obj' + str(i) + '.setSubComponent("' + s + '", "' + element + '.' + s + '", ' + str(j) + ')\n')
+				slots = elements.find("*/Component[@Name='" + comp + "']").findall('SubComponentSlot')
+				subcomp = elements.find("*/SubComponent[@Name='" + s + "']")
+				for slot in slots:
+					if slot.get('Interface') == subcomp.get('Interface'):
+						fp.write('sub' + str(i) + str(j) + ' = obj' + str(i) + '.setSubComponent("' + slot.get('Name') + '", "' + element + '.' + s + '", ' + str(j) + ')\n')
 				parameters = elements.find("*/SubComponent[@Name='" + s + "']").findall('Parameter')
 				if parameters:
 					fp.write('sub' + str(i) + str(j) + '.addParams({\n')
