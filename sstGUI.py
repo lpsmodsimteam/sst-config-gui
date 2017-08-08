@@ -9,12 +9,11 @@
 import sys
 import os
 import subprocess
-import re
-import fileinput
 import cgi
 import xml.etree.ElementTree as ET
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
 import sstSHELL
 
@@ -59,8 +58,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.remove.clicked.connect(self.removeModel)
 		self.available.setSelectionMode(QAbstractItemView.ExtendedSelection)
 		self.available.itemDoubleClicked.connect(self.availableHelp)
+		self.available.setExpandsOnDoubleClick(False)
 		self.selected.setSelectionMode(QAbstractItemView.ExtendedSelection)
 		self.selected.itemDoubleClicked.connect(self.selectedHelp)
+		self.selected.setExpandsOnDoubleClick(False)
 	############################################################################
 	
 	
@@ -296,21 +297,42 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					# Connect the subcomponent to the component
 					subcomponent = QTreeWidgetItem(component)
 					subcomponent.setText(0, item.text(0))
+			else:
+				self.writeInfo('*** Need to select a COMPONENT or SUBCOMPONENT from the Available Components ***\n\n', 'red')
 		self.selected.expandToDepth(1)
 	
 	# Add subcomponent to existing component
 	def addSubcomponent(self):
 		root = self.selected.invisibleRootItem()
 		for item in self.available.selectedItems():
-			# Make sure the item is a subcomponent
-			if item.parent():
-				if item.parent().parent():
-					# Selected item needs to be a component
-					if self.selected.currentItem().parent():
-						if not self.selected.currentItem().parent().parent():
-							# Connect the subcomponent to the component
-							subcomponent = QTreeWidgetItem(self.selected.currentItem())
-							subcomponent.setText(0, item.text(0))
+			if self.selected.currentItem():
+				# Make sure the item is a subcomponent
+				if item.parent():
+					if item.parent().parent():
+						# Selected item needs to be a component
+						if self.selected.currentItem().parent():
+							if not self.selected.currentItem().parent().parent():
+								subcomponent = self.sstinfo.find("*/SubComponent[@Name='" + item.text(0) + "']")
+								slots = self.sstinfo.find("*/Component[@Name='" + self.selected.currentItem().text(0) + "']").findall('SubComponentSlot')
+								fits = False
+								for slot in slots:
+									if subcomponent.get('Interface') == slot.get('Interface'):
+										# Connect the subcomponent to the component
+										subcomponent = QTreeWidgetItem(self.selected.currentItem())
+										subcomponent.setText(0, item.text(0))
+										fits = True
+								if not fits:
+									self.writeInfo('*** Subcomponent does not fit in the selected component slot ***\n\n', 'red')
+							else:
+								self.writeInfo('*** Need to select a COMPONENT from the Selected Components ***\n\n', 'red')
+						else:
+							self.writeInfo('*** Need to select a COMPONENT from the Selected Components ***\n\n', 'red')
+					else:
+						self.writeInfo('*** Need to select a SUBCOMPONENT from the Available Components ***\n\n', 'red')
+				else:
+					self.writeInfo('*** Need to select a SUBCOMPONENT from the Available Components ***\n\n', 'red')
+			else:
+				self.writeInfo('*** Need to select a component from the Selected Components ***\n\n', 'red')
 		self.selected.expandToDepth(1)
 	
 	# Remove Models
@@ -344,6 +366,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo(self.separator + '***** Graphing Model *****\n')
 		f = sstSHELL.graphModel(path)
 		self.writeInfo('\nCreated ' + f + '\n' + self.separator + '\n')
+		QDesktopServices.openUrl(QUrl(f.split()[1]))
 	
 	
 	# Convert a model into a template
