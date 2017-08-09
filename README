@@ -4,7 +4,7 @@ models, and compile and run the models. sstSHELL.py is a script which can be run
 line, but should NOT be used directly by the user as there is no error checking on inputs. It does
 however provide the core functionality to the GUI, and should be usable from scripts or other GUIs.
 If you must run the sstSHELL.py executable, first run
-	./sstSHELL.py -h
+	python3 sstSHELL.py -h
 This will show you how to use the script, but again you must be careful with your input.
 
 Along with the two main executables, there is a resources folder and a templates folder included.
@@ -17,7 +17,7 @@ new model, more help on the templates can be found in the README in the template
 Requirements to run the GUI:
 	python3
 	PyQt5
-	graphviz (If you want to use the graphing capability to make a .ps from a .dot file)
+	graphviz (If you want to use the graphing capability to make a .jpg from a .dot file)
 
 The scripts both sstGUI.py and sstSHELL.py should be run in your working directory. As you 
 create new models they will reside in seperate folders inside your working directory. The

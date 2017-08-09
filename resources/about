@@ -19,9 +19,9 @@ left off.
 
 The tool is set up basically in three different phases.
 
-   1) Model Creation from a template (Model Creator tab)
-   2) Connecting Multiple models togeter that communicate (Model Connector tab)
-   3) Tools Menu
+	1) Model Creation from a template (Model Creator tab)
+	2) Connecting Multiple models togeter that communicate (Model Connector tab)
+	3) Tools Menu
 
 Tool tips are available if you mouse over each button
 More specific Help is also availble by selecting the correct option
@@ -34,5 +34,4 @@ Tools -> Description of "Tools" listed in the Tools menu
 
 When appropriate information for each step is displayed in the 
 Information screen.
-
 
