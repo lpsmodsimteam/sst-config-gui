@@ -294,6 +294,9 @@
       <property name="readOnly">
        <bool>true</bool>
       </property>
+      <property name="tabStopWidth">
+       <number>25</number>
+      </property>
      </widget>
     </item>
    </layout>
