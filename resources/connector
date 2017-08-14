@@ -34,8 +34,8 @@ New Component button - To move components from "Available" to "Selected" simply 
 	the component or subcomponent under the element in the Available Components screen
 	and press the New Component button. If a subcomponent is selected, the component
 	and subcomponent will be added under the element on the Selected Components screen. 
-	It will NOT add the subcomponent to an existing component, that is what the Add
-	Subcomponent button is for.
+	It will NOT add the subcomponent to an existing component, use the Add
+	Subcomponent button for this task.
 
 Add Subcomponent button - If you want to add a subcomponent to an already selected
 	component, you can use this button. You need to select a valid subcomponent that
@@ -43,21 +43,23 @@ Add Subcomponent button - If you want to add a subcomponent to an already select
 	in the Available Components screen) and select the component you want to add to on
 	the Selected Components screen, then click the Add Subcomponent button. The
 	subcomponent will then be added to the selected component if the interface matches.
+        If the interface does not match an error will be thrown, and the Subcomponent will
+        not be added.
 
 Remove button - To remove models from the Selected Models simply highlight
 	the model you want to remove and press the Remove Model button. Unlike the "Add
 	Model button" the entire element can be removed with this button by highlighting
 	an element and pressing this button. If you only want to remove a single component
-	under an element simply highlight the component and press this button, only the 
-	highlighted component will be removed and any other models you added will remain 
-	in the "Selected Components" screen.
+	or subcomponent, under an element simply highlight the component and press this button, 
+	only the highlighted component or subcomponent will be removed and any other models 
+	youn added will remain in the "Selected Components" screen.
 
 Generate/Open Templates button - This button will first create a directory in your 
 	working directory with your model name, inside this directory you will find your 
 	tests/<model>.py template. The template will also appear in an	editor of your 
 	choice, selected using your EDITOR environment variable so you can complete the 
 	development of your combined model. You will notice that the test python script that 
-	has been created has all of the ports listed from your selected models with default 
+	has been created, has all of the ports listed from your selected models with default 
 	parameters loaded as well as a link template "hanging" off each port. Follow the 
 	highlighted "TODO" comments to complete your model by editing the template, save 
 	and close the editor. Make sure to connect the links the ones in the file are only
