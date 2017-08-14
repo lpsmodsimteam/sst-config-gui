@@ -24,7 +24,7 @@ public:
 		"<model>1",
 		SST_ELI_ELEMENT_VERSION( 1, 0, 0 ),
 		"Demonstration of an External Element for SST",
-		COMPONENT_CATEGORY_PROCESSOR
+		COMPONENT_CATEGORY_UNCATEGORIZED
 	)
 
 	SST_ELI_DOCUMENT_PARAMS(
@@ -36,7 +36,7 @@ public:
 		{ "port", "Port on which to send/recv messages", {"sst.Interfaces.StringEvent"}}
 	)
 
-	private:
+private:
 	SST::Output output;
 	SST::Cycle_t printFreq;
 	SST::Cycle_t maxRepeats;

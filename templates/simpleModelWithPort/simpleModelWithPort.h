@@ -24,7 +24,7 @@ public:
 		"<model>",
 		SST_ELI_ELEMENT_VERSION( 1, 0, 0 ),
 		"Demonstration of an External Element for SST",
-		COMPONENT_CATEGORY_PROCESSOR
+		COMPONENT_CATEGORY_UNCATEGORIZED
 	)
 
 	SST_ELI_DOCUMENT_PARAMS(
