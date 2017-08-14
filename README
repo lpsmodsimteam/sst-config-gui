@@ -1,64 +1,28 @@
-This is the SST Model Creation Tool is will assist in developing
-simple models for the SST Simulation Framework. This tool assumes
-that SST has been installed and is running on your system. It also
-assumes that you have set the $SST_ELEMENTS_HOME and the
-$SST_CORE_HOME environment variables either in your .bashrc
-or in your text browser. 
+This is a suite of productivity tools for SST. The main executable a user should use is
+sstGUI.py, as it provides a simple GUI to help the user create new models, connect existing
+models, and compile and run the models. sstSHELL.py is a script which can be run from the command
+line, but should NOT be used directly by the user as there is no error checking on inputs. It does
+however provide the core functionality to the GUI, and should be usable from scripts or other GUIs.
+If you must run the sstSHELL.py executable, first run
+	python3 sstSHELL.py -h
+This will show you how to use the script, but again you must be careful with your input.
 
-It is suggested that you create your model in a working directory;
-the tool will copy the files correct directories inside of 
-the SST Simulation Framework and configure SST to run your
-model. The tool is setup to step you through the model development
-process. Information about each step will be displayed in the 
-information screen. Additionally tool tips are available if
-you mouse over each button. Below is a brief description of 
-each button and box on the tool:
+Along with the two main executables, there is a resources folder and a templates folder included.
+The resources folder contains extra images and help files used by the GUI. If you want to learn
+about how to use the GUI, you can look at the about file in the resources directory, or you can
+use the Help menu from the GUI and click About.
+The templates folder contains some basic templates which are used to create a skeleton for your
+new model, more help on the templates can be found in the README in the templates folder.
 
-Enter Model Name --> text box - Simply enter the name of your
-  model, this name will be used as the base name for all of
-  your files and your model's directory. If you do not enter
-  a name the will not continue until a name is entered.
+Requirements to run the GUI:
+	python3
+	PyQt5
+	graphviz (If you want to use the graphing capability to make a .jpg from a .dot file)
 
-Generate/Open Templates button - This button will first create a 
-  directory in your working directory with your model name, 
-  inside this directory you will find your <model>.cc, <model>.h,
-  <model>Wrapper.cc, Makefile.am, and tests/test_<model>.py
-  templates. The templates will also appear in the pop-up editor
-  gedit, so you can complete the development of your model. Create
-  your model by editing the templates, save and close the editor.
-  The templates do generate a very simple model that can be 
-  compiled and run by the tool without any editing if you just
-  want to try the tool out to see how it works before creating your own.
-  It should be noted here that you do not have to edit the files in 
-  the pop-up editor, you can close the tool at this point edit your
-  templates off-line in the editor of your choice and re-enter
-  the tool and proceed to the next step when you are ready.
-  If model already exists in your working directory with the
-  same name and the Overwrite Existing Model check box is 
-  unchecked, the popup editor will open the existing model
-  this will allow you use the GUI to complete your model if it 
-  is not complete or correct errors found during compilation.
+The scripts both sstGUI.py and sstSHELL.py should be run in your working directory. As you 
+create new models they will reside in seperate folders inside your working directory. The
+SST GUI will pick up any new models you register with your version of SST.
 
-Configure button - This button will copy your model directory to 
-  the proper place inside of the SST Simulation Framework, and run
-  the autogen, and configure scripts. Once the scripts complete 
-  Configure will run "make all install"
-
-Overwrite Existing Model check box - Both the Generate Templates
-  and Configure steps will check to see if a model is already
-  present with the current name. Generate Templates will check
-  in your working directory and Configure will check the 
-  elements library. If this box is checked the old model will
-  be overwritten with the new one you created.
-
-Make Clean check box - If you select this check box Configure will
-  run a "make clean" before running "make all install
-
-Run SST button - This button will run the test_<mode>.py script
-  (basically running your model in SST) the results will
-  be displayed in the information window.
-
-Run After Build check box - If you select this check box the tool
-  will proceed directly to Run SST after Configure. It is suggested
-  that this box remain unchecked until you at least get your model
-  to compile.
+After running the GUI you will notice an extra folder created called __pycache__. This folder
+simply contains the compiled version of sstSHELL.py and can be safely removed if desired.
+If not removed, the startup time of the GUI will be slightly reduced.

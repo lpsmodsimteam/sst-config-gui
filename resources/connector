@@ -1,0 +1,99 @@
+The Model Connector tab will step you through connecting several
+models together to form larger simulation entities. The Model Connector
+will allow you to use Default SST Models or Local Models (available in
+your current working directory). It checks for any model that has been
+"registered" with your version of SST. 
+
+Enter Model Name text box - Simply enter the name of your model, this name
+	will be used as the base name for your connectted model and will appear
+	in a seperate directory under your current working directory. If you 
+	do not enter a name the GUI will prompt you to enter a name and it will 
+	not continue until a name is entered. If you select a name the same as 
+	one of the elements already "registered" by SST, for a new install they 
+	consist of elements in the delivery, an error will be thrown and the tool 
+	will ask you to choose another name. A list of all "registered" SST elements 
+	will appear in the Information screen, so you can pick a unique name.	
+
+Available Components screen - This screen will list all of the components and subcomponents
+	that have been registered with your version of SST, both SST supplied models and
+	local models you have created. By clicking on the arrow next to the element
+	and expanding, all of the registered components in the element will be displayed.
+	Double clicking on any item will display a description of the item. 
+	To choose a model simply expand the element in the available components screen
+	(click on the arrow) and use your mouse to hightlight the specific component or
+	subcomponent you want to choose. You cannot add an entire element, you must select
+	a component or subcomponent.
+
+Selected Components screen - All "Selected" models for your simimulation entity will
+	appear in this screen. Double clicking on any component will display a detailed 
+	description of the component, including port information, pulled from the sst-info
+	information. Both the element and the "selected" component or subcomponent
+	will be displayed in the screen
+
+New Component button - To move components from "Available" to "Selected" simply highlight
+	the component or subcomponent under the element in the Available Components screen
+	and press the New Component button. If a subcomponent is selected, the component
+	and subcomponent will be added under the element on the Selected Components screen. 
+	It will NOT add the subcomponent to an existing component, use the Add
+	Subcomponent button for this task.
+
+Add Subcomponent button - If you want to add a subcomponent to an already selected
+	component, you can use this button. You need to select a valid subcomponent that
+	fits in the component slot (all valid subcomponents are listed under the component
+	in the Available Components screen) and select the component you want to add to on
+	the Selected Components screen, then click the Add Subcomponent button. The
+	subcomponent will then be added to the selected component if the interface matches.
+        If the interface does not match an error will be thrown, and the Subcomponent will
+        not be added.
+
+Remove button - To remove models from the Selected Models simply highlight
+	the model you want to remove and press the Remove Model button. Unlike the "Add
+	Model button" the entire element can be removed with this button by highlighting
+	an element and pressing this button. If you only want to remove a single component
+	or subcomponent, under an element simply highlight the component and press this button, 
+	only the highlighted component or subcomponent will be removed and any other models 
+	youn added will remain in the "Selected Components" screen.
+
+Generate/Open Templates button - This button will first create a directory in your 
+	working directory with your model name, inside this directory you will find your 
+	tests/<model>.py template. The template will also appear in an	editor of your 
+	choice, selected using your EDITOR environment variable so you can complete the 
+	development of your combined model. You will notice that the test python script that 
+	has been created, has all of the ports listed from your selected models with default 
+	parameters loaded as well as a link template "hanging" off each port. Follow the 
+	highlighted "TODO" comments to complete your model by editing the template, save 
+	and close the editor. Make sure to connect the links the ones in the file are only
+	templates and will produce a connectted model. If model already exists in your 
+	working directory with the same name and the Overwrite Existing Model check box is 
+	unchecked, the popup editor will open the existing model this will allow you to use 
+	the GUI to complete your model. If the box is checked it will confirm if you want to 
+	overwrite the existing model, then overwrite the model. If you select a name the	
+	same as one of the elements already "registered" by SST, for a new install they 
+	consist of elements in the delivery, an error will be thrown and the tool 
+	will ask you to choose another name. A list of all "registered" SST elements 
+	will appear in the Information screen, so you can pick a unique name.	
+
+Compile Model button - There is nothing to compile from this tab the Model
+	Connector simply creates the python script for connecting already completed
+	(successfully compiled) models
+
+Overwrite Existing Model check box - Generate Templates will check
+	to see if a model is already present with the current name in your
+	working directory. If this box is checked the old model will
+	be overwritten with the new one you created.
+
+Make Clean check box - Nothing is being compiled no functionality in this
+	tab.
+
+Run SST button - This button will run the tests/<model>.py script
+	(basically running your model in SST) the results will
+	be displayed in the information window.
+
+Run After Build check box - Nothing is being compiled no functionality in this
+	tab.
+
+Information screen (unlabeled) - Output from various tasks run with the 
+	GUI will be displayed in the information screen. Color has been added
+	to highlight some of the more important information to allow it to stand
+	out.
+

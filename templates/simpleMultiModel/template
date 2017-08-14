@@ -1,0 +1,6 @@
+Makefile Makefile
+simpleMultiModel.cc <model>.cc
+simpleMultiModel.h <model>.h
+simpleMultiModel1.cc <model>1.cc
+simpleMultiModel1.h <model>1.h
+test.py tests/<model>.py

@@ -1,0 +1,27 @@
+Each template must have all files necessary inside a folder along with
+a file named "template". The "template" file describes the where the files
+in the template end up when they are used. The format for the file is each
+line corresponds to one template file, the first item being the name of the
+file in the template followed by one space, then the second item is the
+path and name of the file once it is used in a model. Using the example
+from the simpleModel template:
+
+Makefile Makefile
+model.cc <model>.cc
+model.h <model>.h
+test.py tests/<model>.py
+
+Makefile doesn't change names and is located in the top of the model directory.
+
+model.cc is placed in the top of the model directory and uses the name <model> 
+which is substituted with the first model name provided.
+
+model.h is created the same as model.cc
+
+test.py is placed under the tests folder in the top of the model directory 
+and then named <model>.py which again is substituted with the first model 
+name provided.
+
+Any test files MUST be located under the tests/ folder otherwise the GUI will
+not be able to locate the test. The GUI will run all files in the under the
+tests/ folder.
