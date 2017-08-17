@@ -184,6 +184,7 @@ def graphModel(test):
 		outfile.write(str('\tsubgraph cluster_legend {\n'))
 		outfile.write(str('\t\tlabel="Legend";\n'))
 		outfile.write(str('\t\tcolor=blue;\n'))
+		outfile.write(str('\t\tfontcolor=blue;\n'))
 		outfile.write(str('\t\tcomp0 [label="Component" shape=box];\n'))
 		outfile.write(str('\t\tcomp1 [label="Component" shape=box];\n'))
 		outfile.write(str('\t\tsub [label="Subcomponent"];\n'))
