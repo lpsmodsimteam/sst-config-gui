@@ -74,7 +74,7 @@ bool <model>::clockTick( SST::Cycle_t currentCycle ) {
 void <model>::handleEvent(SST::Event *ev) {
 	StringEvent *se = dynamic_cast<StringEvent*>(ev);
 	if ( se != NULL ) {
-		output.output("%s recevied an event: \"%s\"\n", getName().c_str(), se->getString().c_str());
+		output.output("%s received an event: \"%s\"\n", getName().c_str(), se->getString().c_str());
 	}
 	delete ev;
 }
