@@ -34,6 +34,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.generate.clicked.connect(self.generateOpenFiles)
 		self.compile.clicked.connect(self.compileModel)
 		self.run.clicked.connect(self.runModel)
+		self.browseDir.clicked.connect(self.browseDirectories)
 		# Menu actions
 		self.actionAbout.triggered.connect(self.helpAbout)
 		self.actionModel_Creator.triggered.connect(self.helpCreator)
@@ -42,9 +43,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.actionGraph.triggered.connect(self.graphModel)
 		self.actionModel2Template.triggered.connect(self.model2Template)
 		# General setup
+		self.modelDir.setText(str(os.getcwd()))
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
-		self.separator = '************************************************************************************************************************\n'
+		self.separator = '********************************************************************************************************************\n'
 		self.SSTinstalled = None
 		self.updateTabs()
 		# Model Creator Tab
@@ -117,10 +119,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if self.tabWidget.currentIndex() == 0:
 			# Create the model using the template
 			if makefiles:
-				sstSHELL.createModel(self.model, self.templatePath)
+				sstSHELL.createModel(self.model, self.templatePath, self.modelDir.text())
 			self.templatesMessage(self.dest)
 			for item in self.dest:
-				f += './' + self.model + '/' + item + ' '
+				f += self.modelDir.text() + '/' + self.model + '/' + item + ' '
 		elif self.tabWidget.currentIndex() == 1:
 			# Connect the model using the components
 			if makefiles:
@@ -141,9 +143,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 									components += ','
 						else:
 							components += ';'
-				sstSHELL.connectModels(self.model, components)
+				sstSHELL.connectModels(self.model, components, self.modelDir.text())
 			self.templatesMessage([self.model + '.py'])
-			f += './' + self.model + '/' + self.model + '.py '
+			f += self.modelDir.text() + '/' + self.model + '/' + self.model + '.py '
 		# Open files
 		os.system(str(self.editor + ' ' + f + '&'))
 	########################################################################
@@ -160,9 +162,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.writeInfo(self.separator + '***** Building Model *****\n\n')
 			# make clean
 			if self.clean.isChecked():
-				self.runCmdByLine(str('make clean -C ' + self.model))
+				self.runCmdByLine(str('make clean -C ' + self.modelDir.text() + '/' + self.model))
 			# runCmdByLine returns the make return value (0 success, others fail)
-			failed = self.runCmdByLine(str('make all -C ' + self.model))
+			failed = self.runCmdByLine(str('make all -C ' + self.modelDir.text() + '/' + self.model))
 			if failed:
 				text = '\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***\n'
 				self.writeInfo(text, 'red')
@@ -189,18 +191,18 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if not self.getModel(): return
 		# Run all tests
 		if self.tabWidget.currentIndex() == 0:
-			testfiles = os.listdir('./' + self.model + '/tests/')
+			testfiles = os.listdir(self.modelDir.text() + '/' + self.model + '/tests/')
 		elif self.tabWidget.currentIndex() == 1:
-			testfiles = os.listdir('./' + self.model)
+			testfiles = os.listdir(self.modelDir.text() + '/' + self.model)
 		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
 		# Tests are in the model/tests/ folder for Creator mode
 		# Tests are in the model folder for Connector mode
 		for testfile in testfiles:
 			self.writeInfo('*** ' + testfile + ' ***\n')
 			if self.tabWidget.currentIndex() == 0:
-				self.runCmdByLine(str('sst ' + self.model + '/tests/' + testfile))
+				self.runCmdByLine(str('sst ' + self.modelDir.text() + '/' + self.model + '/tests/' + testfile))
 			elif self.tabWidget.currentIndex() == 1:
-				self.runCmdByLine(str('sst ' + self.model + '/' + testfile))
+				self.runCmdByLine(str('sst ' + self.modelDir.text() + '/' + self.model + '/' + testfile))
 			self.writeInfo('\n')
 		self.writeInfo(self.separator + '\n')
 	########################################################################
@@ -401,6 +403,16 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
 	############################################################################
 	### Application helper functions
+	
+	# Browse for a directory to put the model in
+	def browseDirectories(self):
+		# Prompt for a directory
+		directory = QFileDialog.getExistingDirectory(self, 'Select Directory', './', QFileDialog.ShowDirsOnly)
+		if not directory:
+			self.writeInfo('*** PLEASE SELECT A DIRECTORY ***\n\n', 'red')
+		else:
+			self.modelDir.setText(str(directory))
+	
 	
 	# Checks whether SST is installed
 	def isSSTinstalled(self):

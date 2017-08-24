@@ -17,8 +17,8 @@ import argparse
 
 
 # Move and update the template files to create a new model
-def createModel(model, template):
-	os.system(str('rm -rf ' + model))
+def createModel(model, template, path):
+	os.system(str('rm -rf ' + path + '/' + model))
 	# Read template sources and destinations
 	with open(template + '/template', 'r') as fp:
 		structure = fp.read()
@@ -28,23 +28,23 @@ def createModel(model, template):
 	# Replace <model> tag with the model name
 	for item in destination:
 		dest.append(item.replace('<model>', str(model)))
-	os.system(str('mkdir -p ' + model + '/tests'))
+	os.system(str('mkdir -p ' + path + '/' + model + '/tests'))
 	# Loop through sources and destinations at the same time
 	for s, d in zip(source, dest):
-		with open(str(template + '/' + s), 'r') as infile, open(str(model + '/' + d), 'w') as outfile:
+		with open(str(template + '/' + s), 'r') as infile, open(str(path + '/' + model + '/' + d), 'w') as outfile:
 			# Copy from source to destination while replacing <model> tags
 			for line in infile:
 				outfile.write(line.replace('<model>', str(model)))
 
 
 # Connect various models together
-def connectModels(model, componentList):
+def connectModels(model, componentList, path):
 	components = componentList.rstrip(';').split(';')
-	os.system(str('rm -rf ' + model))
-	os.system(str('mkdir -p ' + model))
+	os.system(str('rm -rf ' + path + '/' + model))
+	os.system(str('mkdir -p ' + path + '/' + model))
 	elements = ET.fromstring(runCommand('sst-info -qnxo /dev/stdout'))
 	# Write the test python file
-	with open(str(model + '/' + model + '.py'), 'w') as fp:
+	with open(str(path + '/' + model + '/' + model + '.py'), 'w') as fp:
 		fp.write('import sst\n\n# TODO: Check the parameters for all components and connect the links at the bottom before running!!!\n\n')
 		# Loop through all the components
 		for i in range(len(components)):
@@ -258,11 +258,15 @@ if __name__ == '__main__':
 					 'Connect   | The components you want to connect\n' + 
 					 '          | Format is <element>.<component>.<subcomponent>,<subcomponent>;\n' + 
 					 'Convert   | The destination template name\n'))
+	parser.add_argument('-p', '--path',
+			help=str('Function       | Help\n' + 
+					 '---------------+--------------------------------------------------\n' + 
+					 'Create/Connect | The path where the model will be created\n'))
 	args = parser.parse_args()
 	if args.function == 'create':
-		createModel(args.model, args.args)
+		createModel(args.model, args.args, args.path)
 	elif args.function == 'connect':
-		connectModels(args.model, args.args)
+		connectModels(args.model, args.args, args.path)
 	elif args.function == 'convert':
 		model2Template(args.model, args.args)
 	elif args.function == 'graph':
