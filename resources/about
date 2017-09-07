@@ -17,11 +17,12 @@ development process. The tool allows you to exit and edit off-line
 if you prefer and re-enter the process at the point where you 
 left off.
 
-The tool is set up basically in three different phases.
+The tool has four main regions:
 
 	1) Model Creation from a template (Model Creator tab)
-	2) Connecting Multiple models togeter that communicate (Model Connector tab)
-	3) Tools Menu
+	2) Subcomponent Creation using the prototype from a header file (Subcomponent Creator tab)
+	3) Connecting Multiple models together (Model Connector tab)
+	4) Tools Menu
 
 Tool tips are available if you mouse over each button
 More specific Help is also availble by selecting the correct option
@@ -29,6 +30,7 @@ under the Help button.
 
 About -> This file
 Model Creator -> Model Creator tab functionality
+Subcomponent Creator -> Subcomponent Creator tab functionality
 Model Connector -> Model Connector tab functionality
 Tools -> Description of "Tools" listed in the Tools menu
 

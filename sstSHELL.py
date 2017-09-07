@@ -2,7 +2,7 @@
 
 # This is a model development script to help you develop,
 # integrate and run a new model in SST. There are functions
-# to create, connect, convert, and graph models
+# to create, create subcomponents, connect, convert, and graph models
 
 # WARNING: These functions have no error checking as they
 # are meant to be called from other code which should
@@ -126,6 +126,64 @@ def connectModels(model, componentList, path):
 						fp.write('\n')
 
 
+# Create a subcomponent
+def createSubcomponent(name, subcomp, header):
+	found = False
+	with open(str(header), 'r') as infile, open(str(os.path.dirname(header) + '/' + name + '.cc'), 'w') as cFile, open(str(os.path.dirname(header) + '/' + name + '.h'), 'w') as hFile:
+		# create the beginning of the header file
+		htxt = '#ifndef _' + name + '_H\n#define _' + name + '_H\n\n'
+		htxt += '#include "' + os.path.basename(header) + '"\n\n'
+		htxt += '// TODO: Fill in the element library name where it says PUT ELEMENT LIBRARY HERE\n\n'
+		htxt += 'class ' + name + ' : public ' + subcomp + ' {\n\npublic:\n'
+		htxt += '\t' + name + '( SST::Component *owningComponent, SST::Params& params );\n'
+		htxt += '\t~' + name + '();\n\n'
+		# create the beginning of the cpp file
+		ctxt = '#include <sst/core/sst_config.h>\n#include "' + name + '.h"\n\n'
+		ctxt += name + '::' + name + '(SST::Component *owningComponent, SST::Params &params) : '
+		ctxt += subcomp + '(owningComponent) {\n'
+		ctxt += '\toutput.init("' + name + '-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);\n'
+		ctxt += '\t// Get parameters\n\n\t// Setup statistics\n\n}\n\n'
+		ctxt += name + '::~' + name + '() {}\n\n'
+		# grab the functions from the prototype in the header
+		for line in infile:
+			if found:
+				if line.strip().startswith('}'):
+					found = False
+				elif line.strip().startswith('virtual'):
+					while (not '=' in line) and (not '{' in line):
+						htxt += line.replace('virtual ', '')
+						ctxt += line.replace('virtual ', '').lstrip()
+						line = next(infile)
+					tmp = line.replace('virtual ', '')
+					if '=' in line:
+						htxt += str(tmp.split('=')[0].rstrip() + ';\n')
+						ctxt += str(tmp.lstrip().split('=')[0].rstrip() + '{\n\t\n}\n\n')
+					elif '{' in line:
+						htxt += str(tmp.split('{')[0].rstrip() + ';\n')
+						ctxt += str(tmp.lstrip().split('{')[0].rstrip() + '{\n\t\n}\n\n')
+			elif 'SST::SubComponent' in line:
+				if line.lstrip().split(':')[0].split(' ')[1] == subcomp:
+					found = True
+		# finish the header file
+		htxt += '\n\t// Register the subcomponent\n\tSST_ELI_REGISTER_SUBCOMPONENT(\n'
+		htxt += '\t\t' + name + ', // class\n'
+		htxt += '\t\t"PUT ELEMENT LIBRARY HERE", // element library\n'
+		htxt += '\t\t"' + name + '", // subcomponent\n'
+		htxt += '\t\tSST_ELI_ELEMENT_VERSION( 1, 0, 0 ),\n'
+		htxt += '\t\t"' + name + ' subcomponent description",\n'
+		htxt += '\t\t"SST::PUT ELEMENT LIBRARY HERE::' + subcomp + '" // subcomponent slot\n\t)\n\n'
+		htxt += '\t// Parameter name, description, default value\n'
+		htxt += '\tSST_ELI_DOCUMENT_PARAMS(\n\t\t{ "", "", "" },\n\t)\n\n'
+		htxt += '\t// Statistic name, description, unit, enable level\n'
+		htxt += '\tSST_ELI_DOCUMENT_STATISTICS(\n\t\t{ "", "", "", 1 },\n\t)\n\n'
+		htxt += '\t// Port name, description, event type\n'
+		htxt += '\tSST_ELI_DOCUMENT_PORTS(\n\t\t{ "", "", {""} }\n\t)\n\n'
+		htxt += 'private:\n\tSST::Output output;\n};\n\n#endif'
+		# write both files
+		hFile.write(str(htxt))
+		cFile.write(str(ctxt))
+		
+
 # Graph a Model using the python test script
 def graphModel(test):
 	comp = [{}]
@@ -244,29 +302,34 @@ def runCommand(command):
 ##### Main Function
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-	parser.add_argument('function', help='The function you wish to run\n\n', choices=['create','connect','convert','graph'])
+	parser.add_argument('function', help='The function you wish to run\n\n', choices=['create','connect','subcomponent','convert','graph'])
 	parser.add_argument('model',
 			help=str('Function       | Help\n' + 
 					 '---------------+--------------------------------------------------\n' + 
 					 'Create/Connect | Name of the model to create\n' + 
+					 'Subcomponent   | Name of the subcomponent to create\n' + 
 					 'Convert        | The path to the model\n' + 
 					 'Graph          | The path to the python test file\n'))
 	parser.add_argument('-a', '--args',
-			help=str('Function  | Help\n' + 
-					 '----------+-------------------------------------------------------\n' + 
-					 'Create    | The path to the template\n' + 
-					 'Connect   | The components you want to connect\n' + 
-					 '          | Format is <element>.<component>.<subcomponent>,<subcomponent>;\n' + 
-					 'Convert   | The destination template name\n'))
+			help=str('Function       | Help\n' + 
+					 '---------------+--------------------------------------------------\n' + 
+					 'Create         | The path to the template\n' + 
+					 'Connect        | The components you want to connect\n' + 
+					 '               | Format is <element>.<component>.<subcomponent>,<subcomponent>;\n' + 
+					 'Subcomponent   | The name of the subcomponent class\n' + 
+					 'Convert        | The destination template name\n'))
 	parser.add_argument('-p', '--path',
 			help=str('Function       | Help\n' + 
 					 '---------------+--------------------------------------------------\n' + 
-					 'Create/Connect | The path where the model will be created\n'))
+					 'Create/Connect | The path where the model will be created\n' + 
+					 'Subcomponent   | The path to the header file with the subcomponent definition\n'))
 	args = parser.parse_args()
 	if args.function == 'create':
 		createModel(args.model, args.args, args.path)
 	elif args.function == 'connect':
 		connectModels(args.model, args.args, args.path)
+	elif args.function == 'subcomponent':
+		createSubcomponent(args.model, args.args, args.path)
 	elif args.function == 'convert':
 		model2Template(args.model, args.args)
 	elif args.function == 'graph':

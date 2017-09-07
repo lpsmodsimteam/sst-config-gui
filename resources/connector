@@ -14,6 +14,17 @@ Enter Model Name text box - Simply enter the name of your model, this name
 	will ask you to choose another name. A list of all "registered" SST elements 
 	will appear in the Information screen, so you can pick a unique name.	
 
+Overwrite Existing Model check box - Generate/Open File will check
+	to see if a model is already present with the current name in your
+	working directory. If this box is checked the old model will
+	be overwritten with the new one you created.
+
+Model Directory text box - Defaults to the current directory. You can
+	change this with the Browse Directories	button.
+
+Browse Directories button - This button will change the location
+	your model gets stored in.
+
 Available Components screen - This screen will list all of the components and subcomponents
 	that have been registered with your version of SST, both SST supplied models and
 	local models you have created. By clicking on the arrow next to the element
@@ -23,12 +34,6 @@ Available Components screen - This screen will list all of the components and su
 	(click on the arrow) and use your mouse to hightlight the specific component or
 	subcomponent you want to choose. You cannot add an entire element, you must select
 	a component or subcomponent.
-
-Selected Components screen - All "Selected" models for your simimulation entity will
-	appear in this screen. Double clicking on any component will display a detailed 
-	description of the component, including port information, pulled from the sst-info
-	information. Both the element and the "selected" component or subcomponent
-	will be displayed in the screen
 
 New Component button - To move components from "Available" to "Selected" simply highlight
 	the component or subcomponent under the element in the Available Components screen
@@ -43,8 +48,8 @@ Add Subcomponent button - If you want to add a subcomponent to an already select
 	in the Available Components screen) and select the component you want to add to on
 	the Selected Components screen, then click the Add Subcomponent button. The
 	subcomponent will then be added to the selected component if the interface matches.
-        If the interface does not match an error will be thrown, and the Subcomponent will
-        not be added.
+	If the interface does not match an error will be thrown, and the Subcomponent will
+	not be added.
 
 Remove button - To remove models from the Selected Models simply highlight
 	the model you want to remove and press the Remove Model button. Unlike the "Add
@@ -52,9 +57,15 @@ Remove button - To remove models from the Selected Models simply highlight
 	an element and pressing this button. If you only want to remove a single component
 	or subcomponent, under an element simply highlight the component and press this button, 
 	only the highlighted component or subcomponent will be removed and any other models 
-	youn added will remain in the "Selected Components" screen.
+	you added will remain in the "Selected Components" screen.
 
-Generate/Open Templates button - This button will first create a directory in your 
+Selected Components screen - All "Selected" models for your simimulation entity will
+	appear in this screen. Double clicking on any component will display a detailed 
+	description of the component, including port information, pulled from the sst-info
+	information. Both the element and the "selected" component or subcomponent
+	will be displayed in the screen
+
+Generate/Open File button - This button will first create a directory in your 
 	working directory with your model name, inside this directory you will find your 
 	tests/<model>.py template. The template will also appear in an	editor of your 
 	choice, selected using your EDITOR environment variable so you can complete the 
@@ -73,24 +84,9 @@ Generate/Open Templates button - This button will first create a directory in yo
 	will ask you to choose another name. A list of all "registered" SST elements 
 	will appear in the Information screen, so you can pick a unique name.	
 
-Compile Model button - There is nothing to compile from this tab the Model
-	Connector simply creates the python script for connecting already completed
-	(successfully compiled) models
-
-Overwrite Existing Model check box - Generate Templates will check
-	to see if a model is already present with the current name in your
-	working directory. If this box is checked the old model will
-	be overwritten with the new one you created.
-
-Make Clean check box - Nothing is being compiled no functionality in this
-	tab.
-
-Run SST button - This button will run the tests/<model>.py script
+Run Model button - This button will run the tests/<model>.py script
 	(basically running your model in SST) the results will
 	be displayed in the information window.
-
-Run After Build check box - Nothing is being compiled no functionality in this
-	tab.
 
 Information screen (unlabeled) - Output from various tasks run with the 
 	GUI will be displayed in the information screen. Color has been added

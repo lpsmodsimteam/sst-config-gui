@@ -18,22 +18,32 @@
     <normaloff>resources/logo.png</normaloff>resources/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,1,1,0" columnstretch="0,0,0,1,1,0">
-    <item row="0" column="1" colspan="2" alignment="Qt::AlignRight">
+   <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,3,5" columnstretch="1,0,3,0">
+    <item row="0" column="0" rowspan="2">
+     <widget class="QLabel" name="logo">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>resources/logo.png</pixmap>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" alignment="Qt::AlignRight">
      <widget class="QLabel" name="label">
       <property name="text">
        <string>Enter Model Name --&gt;</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="3" colspan="2">
+    <item row="0" column="2">
      <widget class="QLineEdit" name="modelName">
       <property name="toolTip">
        <string>Type in the name of your new model. The tool will not proceed if this box is empty</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="5" alignment="Qt::AlignLeft">
+    <item row="0" column="3">
      <widget class="QCheckBox" name="overwrite">
       <property name="toolTip">
        <string>If this box is checked any model with the same name will be overwritten</string>
@@ -43,22 +53,28 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="2" alignment="Qt::AlignRight">
+    <item row="1" column="1" alignment="Qt::AlignRight">
      <widget class="QLabel" name="label_4">
       <property name="text">
        <string>Model Directory --&gt;</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="3" colspan="2">
+    <item row="1" column="2">
      <widget class="QLineEdit" name="modelDir">
+      <property name="toolTip">
+       <string>Directory your files will be located in. Use the Browse Directories button if you need to change the path</string>
+      </property>
       <property name="readOnly">
        <bool>true</bool>
       </property>
      </widget>
     </item>
-    <item row="1" column="5" alignment="Qt::AlignLeft">
+    <item row="1" column="3">
      <widget class="QCommandLinkButton" name="browseDir">
+      <property name="toolTip">
+       <string>Changes the directory the files will be stored in</string>
+      </property>
       <property name="text">
        <string>Browse Directories</string>
       </property>
@@ -68,7 +84,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="6">
+    <item row="2" column="0" colspan="4">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
        <number>0</number>
@@ -80,24 +96,7 @@
        <attribute name="title">
         <string>Model Creator</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0">
-        <item row="6" column="0" colspan="3">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Selected Template</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0" colspan="3">
-         <widget class="QLineEdit" name="templateType">
-          <property name="toolTip">
-           <string>Type in the full path to your template or use the Browse Templates button to navigate to a template folder</string>
-          </property>
-          <property name="readOnly">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
+       <layout class="QGridLayout" name="gridLayout" rowstretch="0,1,0,0,0" columnstretch="1,1,0,1,0">
         <item row="0" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
@@ -105,21 +104,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1" alignment="Qt::AlignLeft|Qt::AlignTop">
-         <widget class="QCommandLinkButton" name="templateSelect">
-          <property name="toolTip">
-           <string>Chooses the selected template from the Available Templates List</string>
-          </property>
-          <property name="text">
-           <string>Select Template</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>resources/select.png</normaloff>resources/select.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1" alignment="Qt::AlignLeft|Qt::AlignBottom">
+        <item row="1" column="4" alignment="Qt::AlignLeft|Qt::AlignTop">
          <widget class="QCommandLinkButton" name="templateBrowse">
           <property name="toolTip">
            <string>Opens a File Browser for you to select a template</string>
@@ -133,10 +118,180 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0" rowspan="2">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Selected Template</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" alignment="Qt::AlignLeft">
+         <widget class="QCommandLinkButton" name="generate">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>This button will create your model files from a template</string>
+          </property>
+          <property name="text">
+           <string>Generate/Open Files</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" alignment="Qt::AlignRight">
+         <widget class="QCheckBox" name="clean">
+          <property name="toolTip">
+           <string>If this box is checked a make clean will be run before make all in the Configure step</string>
+          </property>
+          <property name="text">
+           <string>Make Clean</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/broom.png</normaloff>resources/broom.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2" alignment="Qt::AlignHCenter">
+         <widget class="QCommandLinkButton" name="compile">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>This button builds your SST model</string>
+          </property>
+          <property name="text">
+           <string>Compile Model</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/gears.png</normaloff>resources/gears.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="3" alignment="Qt::AlignLeft">
+         <widget class="QCheckBox" name="autoRun">
+          <property name="toolTip">
+           <string>If this box is checked it will proceed directly to the Run SST step without having to select the button on the GUI</string>
+          </property>
+          <property name="text">
+           <string>Run After Build</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="4" alignment="Qt::AlignRight">
+         <widget class="QCommandLinkButton" name="run">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>This button will run your new model inside the SST Framework by running sst model/tests/model.py</string>
+          </property>
+          <property name="text">
+           <string>Run Model</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/run.png</normaloff>resources/run.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="4">
          <widget class="QListWidget" name="templates">
           <property name="toolTip">
            <string>Available Templates. Double click for help</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="5">
+         <widget class="QLineEdit" name="templateType">
+          <property name="toolTip">
+           <string>The selected template will show up here. Use the Browse Templates button to navigate to a different template</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="subcomponentCreator">
+       <property name="toolTip">
+        <string>Create a subcomponent using the prototype from a header file</string>
+       </property>
+       <attribute name="title">
+        <string>Subcomponent Creator</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,0,1" columnstretch="0,1">
+        <item row="0" column="0" rowspan="2" alignment="Qt::AlignRight|Qt::AlignBottom">
+         <widget class="QCommandLinkButton" name="headerBrowse">
+          <property name="toolTip">
+           <string>Browse for a header file that contains subcomponent prototype(s)</string>
+          </property>
+          <property name="text">
+           <string>Browse Header Files</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/find.png</normaloff>resources/find.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Selected Header File</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="header">
+          <property name="toolTip">
+           <string>Selected Header File. Click Browse Header Files to change</string>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Available Subcomponent Types</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" alignment="Qt::AlignRight|Qt::AlignBottom">
+         <widget class="QCommandLinkButton" name="generate_sub">
+          <property name="toolTip">
+           <string>Generate a subcomponent skeleton using the selected prototype</string>
+          </property>
+          <property name="text">
+           <string>Generate Files</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QListWidget" name="available_sub">
+          <property name="toolTip">
+           <string>Available subcomponent prototypes in the selected header file</string>
           </property>
          </widget>
         </item>
@@ -149,7 +304,7 @@
        <attribute name="title">
         <string>Model Connector</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,1,1,1">
+       <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,1,0" columnstretch="3,1,1,1">
         <item row="0" column="1" alignment="Qt::AlignLeft">
          <widget class="QCommandLinkButton" name="newComp">
           <property name="toolTip">
@@ -190,18 +345,6 @@
           </column>
          </widget>
         </item>
-        <item row="0" column="0" rowspan="2">
-         <widget class="QTreeWidget" name="available">
-          <property name="toolTip">
-           <string>Models Available for use. Double click for help</string>
-          </property>
-          <column>
-           <property name="text">
-            <string>Available Components</string>
-           </property>
-          </column>
-         </widget>
-        </item>
         <item row="0" column="2" alignment="Qt::AlignHCenter">
          <widget class="QCommandLinkButton" name="addSub">
           <property name="toolTip">
@@ -216,111 +359,60 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="3">
+         <widget class="QCommandLinkButton" name="run_con">
+          <property name="toolTip">
+           <string>Run the python file</string>
+          </property>
+          <property name="text">
+           <string>Run Model</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/run.png</normaloff>resources/run.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QCommandLinkButton" name="generate_con">
+          <property name="toolTip">
+           <string>Generate or open the python file</string>
+          </property>
+          <property name="text">
+           <string>Generate/Open File</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="3">
+         <widget class="QTreeWidget" name="available">
+          <property name="toolTip">
+           <string>Models Available for use. Double click for help</string>
+          </property>
+          <column>
+           <property name="text">
+            <string>Available Components</string>
+           </property>
+          </column>
+         </widget>
+        </item>
        </layout>
       </widget>
      </widget>
     </item>
-    <item row="3" column="0" colspan="6">
+    <item row="3" column="0" colspan="4">
      <widget class="QTextEdit" name="info">
+      <property name="toolTip">
+       <string>Information Screen</string>
+      </property>
       <property name="readOnly">
        <bool>true</bool>
       </property>
       <property name="tabStopWidth">
        <number>25</number>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0" colspan="2" alignment="Qt::AlignLeft">
-     <widget class="QCommandLinkButton" name="generate">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="toolTip">
-       <string>This button will create your model files from a template. The files will be placed in a  model directory in your working directory</string>
-      </property>
-      <property name="text">
-       <string>Generate/Open Files</string>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="2" alignment="Qt::AlignRight">
-     <widget class="QCheckBox" name="clean">
-      <property name="toolTip">
-       <string>If this box is checked a make clean will be run before make all in the Configure step</string>
-      </property>
-      <property name="text">
-       <string>Make Clean</string>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>resources/broom.png</normaloff>resources/broom.png</iconset>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="3" alignment="Qt::AlignHCenter">
-     <widget class="QCommandLinkButton" name="compile">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="toolTip">
-       <string>This button builds your SST model</string>
-      </property>
-      <property name="text">
-       <string>Compile Model</string>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>resources/gears.png</normaloff>resources/gears.png</iconset>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="4" alignment="Qt::AlignLeft">
-     <widget class="QCheckBox" name="autoRun">
-      <property name="toolTip">
-       <string>If this box is checked it will proceed directly to the Run SST step without having to select the button on the GUI</string>
-      </property>
-      <property name="text">
-       <string>Run After Build</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="5" alignment="Qt::AlignRight">
-     <widget class="QCommandLinkButton" name="run">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="toolTip">
-       <string>This button will run your new model inside the SST Framework by running sst model/tests/model.py</string>
-      </property>
-      <property name="text">
-       <string>Run Model</string>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>resources/run.png</normaloff>resources/run.png</iconset>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" rowspan="2">
-     <widget class="QLabel" name="logo">
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>resources/logo.png</pixmap>
       </property>
      </widget>
     </item>
@@ -341,6 +433,7 @@
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionModel_Creator"/>
+    <addaction name="actionSubcomponent_Creator"/>
     <addaction name="actionModel_Connector"/>
     <addaction name="actionTools"/>
    </widget>
@@ -388,6 +481,17 @@
   <action name="actionTools">
    <property name="text">
     <string>Tools</string>
+   </property>
+   <property name="toolTip">
+    <string>Tools Help</string>
+   </property>
+  </action>
+  <action name="actionSubcomponent_Creator">
+   <property name="text">
+    <string>Subcomponent Creator</string>
+   </property>
+   <property name="toolTip">
+    <string>Subcomponent Creator Help</string>
    </property>
   </action>
  </widget>

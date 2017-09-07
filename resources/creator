@@ -17,19 +17,23 @@ Enter Model Name text box - Simply enter the name of your
 	your files and your model's directory. If you do not enter
 	a name the GUI will not continue until a name is entered.
 
+Overwrite Existing Model check box - Generate/Open Files will check
+	to see if a model is already present with the current name in your
+	working directory. If this box is checked the old model will
+	be overwritten with the new one you created.
+
+Model Directory text box - Defaults to the current directory. You can
+	change this with the Browse Directories	button.
+
+Browse Directories button - This button will change the location
+	your model gets stored in.
+
 Available Templates screen - This screen will display the 
 	the available templates that come with a tool. A doxygen block
 	is included at the top of each Template, if you need a
 	simple discription of each model just "double click" the 
 	model in the screen and a simple description will be displayed
 	in the information screen. 
-
-Select Template button - If you want to use one of the supplied
-	templates that appear in the Available Templates window
-	as the basis for your model simply select the desired
-	template by highlighting it with your mouse and press
-	the Select Template button. The full path will appear 
-	in the Selected Template text box. 
 
 Browse Templates button - If you want to use a
 	template that is not already in the templates directory you
@@ -39,15 +43,12 @@ Browse Templates button - If you want to use a
 	the file browser and your template will be selected. The full
 	path will appear in the Selected Template text box.
 
-Selected Template text box - If you already know the full path
-	and name of the template you want to use you can simply type
-	it in the Selected Template text box. If you do not choose a
-	template by one of the three methods listed (Select Template 
-	button, Browse Templates button, or typing in a template in 
-	the Selected Template box) and error will occur and the tool
-	will not continue until a template is selected.
+Selected Template text box - Shows the path to the selected template.
+	You can select a template by simply clicking on one from the
+	Available Templates box, or by browsing to one using the Browse
+	Templates button.
 
-Generate/Open Templates button - This button will first create a 
+Generate/Open Files button - This button will first create a 
 	directory in your working directory with your model name, 
 	inside this directory you will find your <model>.cc, <model>.h,
 	Makefile, and tests/<model>.py templates. The templates will also
@@ -71,6 +72,9 @@ Generate/Open Templates button - This button will first create a
 	appear in the Information screen, so you can pick a unique
 	name.	
 
+Make Clean check box - If you select this check box "Compile Model" will
+	run a "make clean" before running "make all"
+
 Compile Model button - This button will run "make all" which builds the
 	sst library for your model and then links it into sst. If an 
 	error occurs during the compile process you can correct the errors
@@ -80,24 +84,16 @@ Compile Model button - This button will run "make all" which builds the
 	each time simply just save the updated files before
 	pressing the Compile Model button again.
 
-Overwrite Existing Model check box - Generate Templates will check
-	to see if a model is already present with the current name in your
-	working directory. If this box is checked the old model will
-	be overwritten with the new one you created.
-
-Make Clean check box - If you select this check box "Compile Model" will
-	run a "make clean" before running "make all"
-
-Run SST button - This button will run all the "test" files in the tests/
-	directory (basically running your model in SST) the results will
-	be displayed in the information window. It should be noted here that
-	the model can be run outside of the GUI this button is just included
-	for convenience.
-
 Run After Build check box - If you select this check box the tool
 	will proceed directly to Run SST after Compile Model. It is suggested
 	that this box remain unchecked until you at least get your model
 	to compile.
+
+Run Model button - This button will run all the "test" files in the tests/
+	directory (basically running your model in SST) the results will
+	be displayed in the information window. It should be noted here that
+	the model can be run outside of the GUI this button is just included
+	for convenience.
 
 Information screen (unlabeled) - Output from various tasks run with the 
 	GUI will be displayed in the information screen. Color has been added
