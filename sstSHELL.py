@@ -142,8 +142,13 @@ def createSubcomponent(name, subcomp, header):
 		ctxt += name + '::' + name + '(SST::Component *owningComponent, SST::Params &params) : '
 		ctxt += subcomp + '(owningComponent) {\n'
 		ctxt += '\toutput.init("' + name + '-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);\n'
-		ctxt += '\t// Get parameters\n\n\t// Setup statistics\n\n}\n\n'
-		ctxt += name + '::~' + name + '() {}\n\n'
+		ctxt += '\t// Get parameters\n\t//parameter = params.find<type>("param name", default);\n\n'
+		ctxt += '\t// Setup statistics\n\t//statistic = registerStatistic<type>("stat name");\n\n'
+		ctxt += '\t// Setup ports\n'
+		ctxt += '\t/*port = configureLink("port name", new SST::Event::Handler<type>(this, &' + name + '::handleEvent));\n'
+		ctxt += '\tif ( !port ) {\n\t\toutput.fatal(CALL_INFO, -1, "Failed to configure port \'port\'");\n\t}*/\n\n'
+		ctxt += '}\n\n' + name + '::~' + name + '() {}\n\n'
+		ctxt += '/*void ' + name + '::handleEvent(SST::Event *ev) {\n\t\n}*/\n\n'
 		# grab the functions from the prototype in the header
 		for line in infile:
 			if found:
@@ -173,11 +178,11 @@ def createSubcomponent(name, subcomp, header):
 		htxt += '\t\t"' + name + ' subcomponent description",\n'
 		htxt += '\t\t"SST::PUT ELEMENT LIBRARY HERE::' + subcomp + '" // subcomponent slot\n\t)\n\n'
 		htxt += '\t// Parameter name, description, default value\n'
-		htxt += '\tSST_ELI_DOCUMENT_PARAMS(\n\t\t{ "", "", "" },\n\t)\n\n'
+		htxt += '\t/*SST_ELI_DOCUMENT_PARAMS(\n\t\t{ "", "", "" },\n\t)*/\n\n'
 		htxt += '\t// Statistic name, description, unit, enable level\n'
-		htxt += '\tSST_ELI_DOCUMENT_STATISTICS(\n\t\t{ "", "", "", 1 },\n\t)\n\n'
+		htxt += '\t/*SST_ELI_DOCUMENT_STATISTICS(\n\t\t{ "", "", "", 1 },\n\t)*/\n\n'
 		htxt += '\t// Port name, description, event type\n'
-		htxt += '\tSST_ELI_DOCUMENT_PORTS(\n\t\t{ "", "", {""} }\n\t)\n\n'
+		htxt += '\t/*SST_ELI_DOCUMENT_PORTS(\n\t\t{ "", "", {""} }\n\t)*/\n\n'
 		htxt += 'private:\n\tSST::Output output;\n};\n\n#endif'
 		# write both files
 		hFile.write(str(htxt))
