@@ -191,73 +191,13 @@ def createSubcomponent(name, subcomp, header):
 
 # Graph a Model using the python test script
 def graphModel(test):
-	comp = [{}]
-	sub = [{}]
-	link = [{}]
 	# Get the name of the Model
-	model = os.path.dirname(test)
-	if model.endswith('/tests'):
-		model = os.path.dirname(model)
-	modelName = os.path.basename(test).split('.py')[0]
-	with open(str(test), 'r') as infile:
-		for line in infile:
-			# Ignore commented out code
-			if not line.strip().startswith('#'):
-				tmp = {}
-				# Components store Name, Obj
-				if 'sst.Component' in line:
-					tmp['Name'] = re.split('\'|"', line)[1].strip()
-					tmp['Obj'] = line.split('=')[0].strip()
-					comp.append(tmp)
-				# Subcomponents store Name, Obj, and the parent Comp
-				if '.setSubComponent' in line:
-					tmp['Name'] = re.split('\'|"', line)[1].strip()
-					tmp['Obj'] = line.split('=')[0].strip()
-					tmp['Comp'] = line.split('.setSubComponent')[0].split('=')[1].strip()
-					sub.append(tmp)
-				# Links store Name, Obj, and ports A and B
-				if 'sst.Link' in line:
-					tmp['Name'] = re.split('\'|"', line)[1].strip()
-					tmp['Obj'] = line.split('=')[0].strip()
-					# Move to the line that contains the link connection
-					while not ('.connect' in line and tmp['Obj'] in line):
-						line = next(infile)
-					tmp['A'] = line.split(',')[0].strip().split('(')[-1]
-					tmp['B'] = line.split(',')[3].strip().split('(')[-1]
-					link.append(tmp)
-	# remove empty item from the beginning of the lists
-	comp = list(filter(None,comp))
-	sub = list(filter(None,sub))
-	link = list(filter(None,link))
-	path = model + '/' + modelName
-	# Create the .dot file
-	with open(str(path + '.dot'),'w') as outfile:
-		outfile.write(str('graph ' + modelName + ' {\n\n'))
-		# Components are boxes
-		for item in comp:
-			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '" shape=box];\n\n'))
-		# Subcomponents are ovals with a dotted line to the owning component
-		for item in sub:
-			outfile.write(str('\t' + item['Obj'] + ' [label="' + item['Name'] + '"];\n'))
-			outfile.write(str('\t' + item['Comp'] + ' -- ' + item['Obj'] + ' [style=dotted];\n\n'))
-		# Links are solid lines connecting components
-		for item in link:
-			outfile.write(str('\t' + item['A'] + ' -- ' + item['B'] + '[label="' + item['Name'] + '"];\n\n'))
-		# Create Legend
-		outfile.write(str('\tsubgraph cluster_legend {\n'))
-		outfile.write(str('\t\tlabel="Legend";\n'))
-		outfile.write(str('\t\tcolor=blue;\n'))
-		outfile.write(str('\t\tfontcolor=blue;\n'))
-		outfile.write(str('\t\tcomp0 [label="Component" shape=box];\n'))
-		outfile.write(str('\t\tcomp1 [label="Component" shape=box];\n'))
-		outfile.write(str('\t\tsub [label="Subcomponent"];\n'))
-		outfile.write(str('\t\tsub -- comp0 [label="Subcomponent\\nConnection" style=dotted];\n'))
-		outfile.write(str('\t\tcomp1 -- sub [label="Link"];\n'))
-		outfile.write(str('\t}\n'))
-		outfile.write('}')
+	path = os.path.dirname(test)
+	name = os.path.basename(test).replace('.py','')
+	os.system(str('sst --output-dot=' + path + '/' + name + '.dot --run-mode=init ' + test + ' >/dev/null 2>&1'))
 	# Convert .dot file to a .ps file so you can open it like a pdf
-	os.system(str('dot -Tjpg ' + path + '.dot -o ' + path + '.jpg'))
-	return str(path + '.dot ' + path + '.jpg')
+	os.system(str('dot -Tjpg ' + path + '/' + name + '.dot -o ' + path + '/' + name + '.jpg'))
+	return str(path + '/' + name + '.dot ' + path + '/' + name + '.jpg')
 
 
 # Convert a model into a template
