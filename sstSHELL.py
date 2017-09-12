@@ -194,10 +194,10 @@ def graphModel(test):
 	# Get the name of the Model
 	path = os.path.dirname(test)
 	name = os.path.basename(test).replace('.py','')
-	os.system(str('sst --output-dot=' + path + '/' + name + '.dot --run-mode=init ' + test + ' >/dev/null 2>&1'))
+	os.system(str('sst --output-dot=' + path + '/' + name + '.dot --run-mode=init ' + test))
 	# Convert .dot file to a .ps file so you can open it like a pdf
-	os.system(str('dot -Tjpg ' + path + '/' + name + '.dot -o ' + path + '/' + name + '.jpg'))
-	return str(path + '/' + name + '.dot ' + path + '/' + name + '.jpg')
+	os.system(str('dot -Tjpg ' + path + '/' + name + '.dot -O'))
+	return str(path + '/' + name + '.dot ' + path + '/' + name + '.dot.jpg ' + path + '/' + name + '.dot.2.jpg')
 
 
 # Convert a model into a template

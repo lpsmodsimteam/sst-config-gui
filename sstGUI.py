@@ -386,6 +386,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo(self.separator + '***** Graphing Model *****\n')
 		f = sstSHELL.graphModel(path)
 		self.writeInfo('\nCreated ' + f + '\n' + self.separator + '\n')
+		QDesktopServices.openUrl(QUrl(f.split()[2]))
 		QDesktopServices.openUrl(QUrl(f.split()[1]))
 	
 	
