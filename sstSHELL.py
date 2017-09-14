@@ -194,11 +194,18 @@ def graphModel(test):
 	# Get the name of the Model
 	path = os.path.dirname(test)
 	name = os.path.basename(test).replace('.py','')
-	os.system(str('sst --output-dot=' + path + '/' + name + '.dot --run-mode=init ' + test))
-	# Convert .dot file to a .ps file so you can open it like a pdf
-	os.system(str('dot -Tjpg ' + path + '/' + name + '.dot -O'))
-	return str(path + '/' + name + '.dot ' + path + '/' + name + '.dot.jpg ' + path + '/' + name + '.dot.2.jpg')
-
+	filename = path + '/' + name
+	os.system(str('PYTHONPATH=$PYTHONPATH:' + path + ' sst --output-dot=' + filename + '.dot --run-mode=init ' + test))
+	# Convert .dot file to a .jpg file using multiple graphing tools
+	convert = ['neato', 'twopi', 'circo', 'fdp', 'dot']
+	files = ''
+	for tool in convert:
+		os.system(str(tool + ' -Tjpg ' + filename + '.dot -O'))
+		if not tool == 'dot':
+			os.system(str('mv ' + filename + '.dot.jpg ' + filename + '.' + tool + '.jpg'))
+			os.system(str('mv ' + filename + '.dot.2.jpg ' + filename + '.' + tool + '.2.jpg'))
+		files += filename + '.' + tool + '.jpg\n' + filename + '.' + tool + '.2.jpg\n'
+	return str(filename + '.dot\n' + files.rstrip())
 
 # Convert a model into a template
 def model2Template(model, template):

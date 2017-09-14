@@ -384,10 +384,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.writeInfo('*** PLEASE SELECT A PYTHON TEST FILE ***\n\n', 'red')
 			return
 		self.writeInfo(self.separator + '***** Graphing Model *****\n')
-		f = sstSHELL.graphModel(path)
-		self.writeInfo('\nCreated ' + f + '\n' + self.separator + '\n')
-		QDesktopServices.openUrl(QUrl(f.split()[2]))
-		QDesktopServices.openUrl(QUrl(f.split()[1]))
+		files = sstSHELL.graphModel(path)
+		self.writeInfo('\nCreated ' + files + '\n' + self.separator + '\n')
+		for f in files.split():
+			if not f.endswith('.2.jpg') and not f.endswith('.dot'):
+				QDesktopServices.openUrl(QUrl(f))
 	
 	
 	# Convert a model into a template
