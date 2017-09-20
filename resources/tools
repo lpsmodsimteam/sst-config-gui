@@ -21,9 +21,22 @@ The Model2Template tool - Select the Tools drop down menu and select
 
 The Graph Model tool - Select the Tools drop down menu and select the
 	Graph Model tool. This will bring up a file browser, "browse" to 
-	python script of your connected model and select "Open". In your 
-	"Connected" model directory a <model>.dot and <model>.jpg file will
-	be created. The <model>.jpg file will be opened for you to view.
-	It should be noted that the Graph Model tool needs the package
-	graphviz to work.
+	python script of your connected model and select "Open". Several
+        "jpg" graphs will be generated you choose the one you like the 
+        best for your project
+        - dot - draws directed graphs
+        - neato - draws undirected graphs using a "spring" model
+        - twopi - draws graphs using a radial layout. 
+        - circo - draws graphs using a circular layout
+        - fdp - draws undirected graphs 
+        It should be noted that the Graph Model tool needs the package
+	graphviz to work. 
+
+
+
+
+
+
+
+
 
