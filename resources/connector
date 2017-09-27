@@ -88,8 +88,12 @@ Generate/Open File button - This button will first create a directory in your
         python test file simply input the parameter in one of the following formats:
              - parameter increment without units -> min value-max value;Increment
                   10-20;2 (Increment can be positive or negative)
+                  If Increment is not an interger multiple of your end value it will be 
+                  the next value after the end point
              - parameter increment with units -> min value-max value;Increment Units
-                  2-8;1 GHz (Increment can be positive or negative) 
+                  2-8;1 GHz (Increment can be positive or negative)
+                  If Increment is not an interger multiple of your end value it will be 
+                  the next value after the end point 
                   Note a space is required between Increment value and Unit
              - comma delimited without units - value 1,value 2, ... value n
                   8,4,1

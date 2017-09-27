@@ -47,10 +47,12 @@ The Parameter Sweep tool - Select the Tools drop down menu and select
   		Start - End;Increment - 
 		Example: 2-6;2 will create three test files with the parameter set to 2,4, and 6
 		Increment can be positive or negative
+                If Increment is not an interger multiple of your end value it will be the next value after the end point
         -Range with Units:
   		Start - End;Increment Unit- (Note a space is required between Increment value and Unit)
 		Example: 2-6;2 GHz will create three test files with the parameter set to 2 GHz,4 GHz, and 6 GHz
 		Increment can be positive or negative
+                If Increment is not an interger multiple of your end value it will be the next value after the end point
         -List:
 		first,second,third,forth,....
                 Example 2,1,9 will create three test files with the parameter set to 2,1, and 9	
