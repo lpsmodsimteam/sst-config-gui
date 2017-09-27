@@ -78,6 +78,7 @@ Generate/Open Files button - This button will first create a
                   10-20;2 (Increment can be positive or negative)
              - parameter increment with units -> min value-max value;Increment Units
                   2-8;1 GHz (Increment can be positive or negative)
+                  Note a space is required between Increment value and Unit
              - comma delimited without units - value 1,value 2, ... value n
                   8,4,1
              - comma delimited with units - value 1 unit, value 2 unit, ... value n unit
