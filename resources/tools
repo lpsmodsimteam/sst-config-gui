@@ -21,9 +21,54 @@ The Model2Template tool - Select the Tools drop down menu and select
 
 The Graph Model tool - Select the Tools drop down menu and select the
 	Graph Model tool. This will bring up a file browser, "browse" to 
-	python script of your connected model and select "Open". In your 
-	"Connected" model directory a <model>.dot and <model>.jpg file will
-	be created. The <model>.jpg file will be opened for you to view.
-	It should be noted that the Graph Model tool needs the package
-	graphviz to work.
+	python script of your connected model and select "Open". Several
+        "jpg" graphs will be generated you choose the one you like the 
+        best for your project
+        - dot - draws directed graphs
+        - neato - draws undirected graphs using a "spring" model
+        - twopi - draws graphs using a radial layout. 
+        - circo - draws graphs using a circular layout
+        - fdp - draws undirected graphs 
+        It should be noted that the Graph Model tool needs the package
+	graphviz to work. 
+
+The Parameter Sweep tool - Select the Tools drop down menu and select
+        Parameter Sweep Tool. This will bring up a file browser,
+        "browse" to the python script that you entered your sweeping
+        parameters, in formats listed below. The Tool will then create
+        a new set of test files in a directory named:
+         - <test file>_expanded
+        These additional test files will sweep every parameter
+        you entered and create a test file for each combination.
+
+        Valid Format Entry:
+
+        -Range:
+  		Start - End;Increment - 
+		Example: 2-6;2 will create three test files with the parameter set to 2,4, and 6
+		Increment can be positive or negative
+        -Range with Units:
+  		Start - End;Increment Unit- 
+		Example: 2-6;2 GHz will create three test files with the parameter set to 2 GHz,4 GHz, and 6 GHz
+		Increment can be positive or negative
+        -List:
+		first,second,third,forth,....
+                Example 2,1,9 will create three test files with the parameter set to 2,1, and 9	
+        -List with Units:
+		first Unit,second Unit,third Unit,forth Unit,....
+                Example 2 KB,1 MB,9 TB will create three test files with the parameter set to 2 KB,1 MB, and 9 TB
+
+        Hex digits can be accomodated but you must use the 0x prefix before the value
+                for example 0xa-0xf;1 will range the parameters between Hex a through Hex f by 1	
+
+
+
+
+
+
+
+
+
+
+
 
