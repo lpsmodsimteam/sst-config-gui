@@ -424,7 +424,7 @@
      <x>0</x>
      <y>0</y>
      <width>854</width>
-     <height>25</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -442,6 +442,7 @@
      <string>Tools</string>
     </property>
     <addaction name="actionGraph"/>
+    <addaction name="actionParameter_Sweep"/>
     <addaction name="actionModel2Template"/>
    </widget>
    <addaction name="menuHelp"/>
@@ -492,6 +493,11 @@
    </property>
    <property name="toolTip">
     <string>Subcomponent Creator Help</string>
+   </property>
+  </action>
+  <action name="actionParameter_Sweep">
+   <property name="text">
+    <string>Parameter Sweep</string>
    </property>
   </action>
  </widget>

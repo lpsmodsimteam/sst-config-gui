@@ -189,6 +189,119 @@ def createSubcomponent(name, subcomp, header):
 		cFile.write(str(ctxt))
 		
 
+# Parameter sweep expansion
+def paramSweep(filename):
+	List1 = []
+	List2 = []
+	List3 = []
+	List4 = []
+	List5 = []
+	found = False
+	full = False
+	# Scan through the file first to find parameters that need swept
+	with open(filename,'r') as infile:
+		for line in infile:
+			if not line.lstrip().startswith('#'): # Skip comments
+				if '.addParams' in line:
+					found = True
+				if found:
+					newline = line.strip().split(':')
+					if len(newline) >= 2:
+						value = newline[1].split('"')[1]
+						# fill up lists starting with List1
+						if not List1:
+							current = List1
+						elif not List2:
+							current = List2
+						elif not List3:
+							current = List3
+						elif not List4:
+							current = List4
+						elif not List5:
+							current = List5
+						else:
+							full = True
+						# pull out the start, end, and increment
+						if ';' in value and not full:
+							tmp = value.split(';')
+							start = int(tmp[0].split('-')[0], 0)
+							end = int(tmp[0].split('-')[1], 0)
+							index = int(tmp[1].split(' ')[0], 0)
+							for i in range(start, end+index, index):
+								units = tmp[1].split(' ')
+								if len(units) >= 2:
+									current.append(str(i) + ' ' + units[1])
+								else:
+									current.append(str(i))
+						elif ',' in value and not full:
+							current.extend(value.split(','))
+						elif full and (';' in value or ',' in value):
+							return 'ERROR: Only five (5) parameters may be expanded at a time'
+				if found and '})' in line:
+					found = False
+	found = False
+	path = filename.split('.py')[0] + '_expanded'
+	os.system('mkdir -p ' + path)
+	# python doesn't support do while, so these loops are simply doing that
+	i = 0
+	while(1):
+		j = 0
+		while(1):
+			k = 0
+			while(1):
+				l = 0
+				while(1):
+					m = 0
+					while(1):
+						count = 1
+						# create the filename
+						testfile = path + '/' + os.path.basename(filename).split('.')[0]
+						testfile += '_' + str(i) if List1 else ''
+						testfile += '_' + str(j) if List2 else ''
+						testfile += '_' + str(k) if List3 else ''
+						testfile += '_' + str(l) if List4 else ''
+						testfile += '_' + str(m) if List5 else ''
+						testfile += '.py'
+						with open(filename,'r') as infile, open(testfile,'w') as fptest:		   
+							for line in infile:
+								if not line.lstrip().startswith('#'): # Skip comments
+									if '.addParams' in line:
+										found = True
+									if found:
+										newline = line.split(':')
+										if len(newline) >= 2:
+											tmp = newline[1].split('"')
+											# for each file, put in the correct parameters
+											if ';' in tmp[1] or ',' in tmp[1]:
+												line = newline[0] + ': "'
+												line += List1[i] if count == 1 else ''
+												line += List2[j] if count == 2 else ''
+												line += List3[k] if count == 3 else ''
+												line += List4[l] if count == 4 else ''
+												line += List5[m] if count == 5 else ''
+												line += '"' + tmp[2]
+												count = count + 1
+									if found and '})' in line:
+										found = False
+								fptest.write(line)
+						m = m + 1
+						if m >= len(List5):
+							break
+					l = l + 1
+					if l >= len(List4):
+						break
+				k = k + 1
+				if k >= len(List3):
+					break
+			j = j + 1
+			if j >= len(List2):
+				break
+		i = i + 1
+		if i >= len(List1):
+			break
+	return path
+
+
 # Graph a Model using the python test script
 def graphModel(test):
 	# Get the name of the Model
@@ -206,6 +319,7 @@ def graphModel(test):
 			os.system(str('mv ' + filename + '.dot.2.jpg ' + filename + '.' + tool + '.2.jpg'))
 		files += filename + '.' + tool + '.jpg\n' + filename + '.' + tool + '.2.jpg\n'
 	return str(filename + '.dot\n' + files.rstrip())
+
 
 # Convert a model into a template
 def model2Template(model, template):
@@ -254,14 +368,15 @@ def runCommand(command):
 ##### Main Function
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-	parser.add_argument('function', help='The function you wish to run\n\n', choices=['create','connect','subcomponent','convert','graph'])
-	parser.add_argument('model',
+	parser.add_argument('function', help='The function you wish to run\n\n', choices=['create','connect','subcomponent','convert','graph', 'sweep'])
+	parser.add_argument('param',
 			help=str('Function       | Help\n' + 
 					 '---------------+--------------------------------------------------\n' + 
 					 'Create/Connect | Name of the model to create\n' + 
 					 'Subcomponent   | Name of the subcomponent to create\n' + 
-					 'Convert        | The path to the model\n' + 
-					 'Graph          | The path to the python test file\n'))
+					 'Param Sweep    | The path to the python test file\n' + 
+					 'Graph          | The path to the python test file\n' +
+					 'Convert        | The path to the model\n'))
 	parser.add_argument('-a', '--args',
 			help=str('Function       | Help\n' + 
 					 '---------------+--------------------------------------------------\n' + 
@@ -277,13 +392,15 @@ if __name__ == '__main__':
 					 'Subcomponent   | The path to the header file with the subcomponent definition\n'))
 	args = parser.parse_args()
 	if args.function == 'create':
-		createModel(args.model, args.args, args.path)
+		createModel(args.param, args.args, args.path)
 	elif args.function == 'connect':
-		connectModels(args.model, args.args, args.path)
+		connectModels(args.param, args.args, args.path)
 	elif args.function == 'subcomponent':
-		createSubcomponent(args.model, args.args, args.path)
+		createSubcomponent(args.param, args.args, args.path)
 	elif args.function == 'convert':
-		model2Template(args.model, args.args)
+		model2Template(args.param, args.args)
 	elif args.function == 'graph':
-		graphModel(args.model)
+		graphModel(args.param)
+	elif args.function == 'sweep':
+		paramSweep(args.param)
 

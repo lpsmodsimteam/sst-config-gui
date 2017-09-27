@@ -9,6 +9,7 @@
 import sys
 import os
 import subprocess
+import glob
 import cgi
 import xml.etree.ElementTree as ET
 from PyQt5.QtGui import *
@@ -39,6 +40,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.actionModel_Connector.triggered.connect(self.helpConnector)
 		self.actionTools.triggered.connect(self.helpTools)
 		self.actionGraph.triggered.connect(self.graphModel)
+		self.actionParameter_Sweep.triggered.connect(self.paramSweep)
 		self.actionModel2Template.triggered.connect(self.model2Template)
 		# General setup
 		self.modelDir.setText(str(os.getcwd()))
@@ -139,12 +141,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def runModel(self):
 		if not self.isSSTinstalled(): return
 		if not self.getModel(): return
-		testfiles = os.listdir(self.modelPath + '/' + self.model + '/tests/')
 		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
-		for testfile in testfiles:
-			self.writeInfo('*** ' + testfile + ' ***\n')
-			self.runCmdByLine(str('sst ' + self.modelPath + '/' + self.model + '/tests/' + testfile))
-			self.writeInfo('\n')
+		self.runTests(sorted(glob.glob(self.modelPath + '/' + self.model + '/tests/*.py')))
 		self.writeInfo(self.separator + '\n')
 	
 	### End Model Creator Tab
@@ -360,12 +358,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def runCon(self):
 		if not self.isSSTinstalled(): return
 		if not self.getModel(): return
-		testfiles = os.listdir(self.modelPath + '/' + self.model)
 		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
-		for testfile in testfiles:
-			self.writeInfo('*** ' + testfile + ' ***\n')
-			self.runCmdByLine(str('sst ' + self.modelPath + '/' + self.model + '/' + testfile))
-			self.writeInfo('\n')
+		self.runTests(sorted(glob.glob(self.modelPath + '/' + self.model + '/*.py')))
 		self.writeInfo(self.separator + '\n')
 	
 	### End Model Connector Tab
@@ -389,6 +383,21 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		for f in files.split():
 			if not f.endswith('.2.jpg') and not f.endswith('.dot'):
 				QDesktopServices.openUrl(QUrl(f))
+	
+	
+	# Parameter sweep expansion
+	def paramSweep(self):
+		# Get the path to the python test file
+		path = QFileDialog.getOpenFileName(self, 'Select Python Test File', '.', 'Python files (*.py)')[0]
+		if not path:
+			self.writeInfo('*** PLEASE SELECT A PYTHON TEST FILE ***\n\n', 'red')
+			return
+		self.writeInfo(self.separator + 'Expanding Parameters\n')
+		subdir = sstSHELL.paramSweep(path)
+		if subdir.startswith('ERROR'):
+			self.writeInfo(subdir + '\n', 'red')
+		else:
+			self.writeInfo('Parameters expanded successfully into ' + subdir + '\n')
 	
 	
 	# Convert a model into a template
@@ -486,12 +495,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# checks the model name to see if a SST model already exists
 	def checkModels(self):
 		self.updateModels()
-		local = next(os.walk('.'))[1]
+		local = next(os.walk(self.modelPath))[1]
 		makefiles = True
 		if self.model in self.elements or self.model in local:
 			# Model is already registered with SST or it is a local model
 			lib = sstSHELL.runCommand('sst-config ' + self.model + ' ' + self.model + '_LIBDIR')
-			if lib != '' or self.model in local:
+			if self.model in local:
 				# local model, can overwrite
 				if self.overwrite.isChecked():
 					text = 'Do you really want to overwrite your local version of ' + self.model + '?'
@@ -500,7 +509,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						makefiles = False
 				else:
 					makefiles = False
-			else:
+			elif lib:
 				# SST provided model
 				self.writeInfo(self.separator)
 				text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
@@ -514,6 +523,37 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.writeInfo(self.separator + '\n')
 				return None
 		return makefiles
+	
+	
+	# loops through all the tests and runs them
+	def runTests(self, testfiles):
+		for testfile in testfiles:
+			self.writeInfo('*** ' + os.path.basename(testfile) + ' ***\n')
+			sweep = False
+			with open(testfile, 'r') as infile:
+				found = False
+				for line in infile:
+					if not line.lstrip().startswith('#'): # Skip comments
+						if '.addParams' in line:
+							found = True
+						if found:
+							newline = line.strip().split(':')
+							if len(newline) >= 2:
+								value = newline[1].split('"')[1]
+								if ';' in value or ',' in value:
+									sweep = True
+			if sweep:
+				subdir = sstSHELL.paramSweep(testfile)
+				if subdir.startswith('ERROR'):
+					self.writeInfo(subdir + '\n', 'red')
+				else:
+					sweepfiles = sorted(glob.glob(subdir + '/*.py'))
+					for sweep in sweepfiles:
+						self.writeInfo('\n** ' + os.path.basename(sweep) + ' **\n')
+						self.runCmdByLine(str('sst ' + sweep))
+			else:
+				self.runCmdByLine(str('sst ' + testfile))
+			self.writeInfo('\n')
 	
 	
 	# Write to information screen
