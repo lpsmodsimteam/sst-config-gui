@@ -12,3 +12,4 @@ install:
 
 clean:
 	rm -f *.o tests/*.dot tests/*.jpg lib<model>.so
+	sst-register -u <model>
