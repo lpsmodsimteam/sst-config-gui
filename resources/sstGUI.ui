@@ -18,8 +18,8 @@
     <normaloff>resources/logo.png</normaloff>resources/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,3,5" columnstretch="1,0,3,0">
-    <item row="0" column="0" rowspan="2">
+   <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0,1,2" columnstretch="1,1,5,1">
+    <item row="1" column="0" rowspan="2">
      <widget class="QLabel" name="logo">
       <property name="text">
        <string/>
@@ -29,21 +29,21 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1" alignment="Qt::AlignRight">
+    <item row="1" column="1">
      <widget class="QLabel" name="label">
       <property name="text">
        <string>Enter Model Name --&gt;</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="2">
+    <item row="1" column="2">
      <widget class="QLineEdit" name="modelName">
       <property name="toolTip">
        <string>Type in the name of your new model. The tool will not proceed if this box is empty</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="3">
+    <item row="1" column="3">
      <widget class="QCheckBox" name="overwrite">
       <property name="toolTip">
        <string>If this box is checked any model with the same name will be overwritten</string>
@@ -53,14 +53,14 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="1" alignment="Qt::AlignRight">
+    <item row="2" column="1">
      <widget class="QLabel" name="label_4">
       <property name="text">
        <string>Model Directory --&gt;</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="2">
+    <item row="2" column="2">
      <widget class="QLineEdit" name="modelDir">
       <property name="toolTip">
        <string>Directory your files will be located in. Use the Browse Directories button if you need to change the path</string>
@@ -70,7 +70,7 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="3">
+    <item row="2" column="3">
      <widget class="QCommandLinkButton" name="browseDir">
       <property name="toolTip">
        <string>Changes the directory the files will be stored in</string>
@@ -84,7 +84,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="4">
+    <item row="3" column="0" colspan="4">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
        <number>0</number>
@@ -403,7 +403,7 @@
       </widget>
      </widget>
     </item>
-    <item row="3" column="0" colspan="4">
+    <item row="4" column="0" colspan="4">
      <widget class="QTextEdit" name="info">
       <property name="toolTip">
        <string>Information Screen</string>
@@ -416,90 +416,66 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="3">
+     <widget class="QComboBox" name="toolsMenu">
+      <item>
+       <property name="text">
+        <string>Tools</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Graph Model</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Parameter Sweep</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Model to Template Converter</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QComboBox" name="helpMenu">
+      <item>
+       <property name="text">
+        <string>Help</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>About</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Model Creator</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Subcomponent Creator</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Model Connector</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Tools</string>
+       </property>
+      </item>
+     </widget>
+    </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>854</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="actionAbout"/>
-    <addaction name="actionModel_Creator"/>
-    <addaction name="actionSubcomponent_Creator"/>
-    <addaction name="actionModel_Connector"/>
-    <addaction name="actionTools"/>
-   </widget>
-   <widget class="QMenu" name="menuTools">
-    <property name="title">
-     <string>Tools</string>
-    </property>
-    <addaction name="actionGraph"/>
-    <addaction name="actionParameter_Sweep"/>
-    <addaction name="actionModel2Template"/>
-   </widget>
-   <addaction name="menuHelp"/>
-   <addaction name="menuTools"/>
-  </widget>
-  <action name="actionAbout">
-   <property name="text">
-    <string>About</string>
-   </property>
-  </action>
-  <action name="actionModel_Creator">
-   <property name="text">
-    <string>Model Creator</string>
-   </property>
-   <property name="toolTip">
-    <string>Model Creator Help</string>
-   </property>
-  </action>
-  <action name="actionModel_Connector">
-   <property name="text">
-    <string>Model Connector</string>
-   </property>
-   <property name="toolTip">
-    <string>Model Connector Help</string>
-   </property>
-  </action>
-  <action name="actionModel2Template">
-   <property name="text">
-    <string>Model2Template</string>
-   </property>
-  </action>
-  <action name="actionGraph">
-   <property name="text">
-    <string>Graph Model</string>
-   </property>
-  </action>
-  <action name="actionTools">
-   <property name="text">
-    <string>Tools</string>
-   </property>
-   <property name="toolTip">
-    <string>Tools Help</string>
-   </property>
-  </action>
-  <action name="actionSubcomponent_Creator">
-   <property name="text">
-    <string>Subcomponent Creator</string>
-   </property>
-   <property name="toolTip">
-    <string>Subcomponent Creator Help</string>
-   </property>
-  </action>
-  <action name="actionParameter_Sweep">
-   <property name="text">
-    <string>Parameter Sweep</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>

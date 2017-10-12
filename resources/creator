@@ -71,28 +71,28 @@ Generate/Open Files button - This button will first create a
 	another name. A list of all "registered" SST elements will 
 	appear in the Information screen, so you can pick a unique
 	name. If yourdesire is to test certain parameters under different 
-        input conditions you can do "Parameter Sweeps" of up to five (5) 
-        parameters. When you edit the your python test file simply input 
-        the parameter in one of the following formats:
-             - parameter increment without units -> min value-max value;Increment
-                  10-20;2 (Increment can be positive or negative)
-                  If Increment is not an interger multiple of your end value it will 
-                  be the next value after the end point
-             - parameter increment with units -> min value-max value;Increment Units
-                  2-8;1 GHz (Increment can be positive or negative)
-                  If Increment is not an interger multiple of your end value it will 
-                  be the next value after the end point
-                  Note a space is required between Increment value and Unit
-             - comma delimited without units - value 1,value 2, ... value n
-                  8,4,1
-             - comma delimited with units - value 1 unit, value 2 unit, ... value n unit
-                  2 KB,4 KB,8 MB 
-       Notes on parameter Sweep inputs:
-             - In comma delimited formats units can be mixed
-             - In Increment formats the units will always be the Increments Units
-             - If you want to enter a Hex value use 0x notation before each value
-                 0xa - 0xb;2
-                 0xa,0xe,0xf	
+	input conditions you can do "Parameter Sweeps" of up to five (5) 
+	parameters. When you edit the your python test file simply input 
+	the parameter in one of the following formats:
+		- parameter increment without units -> min value-max value;Increment
+		   10-20;2 (Increment can be positive or negative)
+		   If Increment is not an interger multiple of your end value it will 
+		   be the next value after the end point
+		- parameter increment with units -> min value-max value;Increment Units
+		   2-8;1 GHz (Increment can be positive or negative)
+		   If Increment is not an interger multiple of your end value it will 
+		   be the next value after the end point
+		   Note a space is required between Increment value and Unit
+		- comma delimited without units - value 1,value 2, ... value n
+		   8,4,1
+		- comma delimited with units - value 1 unit, value 2 unit, ... value n unit
+		   2 KB,4 KB,8 MB 
+	Notes on parameter Sweep inputs:
+		- In comma delimited formats units can be mixed
+		- In Increment formats the units will always be the Increments Units
+		- If you want to enter a Hex value use 0x notation before each value
+		   0xa - 0xb;2
+		   0xa,0xe,0xf	
 
 Make Clean check box - If you select this check box "Compile Model" will
 	run a "make clean" before running "make all"
@@ -116,12 +116,12 @@ Run Model button - This button will run all the "test" files in the tests/
 	be displayed in the information window. It should be noted here that
 	the model can be run outside of the GUI this button is just included
 	for convenience. If you entered Parameter Sweep inputs the code will 
-        automatically detect the the desired parameters, create a new test file 
-        for each combination of your parameter sweep, and then run all test 
-        files. It is suggested that you make sure your "statistics" output 
-        is written to file. The output will be written to the Information Screen but
-        the number of different combination may make it difficult to read strictly from
-        the this screen.
+	automatically detect the the desired parameters, create a new test file 
+	for each combination of your parameter sweep, and then run all test 
+	files. It is suggested that you make sure your "statistics" output 
+	is written to file. The output will be written to the Information Screen but
+	the number of different combination may make it difficult to read strictly from
+	the this screen.
 
 Information screen (unlabeled) - Output from various tasks run with the 
 	GUI will be displayed in the information screen. Color has been added

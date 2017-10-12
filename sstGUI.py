@@ -33,15 +33,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.setupUi(self)
 		# Main buttons
 		self.browseDir.clicked.connect(self.browseDirectories)
-		# Menu actions
-		self.actionAbout.triggered.connect(self.helpAbout)
-		self.actionModel_Creator.triggered.connect(self.helpCreator)
-		self.actionSubcomponent_Creator.triggered.connect(self.helpSubcomponent)
-		self.actionModel_Connector.triggered.connect(self.helpConnector)
-		self.actionTools.triggered.connect(self.helpTools)
-		self.actionGraph.triggered.connect(self.graphModel)
-		self.actionParameter_Sweep.triggered.connect(self.paramSweep)
-		self.actionModel2Template.triggered.connect(self.model2Template)
+		# Dropdown Menus
+		self.helpMenu.currentIndexChanged.connect(self.helpSelect)
+		self.toolsMenu.currentIndexChanged.connect(self.toolsSelect)
 		# General setup
 		self.modelDir.setText(str(os.getcwd()))
 		self.modelName.setFocus()
@@ -370,6 +364,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	############################################################################
 	### Menu functions (not including Help)
 	
+	# Tools Dropdown has changed
+	def toolsSelect(self):
+		t = self.toolsMenu.currentIndex()
+		self.toolsMenu.setCurrentIndex(0)
+		if t == 1:
+			self.graphModel()
+		elif t == 2:
+			self.paramSweep()
+		elif t == 3:
+			self.model2Template()
+	
 	# Graph a model
 	def graphModel(self):
 		# Get the path to the python test file
@@ -680,6 +685,21 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	############################################################################
 	### Help Menu
 	
+	# Help Dropdown has changed
+	def helpSelect(self):
+		h = self.helpMenu.currentIndex()
+		self.helpMenu.setCurrentIndex(0)
+		if h == 1:
+			self.help('resources/about')
+		elif h == 2:
+			self.help('resources/creator')
+		elif h == 3:
+			self.help('resources/subcomponent')
+		elif h == 4:
+			self.help('resources/connector')
+		elif h == 5:
+			self.help('resources/tools')
+	
 	# Help
 	def help(self, f):
 		self.writeInfo(self.separator)
@@ -691,21 +711,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				else:
 					self.writeInfo(line, 'black', False)
 		self.writeInfo(self.separator + '\n')
-	# About
-	def helpAbout(self):
-		self.help('resources/about')
-	# Creator
-	def helpCreator(self):
-		self.help('resources/creator')
-	# Subcomponent Creator
-	def helpSubcomponent(self):
-		self.help('resources/subcomponent')
-	# Connector
-	def helpConnector(self):
-		self.help('resources/connector')
-	# Grapher
-	def helpTools(self):
-		self.help('resources/tools')
 	
 	### End Help Menu
 	############################################################################
