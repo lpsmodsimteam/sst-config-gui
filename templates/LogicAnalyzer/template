@@ -1,0 +1,4 @@
+test-LogicAnalyzer.py tests/test-<model>.py
+LogicAnalyzer.h <model>.h
+LogicAnalyzer.cc <model>.cc
+Makefile Makefile
