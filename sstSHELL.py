@@ -132,13 +132,15 @@ def createSubcomponent(name, subcomp, header):
 	with open(str(header), 'r') as infile, open(str(os.path.dirname(header) + '/' + name + '.cc'), 'w') as cFile, open(str(os.path.dirname(header) + '/' + name + '.h'), 'w') as hFile:
 		# create the beginning of the header file
 		htxt = '#ifndef _' + name + '_H\n#define _' + name + '_H\n\n'
-		htxt += '#include "' + os.path.basename(header) + '"\n\n'
+		htxt += '#include <sst/core/sst_config.h>\n#include <sst/core/elementinfo.h>\n'
+		htxt += '#include <sst/core/component.h>\n#include <sst/core/subcomponent.h>\n'
+		htxt += '#include <sst/core/link.h>\n#include "' + os.path.basename(header) + '"\n\n'
 		htxt += '// TODO: Fill in the element library name where it says PUT ELEMENT LIBRARY HERE\n\n'
 		htxt += 'class ' + name + ' : public ' + subcomp + ' {\n\npublic:\n'
 		htxt += '\t' + name + '( SST::Component *owningComponent, SST::Params& params );\n'
 		htxt += '\t~' + name + '();\n\n'
 		# create the beginning of the cpp file
-		ctxt = '#include <sst/core/sst_config.h>\n#include "' + name + '.h"\n\n'
+		ctxt = '#include "' + name + '.h"\n\n'
 		ctxt += name + '::' + name + '(SST::Component *owningComponent, SST::Params &params) : '
 		ctxt += subcomp + '(owningComponent) {\n'
 		ctxt += '\toutput.init("' + name + '-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);\n'

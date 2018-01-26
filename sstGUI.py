@@ -40,7 +40,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.modelDir.setText(str(os.getcwd()))
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
-		self.separator = '***********************************************************************************************\n'
 		self.SSTinstalled = None
 		self.updateTabs()
 		self.tabWidget.currentChanged.connect(self.updateTabs)
@@ -67,6 +66,18 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.generate_con.clicked.connect(self.generateCon)
 		self.run_con.clicked.connect(self.runCon)
 	############################################################################
+	
+	
+	############################################################################
+	### Window resize function, adjusts the line separator size
+	def resizeEvent(self, event):
+		QMainWindow.resizeEvent(self, event)
+		width = self.info.document().size().width() - (2 * self.info.document().documentMargin())
+		if width <= 8:
+			width = 135 * self.info.fontMetrics().width('*')
+		self.separator = '*' * int(width / self.info.fontMetrics().width('*')) + '\n'
+	############################################################################
+	
 	
 	
 	############################################################################
