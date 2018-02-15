@@ -10,7 +10,7 @@ import sys
 import os
 import subprocess
 import glob
-import cgi
+import html
 import xml.etree.ElementTree as ET
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -68,17 +68,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	############################################################################
 	
 	
-	############################################################################
-	### Window resize function, adjusts the line separator size
-	def resizeEvent(self, event):
-		QMainWindow.resizeEvent(self, event)
-		width = self.info.document().size().width() - (2 * self.info.document().documentMargin())
-		if width <= 8:
-			width = 135 * self.info.fontMetrics().width('*')
-		self.separator = '*' * int(width / self.info.fontMetrics().width('*')) + '\n'
-	############################################################################
-	
-	
 	
 	############################################################################
 	### Model Creator Tab
@@ -125,18 +114,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def compileModel(self):
 		if not self.isSSTinstalled(): return
 		if not self.getModel(): return
-		self.writeInfo(self.separator + '***** Building Model *****\n\n')
+		self.writeSeparator()
+		self.writeInfo('***** Building Model *****\n\n')
 		if self.clean.isChecked():
 			self.runCmdByLine(str('make clean -C ' + self.modelPath + '/' + self.model))
 		# runCmdByLine returns the make return value (0 success, others fail)
 		failed = self.runCmdByLine(str('make all -C ' + self.modelPath + '/' + self.model))
 		if failed:
-			text = '\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***\n'
-			self.writeInfo(text, 'red')
-			self.writeInfo(self.separator + '\n')
+			self.writeInfo('\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***', 'red')
 			return
 		# make all passed
-		self.writeInfo('\nModel has compiled successfully\n' + self.separator + '\n')
+		self.writeInfo('\nModel has compiled successfully\n')
 		# Run the model if autorun is checked
 		if self.autoRun.isChecked():
 			self.runModel()
@@ -146,9 +134,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def runModel(self):
 		if not self.isSSTinstalled(): return
 		if not self.getModel(): return
-		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
+		self.writeSeparator()
+		self.writeInfo('***** Running Model test(s) *****\n\n')
 		self.runTests(sorted(glob.glob(self.modelPath + '/' + self.model + '/tests/*.py')))
-		self.writeInfo(self.separator + '\n')
 	
 	### End Model Creator Tab
 	############################################################################
@@ -363,9 +351,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def runCon(self):
 		if not self.isSSTinstalled(): return
 		if not self.getModel(): return
-		self.writeInfo(self.separator + '***** Running Model test(s) *****\n\n')
+		self.writeSeparator()
+		self.writeInfo('***** Running Model test(s) *****\n\n')
 		self.runTests(sorted(glob.glob(self.modelPath + '/' + self.model + '/*.py')))
-		self.writeInfo(self.separator + '\n')
 	
 	### End Model Connector Tab
 	############################################################################
@@ -393,9 +381,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if not path:
 			self.writeInfo('*** PLEASE SELECT A PYTHON TEST FILE ***\n\n', 'red')
 			return
-		self.writeInfo(self.separator + '***** Graphing Model *****\n')
+		self.writeSeparator()
+		self.writeInfo('***** Graphing Model *****\n')
 		files = sstSHELL.graphModel(path)
-		self.writeInfo('\nCreated ' + files + '\n' + self.separator + '\n')
+		self.writeInfo('\nCreated ' + files)
 		for f in files.split():
 			if not f.endswith('.2.jpg') and not f.endswith('.dot'):
 				QDesktopServices.openUrl(QUrl(f))
@@ -408,12 +397,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if not path:
 			self.writeInfo('*** PLEASE SELECT A PYTHON TEST FILE ***\n\n', 'red')
 			return
-		self.writeInfo(self.separator + 'Expanding Parameters\n')
+		self.writeSeparator()
+		self.writeInfo('Expanding Parameters\n')
 		subdir = sstSHELL.paramSweep(path)
 		if subdir.startswith('ERROR'):
-			self.writeInfo(subdir + '\n', 'red')
+			self.writeInfo(subdir, 'red')
 		else:
-			self.writeInfo('Parameters expanded successfully into ' + subdir + '\n')
+			self.writeInfo('Parameters expanded successfully into ' + subdir)
 	
 	
 	# Convert a model into a template
@@ -433,10 +423,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if text in templates:
 			self.writeInfo('*** TEMPLATE ALREADY EXISTS ***\n\n', 'red')
 			return
-		self.writeInfo(self.separator + '***** Converting Model into Template *****\n\n')
+		self.writeSeparator()
+		self.writeInfo('***** Converting Model into Template *****\n\n')
 		self.writeInfo('Converting ' + model + ' to ' + text + '\n\n')
 		f = sstSHELL.model2Template(model, text)
-		self.writeInfo('\nNew template created: ' + './templates/' + text + '\n' + self.separator + '\n')
+		self.writeInfo('\nNew template created: ' + './templates/' + text)
 		self.updateTemplates()
 		# Open the new template in an editor
 		os.system(str(self.editor + ' ' + f + '&'))
@@ -527,7 +518,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					makefiles = False
 			elif lib:
 				# SST provided model
-				self.writeInfo(self.separator)
+				self.writeSeparator()
 				text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
 				text += '*** PLEASE CHOOSE ANOTHER NAME ***\n\n'
 				self.writeInfo(text, 'red')
@@ -536,7 +527,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				for item in self.elements:
 					text += item + '\n'
 				self.writeInfo(text, 'blue')
-				self.writeInfo(self.separator + '\n')
 				return None
 		return makefiles
 	
@@ -561,7 +551,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			if sweep:
 				subdir = sstSHELL.paramSweep(testfile)
 				if subdir.startswith('ERROR'):
-					self.writeInfo(subdir + '\n', 'red')
+					self.writeInfo(subdir, 'red')
 				else:
 					sweepfiles = sorted(glob.glob(subdir + '/*.py'))
 					for sweep in sweepfiles:
@@ -569,8 +559,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						self.runCmdByLine(str('sst ' + sweep))
 			else:
 				self.runCmdByLine(str('sst ' + testfile))
-			self.writeInfo('\n')
 	
+	
+	# Write a horizontal separator to information screen
+	def writeSeparator(self):
+		self.info.moveCursor(QTextCursor.End)
+		self.info.insertHtml('<hr><br>')
+		self.info.moveCursor(QTextCursor.End)
 	
 	# Write to information screen
 	# Available Colors:
@@ -579,7 +574,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# darkred, darkyellow, darkgreen, darkcyan, darkblue, darkmagenta
 	def writeInfo(self, text, color='black', update=True):
 		colorText = '<span style="white-space:pre-wrap; color:' + QColor(color).name() + ';">'
-		colorText += cgi.escape(text, True) + '</span>'
+		colorText += html.escape(text) + '</span>'
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertHtml(colorText)
 		self.info.moveCursor(QTextCursor.End)
@@ -610,13 +605,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Information for template generation
 	def templatesMessage(self, files):
-		self.writeInfo(self.separator + 'The following Templates should be displayed in the pop-up editor\n')
+		self.writeSeparator()
+		self.writeInfo('The following Templates should be displayed in the pop-up editor\n')
 		text = ''
 		for item in files:
 			text += '\t- ' + item + '\n'
 		self.writeInfo(text, 'green')
 		text = 'Please review/edit your files to create your model.\n'
-		text += self.separator + '\n'
 		self.writeInfo(text)
 	
 	
@@ -638,7 +633,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Display template help
 	def modelCreatorHelp(self):
 		for item in self.templates.selectedItems():
-			self.writeInfo(self.separator)
+			self.writeSeparator()
 			# Find doxygen comments from template
 			f = os.getcwd() + '/templates/' + item.text() + '/' + item.text() + '.cc'
 			if os.path.isfile(f):
@@ -655,12 +650,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						else:
 							if line.strip().startswith('/**'):
 								incomment = True
-			self.writeInfo(self.separator + '\n\n')
 	
 	# Display model help
 	def modelConnectorHelp(self, items, displayAll = False):
 		for item in items:
-			self.writeInfo(self.separator)
+			self.writeSeparator()
 			# Get sst-info description
 			if item.parent():
 				text = sstSHELL.runCommand('sst-info ' + item.parent().text(0) + '.' + item.text(0))
@@ -680,7 +674,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						# If item is an element, print out the whole element with components and subcomponents
 						if l.startswith('ELEMENT') or l.startswith('COMPONENT') or l.startswith('SUBCOMPONENT'):
 							self.writeInfo(l + '\n', 'gray')
-			self.writeInfo(self.separator + '\n\n')
 	# Available Models Help
 	def availableHelp(self):
 		self.modelConnectorHelp(self.available.selectedItems())
@@ -713,7 +706,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Help
 	def help(self, f):
-		self.writeInfo(self.separator)
+		self.writeSeparator()
 		with open(f, 'r') as fp:
 			for line in fp:
 				if ' - ' in line:
@@ -721,7 +714,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					self.writeInfo(' - ' + line.split(' - ')[1])
 				else:
 					self.writeInfo(line, 'black', False)
-		self.writeInfo(self.separator + '\n')
 	
 	### End Help Menu
 	############################################################################
