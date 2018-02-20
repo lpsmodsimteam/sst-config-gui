@@ -1,0 +1,24 @@
+Enter Model Name text box - Simply enter the name of your model, this name will
+	be used as the base name for your connectted model and will appear in a
+	seperate directory under your current working directory. If you do not enter
+	a name the GUI will prompt you to enter a name and it will not continue
+	until a name is entered. If you select a name the same as one of the
+	elements already "registered" by SST, for a new install they consist of
+	elements in the delivery, an error will be thrown and the tool will ask you
+	to choose another name. A list of all "registered" SST elements will appear
+	in the Information screen, so you can pick a unique name.
+
+Overwrite Existing Model check box - Generate/Open Files will check to see if a
+	model is already present with the current name in your working directory.
+	If this box is checked the old model will be overwritten with the new one
+	you created.
+
+Model Directory text box - Defaults to the current directory. You can change
+	this with the Browse Directories button.
+
+Browse Directories button - This button will change the location your model gets
+	stored in.
+
+Information screen (unlabeled) - Output from various tasks run with the GUI will
+	be displayed in the information screen. Color has been added to highlight
+	some of the more important information to allow it to stand out.

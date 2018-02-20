@@ -41,6 +41,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
 		self.SSTinstalled = None
+		self.firstSeparator = True
 		self.updateTabs()
 		self.tabWidget.currentChanged.connect(self.updateTabs)
 		# Model Creator Tab
@@ -383,7 +384,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			return
 		self.writeSeparator()
 		self.writeInfo('***** Graphing Model *****\n')
-		files = sstSHELL.graphModel(path)
+		files = sstSHELL.graphModel(path) + '\n'
 		self.writeInfo('\nCreated ' + files)
 		for f in files.split():
 			if not f.endswith('.2.jpg') and not f.endswith('.dot'):
@@ -403,7 +404,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if subdir.startswith('ERROR'):
 			self.writeInfo(subdir, 'red')
 		else:
-			self.writeInfo('Parameters expanded successfully into ' + subdir)
+			self.writeInfo('Parameters expanded successfully into ' + subdir + '\n')
 	
 	
 	# Convert a model into a template
@@ -427,7 +428,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo('***** Converting Model into Template *****\n\n')
 		self.writeInfo('Converting ' + model + ' to ' + text + '\n\n')
 		f = sstSHELL.model2Template(model, text)
-		self.writeInfo('\nNew template created: ' + './templates/' + text)
+		self.writeInfo('\nNew template created: ' + './templates/' + text + '\n')
 		self.updateTemplates()
 		# Open the new template in an editor
 		os.system(str(self.editor + ' ' + f + '&'))
@@ -563,9 +564,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Write a horizontal separator to information screen
 	def writeSeparator(self):
-		self.info.moveCursor(QTextCursor.End)
-		self.info.insertHtml('<hr><br>')
-		self.info.moveCursor(QTextCursor.End)
+		if self.firstSeparator:
+			self.firstSeparator = False
+		else:
+			self.info.moveCursor(QTextCursor.End)
+			self.info.insertHtml('<hr><br>')
+			self.info.moveCursor(QTextCursor.End)
 	
 	# Write to information screen
 	# Available Colors:
@@ -696,12 +700,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if h == 1:
 			self.help('resources/about')
 		elif h == 2:
-			self.help('resources/creator')
+			self.help('resources/global')
 		elif h == 3:
-			self.help('resources/subcomponent')
+			self.help('resources/creator')
 		elif h == 4:
-			self.help('resources/connector')
+			self.help('resources/subcomponent')
 		elif h == 5:
+			self.help('resources/connector')
+		elif h == 6:
 			self.help('resources/tools')
 	
 	# Help

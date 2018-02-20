@@ -1,54 +1,24 @@
-The Subcomponent Creator tab will generate a skeleton for you
-using a subcomponent prototype. This prototype should be located
-in the component header file which uses subcomponents, as the
-component declares the interface it needs and the subcomponent
-must conform to that definition.
+The Subcomponent Creator tab will generate a skeleton for you using a
+subcomponent prototype. This prototype should be located in the component header
+file which uses subcomponents, as the component declares the interface it needs
+and the subcomponent must conform to that definition.
 
-Enter Model Name text box - Simply enter the name of your
-	model, this name will be used as the base name for all of
-	your files and your model's directory. If you do not enter
-	a name the GUI will not continue until a name is entered.
+Browse Header Files button - This button will let you choose a header file that
+	may contain a subcomponent prototype. If a subcomponent prototype is found
+	in the header file, the prototype(s) will be listed in the Available
+	Subcomponent Types list for you to choose.
 
-Overwrite Existing Model check box - Generate Files will check
-	to see if a model is already present with the current name in your
-	working directory. If this box is checked the old model will
-	be overwritten with the new one you created.
+Selected Header File box - Contains the path to the selected header file.
 
-Model Directory text box - Defaults to the directory of the header
-	file you selected so that the subcomponent will be built with
-	the component. You can change this with the Browse Directories
-	button.
-
-Browse Directories button - This button will change the location
-	your subcomponent gets stored in. It is NOT recommended to
-	change the location, as the subcomponent should be located
-	with the component it attaches to.
-
-Browse Header Files button - This button will let you choose a
-	header file that may contain a subcomponent prototype. If a
-	subcomponent prototype is found in the header file, the
-	prototype(s) will be listed in the Available Subcomponent Types
-	list for you to choose.
-
-Selected Header File box - Contains the path to the selected header
-	file.
-
-Available Subcomponent Types box - Contains a list of the available
-	subcomponent prototypes found in the header file shown in the
-	Selected Header File box.
+Available Subcomponent Types box - Contains a list of the available subcomponent
+	prototypes found in the header file shown in the Selected Header File box.
 
 Generate Files button - This button will create a skeleton using the
-	subcomponent prototype selected. This skeleton consists of a .h
-	and .cc file, both of which have been filled out with the basic
-	functions required by SST and the subcomponent prototype. You will
-	need to edit the files to make them useful, as well as adding the
-	.cc file to the Element's Makefile so that it gets built. The .h
-	file also needs to have the correct Element library name added in
-	as described in the TODO message. The .h file has stubs for parameters,
-	statistics, and ports that can be filled out or removed.
-
-Information screen (unlabeled) - Output from various tasks run with the 
-	GUI will be displayed in the information screen. Color has been added
-	to highlight some of the more important information to allow it to stand
-	out.
-
+	subcomponent prototype selected. This skeleton consists of a .h and .cc
+	file, both of which have been filled out with the basic functions required
+	by SST and the subcomponent prototype. You will need to edit the files to
+	make them useful, as well as adding the .cc file to the Element's Makefile
+	so that it gets built. The .h file also needs to have the correct Element
+	library name added in as described in the TODO message. The .h file has
+	stubs for parameters, statistics, and ports that can be filled out or
+	removed.
