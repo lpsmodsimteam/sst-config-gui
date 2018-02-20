@@ -312,6 +312,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Creates or opens python file
 	def generateCon(self):
+		if not self.isSSTinstalled(): return
 		if not self.getModel(): return
 		# Check SST Registered Models and local folders
 		makefiles = self.checkModels()
@@ -377,6 +378,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Graph a model
 	def graphModel(self):
+		if not self.isSSTinstalled(): return
 		# Get the path to the python test file
 		path = QFileDialog.getOpenFileName(self, 'Select Python Test File', '.', 'Python files (*.py)')[0]
 		if not path:
@@ -461,7 +463,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if self.SSTinstalled:
 			return True
 		else:
-			self.writeInfo('*** SST IS NOT INSTALLED. YOU WILL NOT BE ABLE TO COMPILE OR RUN ANYTHING, BUT YOU CAN STILL CREATE OR CONNECT MODELS ***\n\n', 'red')
+			self.writeInfo('*** SST IS NOT INSTALLED. YOU WILL NOT BE ABLE TO COMPILE OR RUN ANYTHING, BUT YOU CAN STILL CREATE MODELS FROM TEMPLATES ***\n\n', 'red')
 			return False
 	
 	
@@ -507,7 +509,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		makefiles = True
 		if self.model in self.elements or self.model in local:
 			# Model is already registered with SST or it is a local model
-			lib = sstSHELL.runCommand('sst-config ' + self.model + ' ' + self.model + '_LIBDIR')
 			if self.model in local:
 				# local model, can overwrite
 				if self.overwrite.isChecked():
@@ -517,7 +518,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						makefiles = False
 				else:
 					makefiles = False
-			elif lib:
+			else:
 				# SST provided model
 				self.writeSeparator()
 				text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
