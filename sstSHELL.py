@@ -287,20 +287,15 @@ def paramSweep(filename):
 										found = False
 								fptest.write(line)
 						m = m + 1
-						if m >= len(List5):
-							break
+						if m >= len(List5): break
 					l = l + 1
-					if l >= len(List4):
-						break
+					if l >= len(List4): break
 				k = k + 1
-				if k >= len(List3):
-					break
+				if k >= len(List3): break
 			j = j + 1
-			if j >= len(List2):
-				break
+			if j >= len(List2): break
 		i = i + 1
-		if i >= len(List1):
-			break
+		if i >= len(List1): break
 	return path
 
 
@@ -319,8 +314,8 @@ def graphModel(test):
 		if not tool == 'dot':
 			os.system(str('mv ' + filename + '.dot.jpg ' + filename + '.' + tool + '.jpg'))
 			os.system(str('mv ' + filename + '.dot.2.jpg ' + filename + '.' + tool + '.2.jpg'))
-		files += filename + '.' + tool + '.jpg\n' + filename + '.' + tool + '.2.jpg\n'
-	return str(filename + '.dot\n' + files.rstrip())
+		files += filename + '.' + tool + '.jpg ' + filename + '.' + tool + '.2.jpg '
+	return str(filename + '.dot ' + files.rstrip())
 
 
 # Convert a model into a template

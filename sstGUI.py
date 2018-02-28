@@ -45,7 +45,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.updateTabs()
 		self.tabWidget.currentChanged.connect(self.updateTabs)
 		# Model Creator Tab
-		self.templates.itemDoubleClicked.connect(self.modelCreatorHelp)
+		self.templates.itemDoubleClicked.connect(self.templateHelp)
 		self.templates.currentItemChanged.connect(self.selectTemplate)
 		self.templateBrowse.clicked.connect(self.browseTemplates)
 		self.generate.clicked.connect(self.generateOpenFiles)
@@ -107,7 +107,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		for item in self.dest:
 			f += self.modelPath + '/' + self.model + '/' + item + ' '
 		# Open files
-		self.templatesMessage(f.rstrip().split(' '))
+		self.createdFilesMessage(f.rstrip().split(' '))
 		os.system(str(self.editor + ' ' + f + '&'))
 	
 	
@@ -182,7 +182,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				return
 		sstSHELL.createSubcomponent(self.model, self.available_sub.currentItem().text(), self.header.text())
 		f = self.modelPath + '/' + self.model + '.cc ' + self.modelPath + '/' + self.model + '.h'
-		self.templatesMessage(f.split(' '))
+		self.createdFilesMessage(f.split(' '))
 		self.writeInfo('Make sure to add the subcomponent into the Element\'s Makefile so that it gets built\n', 'green')
 		os.system(str(self.editor + ' ' + f + ' &'))
 		
@@ -345,7 +345,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			sstSHELL.connectModels(self.model, components, self.modelPath)
 		f = self.modelPath + '/' + self.model + '/' + self.model + '.py'
 		# Open files
-		self.templatesMessage([f])
+		self.createdFilesMessage([f])
 		os.system(str(self.editor + ' ' + f + ' &'))
 	
 	
@@ -376,6 +376,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		elif t == 3:
 			self.model2Template()
 	
+	
 	# Graph a model
 	def graphModel(self):
 		if not self.isSSTinstalled(): return
@@ -384,11 +385,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if not path:
 			self.writeInfo('*** PLEASE SELECT A PYTHON TEST FILE ***\n\n', 'red')
 			return
-		self.writeSeparator()
-		self.writeInfo('***** Graphing Model *****\n')
-		files = sstSHELL.graphModel(path) + '\n'
-		self.writeInfo('\nCreated ' + files)
-		for f in files.split():
+		files = sstSHELL.graphModel(path)
+		self.createdFilesMessage(files.split(' '))
+		for f in files.split(' '):
 			if not f.endswith('.2.jpg') and not f.endswith('.dot'):
 				QDesktopServices.openUrl(QUrl(f))
 	
@@ -572,6 +571,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.info.insertHtml('<hr><br>')
 			self.info.moveCursor(QTextCursor.End)
 	
+	
 	# Write to information screen
 	# Available Colors:
 	# black(default), darkgray, gray, lightgray, white,
@@ -608,16 +608,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.modelDir.setText(os.path.dirname(self.header.text()))
 	
 	
-	# Information for template generation
-	def templatesMessage(self, files):
+	# File Creation message
+	def createdFilesMessage(self, files):
 		self.writeSeparator()
-		self.writeInfo('The following Templates should be displayed in the pop-up editor\n')
+		self.writeInfo('The following files have been created/opened:\n')
 		text = ''
 		for item in files:
 			text += '\t- ' + item + '\n'
 		self.writeInfo(text, 'green')
-		text = 'Please review/edit your files to create your model.\n'
-		self.writeInfo(text)
 	
 	
 	# Generates a warning pop-up when you try to overwrite existing files
@@ -636,7 +634,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	
 	# Display template help
-	def modelCreatorHelp(self):
+	def templateHelp(self):
 		for item in self.templates.selectedItems():
 			self.writeSeparator()
 			# Find doxygen comments from template
@@ -656,8 +654,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 							if line.strip().startswith('/**'):
 								incomment = True
 	
-	# Display model help
-	def modelConnectorHelp(self, items, displayAll = False):
+	
+	# Display model information from sst-info
+	def sstInfoHelp(self, items, displayAll = False):
 		for item in items:
 			self.writeSeparator()
 			# Get sst-info description
@@ -681,10 +680,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 							self.writeInfo(l + '\n', 'gray')
 	# Available Models Help
 	def availableHelp(self):
-		self.modelConnectorHelp(self.available.selectedItems())
+		self.sstInfoHelp(self.available.selectedItems())
 	# Selected Models Help
 	def selectedHelp(self):
-		self.modelConnectorHelp(self.selected.selectedItems(), True)
+		self.sstInfoHelp(self.selected.selectedItems(), True)
 	
 	### End Application Helper Functions
 	############################################################################
