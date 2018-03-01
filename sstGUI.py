@@ -95,18 +95,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def generateOpenFiles(self):
 		if not self.getModel(): return
 		if not self.getTemplate(): return
-		# Check SST Registered Models and local folders
 		makefiles = self.checkModels()
 		if makefiles == None:
 			return
-		# Create the model using the template
 		if makefiles:
 			os.system(str('rm -rf ' + self.model))
 			sstSHELL.createModel(self.model, self.templatePath, self.modelPath)
 		f = ''
 		for item in self.dest:
 			f += self.modelPath + '/' + self.model + '/' + item + ' '
-		# Open files
 		self.createdFilesMessage(f.rstrip().split(' '))
 		os.system(str(self.editor + ' ' + f + '&'))
 	
@@ -124,9 +121,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if failed:
 			self.writeInfo('\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***', 'red')
 			return
-		# make all passed
 		self.writeInfo('\nModel has compiled successfully\n')
-		# Run the model if autorun is checked
 		if self.autoRun.isChecked():
 			self.runModel()
 	
@@ -149,7 +144,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Browse for a header file containing a subcomponent prototype
 	def browseHeaders(self):
-		# Get the path to the header file
 		path = QFileDialog.getOpenFileName(self, 'Select Header File', '.', 'Header files (*.h)')[0]
 		if not path:
 			self.writeInfo('*** PLEASE SELECT A HEADER FILE ***\n\n', 'red')
@@ -169,7 +163,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if self.available_sub.currentItem() == None:
 			self.writeInfo('*** PLEASE SELECT A SUBCOMPONENT TYPE ***\n\n', 'red')
 			return
-		# make sure the files don't already exist
 		files = os.listdir(self.modelPath)
 		if str(self.model + '.cc') in files or str(self.model + '.h') in files:
 			if self.overwrite.isChecked():
@@ -197,18 +190,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Update the Available Models
 	def updateModels(self):
 		self.available.clear()
-		# Store an ElementTree with all the xml data from sst-info
-		self.sstinfo = ET.fromstring(sstSHELL.runCommand('sst-info -qnxo /dev/stdout'))
-		# Store a list of the elements SST knows about
 		self.elements = []
-		# Grab the subcomponents
 		subs = self.sstinfo.findall('*/SubComponent')
 		for element in self.sstinfo.findall('Element'):
 			components = element.findall('Component')
 			self.elements.append(element.get('Name'))
-			# Make sure the Element has Components the user can use
 			if components:
-				# Create an element item in the TreeWidget
+				# Create an element item in the TreeWidget for elements that have components
 				e = QTreeWidgetItem(self.available)
 				e.setText(0, element.get('Name'))
 				for component in components:
@@ -218,8 +206,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					subcomponents = component.findall('SubComponentSlot')
 					if subcomponents:
 						for subcomponent in subcomponents:
-							# Create subcomponent items in the component item
-							# that have the correct interface
+							# Create subcomponent items in the component item that have the correct interface
 							for sub in subs:
 								if subcomponent.get('Interface') == sub.get('Interface'):
 									s = QTreeWidgetItem(c)
@@ -314,12 +301,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def generateCon(self):
 		if not self.isSSTinstalled(): return
 		if not self.getModel(): return
-		# Check SST Registered Models and local folders
 		makefiles = self.checkModels()
 		if makefiles == None:
 			return
 		if makefiles:
-			# Check for selected components
 			if self.selected.invisibleRootItem().childCount() == 0:
 				self.writeInfo('*** NO COMPONENTS SELECTED ***\n\n', 'red')
 				return
@@ -344,7 +329,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						components += ';'
 			sstSHELL.connectModels(self.model, components, self.modelPath)
 		f = self.modelPath + '/' + self.model + '/' + self.model + '.py'
-		# Open files
 		self.createdFilesMessage([f])
 		os.system(str(self.editor + ' ' + f + ' &'))
 	
@@ -380,7 +364,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Graph a model
 	def graphModel(self):
 		if not self.isSSTinstalled(): return
-		# Get the path to the python test file
 		path = QFileDialog.getOpenFileName(self, 'Select Python Test File', '.', 'Python files (*.py)')[0]
 		if not path:
 			self.writeInfo('*** PLEASE SELECT A PYTHON TEST FILE ***\n\n', 'red')
@@ -394,7 +377,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Parameter sweep expansion
 	def paramSweep(self):
-		# Get the path to the python test file
 		path = QFileDialog.getOpenFileName(self, 'Select Python Test File', '.', 'Python files (*.py)')[0]
 		if not path:
 			self.writeInfo('*** PLEASE SELECT A PYTHON TEST FILE ***\n\n', 'red')
@@ -410,17 +392,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Convert a model into a template
 	def model2Template(self):
-		# Prompt for a Model to convert
 		model = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
 		if not model:
 			self.writeInfo('*** PLEASE SELECT A MODEL TO CONVERT ***\n\n', 'red')
 			return
-		# Get the new template name
 		text, ok = QInputDialog.getText(self, 'Enter Template Name', '', QLineEdit.Normal)
 		if not ok or not text:
 			self.writeInfo('*** PLEASE ENTER A TEMPLATE NAME ***\n\n', 'red')
 			return
-		# Check to see if the template exists already
 		templates = os.listdir('./templates/')
 		if text in templates:
 			self.writeInfo('*** TEMPLATE ALREADY EXISTS ***\n\n', 'red')
@@ -431,7 +410,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		f = sstSHELL.model2Template(model, text)
 		self.writeInfo('\nNew template created: ' + './templates/' + text + '\n')
 		self.updateTemplates()
-		# Open the new template in an editor
 		os.system(str(self.editor + ' ' + f + '&'))
 	
 	### End Menu Functions
@@ -444,7 +422,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Browse for a directory to put the model in
 	def browseDirectories(self):
-		# Prompt for a directory
 		directory = QFileDialog.getExistingDirectory(self, 'Select Directory', './', QFileDialog.ShowDirsOnly)
 		if not directory:
 			self.writeInfo('*** PLEASE SELECT A DIRECTORY ***\n\n', 'red')
@@ -478,10 +455,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	# Gets the template information
 	def getTemplate(self):
-		# Get template path from GUI
 		self.templatePath = str(self.templateType.text())
 		self.template = os.path.basename(self.templatePath)
-		# Check for empty string
 		if self.template == '':
 			self.writeInfo('*** PLEASE SELECT A TEMPLATE ***\n\n', 'red')
 			return False
@@ -507,7 +482,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		local = next(os.walk(self.modelPath))[1]
 		makefiles = True
 		if self.model in self.elements or self.model in local:
-			# Model is already registered with SST or it is a local model
 			if self.model in local:
 				# local model, can overwrite
 				if self.overwrite.isChecked():
@@ -518,7 +492,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				else:
 					makefiles = False
 			else:
-				# SST provided model
+				# SST provided model, can't overwrite
 				self.writeSeparator()
 				text = '*** THERE IS A SST MODEL WITH THAT NAME ALREADY!!! ***\n'
 				text += '*** PLEASE CHOOSE ANOTHER NAME ***\n\n'
@@ -537,6 +511,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		for testfile in testfiles:
 			self.writeInfo('*** ' + os.path.basename(testfile) + ' ***\n')
 			sweep = False
+			# Search the test to see if any parameter sweeping is done
 			with open(testfile, 'r') as infile:
 				found = False
 				for line in infile:
@@ -550,6 +525,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 								if ';' in value or ',' in value:
 									sweep = True
 			if sweep:
+				# Create all the tests from the sweep and then run them all
 				subdir = sstSHELL.paramSweep(testfile)
 				if subdir.startswith('ERROR'):
 					self.writeInfo(subdir, 'red')
@@ -598,9 +574,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		return process.poll()
 	
 	
-	# Update available models and templates
+	# Update all tabs
 	def updateTabs(self):
 		if self.isSSTinstalled():
+			self.sstinfo = ET.fromstring(sstSHELL.runCommand('sst-info -qnxo /dev/stdout'))
 			self.updateModels()
 		self.updateTemplates()
 		self.modelDir.setText(str(os.getcwd()))
@@ -618,7 +595,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo(text, 'green')
 	
 	
-	# Generates a warning pop-up when you try to overwrite existing files
+	# Generates a warning pop-up
 	def warningPopup(self, text, title):
 		msg = QMessageBox()
 		msg.setIcon(QMessageBox.Warning)
@@ -637,7 +614,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def templateHelp(self):
 		for item in self.templates.selectedItems():
 			self.writeSeparator()
-			# Find doxygen comments from template
 			f = os.getcwd() + '/templates/' + item.text() + '/' + item.text() + '.cc'
 			if os.path.isfile(f):
 				# Look for a doxygen style comment block at the beginning of the file

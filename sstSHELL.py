@@ -19,13 +19,11 @@ import argparse
 # Move and update the template files to create a new model
 def createModel(model, template, path):
 	os.system(str('rm -rf ' + path + '/' + model))
-	# Read template sources and destinations
 	with open(template + '/template', 'r') as fp:
 		structure = fp.read()
 	source = structure.split()[0::2]
 	destination = structure.split()[1::2]
 	dest=[]
-	# Replace <model> tag with the model name
 	for item in destination:
 		dest.append(item.replace('<model>', str(model)))
 	os.system(str('mkdir -p ' + path + '/' + model + '/tests'))
@@ -43,7 +41,6 @@ def connectModels(model, componentList, path):
 	os.system(str('rm -rf ' + path + '/' + model))
 	os.system(str('mkdir -p ' + path + '/' + model))
 	elements = ET.fromstring(runCommand('sst-info -qnxo /dev/stdout'))
-	# Write the test python file
 	with open(str(path + '/' + model + '/' + model + '.py'), 'w') as fp:
 		fp.write('import sst\n\n# TODO: Check the parameters for all components and connect the links at the bottom before running!!!\n\n')
 		# Loop through all the components
@@ -301,7 +298,6 @@ def paramSweep(filename):
 
 # Graph a Model using the python test script
 def graphModel(test):
-	# Get the name of the Model
 	path = os.path.dirname(test)
 	name = os.path.basename(test).replace('.py','')
 	filename = path + '/' + name
