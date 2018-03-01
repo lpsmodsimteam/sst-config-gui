@@ -698,17 +698,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		h = self.helpMenu.currentIndex()
 		self.helpMenu.setCurrentIndex(0)
 		if h == 1:
-			self.help('resources/about')
+			self.help('resources/about.txt')
 		elif h == 2:
-			self.help('resources/global')
+			self.help('resources/global.txt')
 		elif h == 3:
-			self.help('resources/creator')
+			self.help('resources/creator.txt')
 		elif h == 4:
-			self.help('resources/subcomponent')
+			self.help('resources/subcomponent.txt')
 		elif h == 5:
-			self.help('resources/connector')
+			self.help('resources/connector.txt')
 		elif h == 6:
-			self.help('resources/tools')
+			self.help('resources/tools.txt')
 	
 	# Help
 	def help(self, f):

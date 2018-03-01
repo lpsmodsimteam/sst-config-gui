@@ -15,13 +15,13 @@ tool allows you to exit and edit off-line if you prefer and re-enter the process
 at the point where you left off.
 
 The tool has five main regions:
-	1) Global parameters at the top of the screen, and the information display
-	   at the bottom of the screen
-	2) Model Creator Tab -> Model Creation from a template
-	3) Sbcomponent Creator Tab -> Subcomponent Creation using the prototype from
-	   a header file
-	4) Model Connector -> Connecting Multiple models together
-	5) Tools Menu at the top right
+    1) Global parameters at the top of the screen, and the information display
+       at the bottom of the screen
+    2) Model Creator Tab -> Model Creation from a template
+    3) Sbcomponent Creator Tab -> Subcomponent Creation using the prototype from
+       a header file
+    4) Model Connector -> Connecting Multiple models together
+    5) Tools Menu at the top right
 
 Tool tips are available if you mouse over each button. More specific Help is
 also availble by selecting the correct option under the Help button.

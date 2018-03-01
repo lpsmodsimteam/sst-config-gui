@@ -10,65 +10,65 @@ model name and select a model from the Available Templates screen run through
 the Generate -> Compile -> Run work flow and a simple model will be created. 
 
 Available Templates screen - This screen will display the the available
-	templates that come with a tool. A doxygen block is included at the top of
-	each Template, if you need a simple discription of each model just "double
-	click" the model in the screen and a simple description will be displayed in
-	the information screen.
+    templates that come with a tool. A doxygen block is included at the top of
+    each Template, if you need a simple discription of each model just "double
+    click" the model in the screen and a simple description will be displayed in
+    the information screen.
 
 Browse Templates button - If you want to use a template that is not already in
-	the templates directory you can use the Browse Templates button. When you
-	press the button a file browers will appear and "browse" to location that
-	contains your desired template. Then select "Open" in the file browser and
-	your template will be selected. The full path will appear in the Selected
-	Template text box.
+    the templates directory you can use the Browse Templates button. When you
+    press the button a file browers will appear and "browse" to location that
+    contains your desired template. Then select "Open" in the file browser and
+    your template will be selected. The full path will appear in the Selected
+    Template text box.
 
 Selected Template text box - Shows the path to the selected template. You can
-	select a template by simply clicking on one from the Available Templates
-	box, or by browsing to one using the Browse Templates button.
+    select a template by simply clicking on one from the Available Templates
+    box, or by browsing to one using the Browse Templates button.
 
 Generate/Open Files button - This button will first create a directory in your
-	working directory with your model name, inside this directory you will find
-	your <model>.cc, <model>.h, Makefile, and tests/<model>.py templates. The
-	templates will also appear in an editor of your choice, so you can complete
-	the development of your model. The editor is chosen by reading your EDITOR
-	environment variable, if your environment variable is not set GEDIT will be
-	selected by default. Create your model by editing the templates, save and
-	close the editor. The templates do generate a very simple model that can be
-	compiled and run by the tool without any editing if you just want to try the
-	tool out to see how it works before creating your own. If model already
-	exists in your working directory with the same name and the Overwrite
-	Existing Model check box is unchecked, the popup editor will open the
-	existing model this will allow you use the GUI to complete your model. If
-	the box is checked it will confirm if you want to overwrite the existing
-	model, then overwrite the model. If you select a name that is the same as
-	one of the elements already "registered" by SST, for a new install they
-	consist of elements in the delivery, an error will be thrown and the tool
-	will ask you to choose another name. A list of all "registered" SST elements
-	will appear in the Information screen, so you can pick a unique name. If
-	your desire is to test certain parameters under different input conditions
-	you can do "Parameter Sweeps" of up to five (5) parameters.
+    working directory with your model name, inside this directory you will find
+    your <model>.cc, <model>.h, Makefile, and tests/<model>.py templates. The
+    templates will also appear in an editor of your choice, so you can complete
+    the development of your model. The editor is chosen by reading your EDITOR
+    environment variable, if your environment variable is not set GEDIT will be
+    selected by default. Create your model by editing the templates, save and
+    close the editor. The templates do generate a very simple model that can be
+    compiled and run by the tool without any editing if you just want to try the
+    tool out to see how it works before creating your own. If model already
+    exists in your working directory with the same name and the Overwrite
+    Existing Model check box is unchecked, the popup editor will open the
+    existing model this will allow you use the GUI to complete your model. If
+    the box is checked it will confirm if you want to overwrite the existing
+    model, then overwrite the model. If you select a name that is the same as
+    one of the elements already "registered" by SST, for a new install they
+    consist of elements in the delivery, an error will be thrown and the tool
+    will ask you to choose another name. A list of all "registered" SST elements
+    will appear in the Information screen, so you can pick a unique name. If
+    your desire is to test certain parameters under different input conditions
+    you can do "Parameter Sweeps" of up to five (5) parameters.
 
 Make Clean check box - If you select this check box "Compile Model" will run a
-	"make clean" before running "make all"
+    "make clean" before running "make all"
 
 Compile Model button - This button will run "make all" which builds the SST
-	library for your model and then links it into SST. If an error occurs during
-	the compile process you can correct the errors by opening the files using
-	the Generate/Open Templates button, make sure Overwrite Existing Model is
-	UNCHECKED, and recompile until all errors are corrected. You do not need to
-	close the editor each time simply just save the updated files before
-	pressing the Compile Model button again.
+    library for your model and then links it into SST. If an error occurs during
+    the compile process you can correct the errors by opening the files using
+    the Generate/Open Templates button, make sure Overwrite Existing Model is
+    UNCHECKED, and recompile until all errors are corrected. You do not need to
+    close the editor each time simply just save the updated files before
+    pressing the Compile Model button again.
 
 Run After Build check box - If you select this check box the tool will proceed
-	directly to Run SST after Compile Model. If the build fails the simulation
-	will not run.
+    directly to Run SST after Compile Model. If the build fails the simulation
+    will not run.
 
 Run Model button - This button will run all the "test" files in the tests/
-	directory (basically running your model in SST) the results will be
-	displayed in the information window. It should be noted here that the model
-	can be run outside of the GUI this button is just included for convenience.
-	If you entered Parameter Sweep inputs the code will automatically detect the
-	desired parameters, create a new test file for each combination of your
-	parameter sweep, and then run all test files. It is suggested that you make
-	sure your "statistics" output is written to file. The output will be written
-	to the Information Screen.
+    directory (basically running your model in SST) the results will be
+    displayed in the information window. It should be noted here that the model
+    can be run outside of the GUI this button is just included for convenience.
+    If you entered Parameter Sweep inputs the code will automatically detect the
+    desired parameters, create a new test file for each combination of your
+    parameter sweep, and then run all test files. It is suggested that you make
+    sure your "statistics" output is written to file. The output will be written
+    to the Information Screen.

@@ -5,57 +5,57 @@ use the sstSHELL.py script with the correct command. Reference the README file
 for more information.
 
 The Model2Template tool - Select the Tools drop down menu and select
-	Model2Template. This will bring up a file browser select the model you want
-	to turn into a template and press "Open". A pop-up will appear type in the
-	name you want use for your template and press "Ok". The files needed for the
-	template (template, <template>.h, <template.cc>, test-<template>.py and the
-	Makefile) will appear in your chosen editor for review. If you are satisfied
-	with the way the template has been created simply save and exit the editor.
-	It should be noted here that the template has been created from your model.
-	The model you created will still be present as you coded it before creating
-	the template. This function simply copies the model and converts it into a
-	template for future use. Any model created by other functions of this tool
-	has the correct directory structure to be convertted into a template.
+    Model2Template. This will bring up a file browser select the model you want
+    to turn into a template and press "Open". A pop-up will appear type in the
+    name you want use for your template and press "Ok". The files needed for the
+    template (template, <template>.h, <template.cc>, test-<template>.py and the
+    Makefile) will appear in your chosen editor for review. If you are satisfied
+    with the way the template has been created simply save and exit the editor.
+    It should be noted here that the template has been created from your model.
+    The model you created will still be present as you coded it before creating
+    the template. This function simply copies the model and converts it into a
+    template for future use. Any model created by other functions of this tool
+    has the correct directory structure to be convertted into a template.
 
 The Graph Model tool - Select the Tools drop down menu and select the Graph
-	Model tool. This will bring up a file browser, "browse" to python script of
-	your connected model and select "Open". Several "jpg" graphs will be
-	generated you choose the one you like the best for your project
-	- dot   -> draws directed graphs
-	- neato -> draws undirected graphs using a "spring" model
-	- twopi -> draws graphs using a radial layout. 
-	- circo -> draws graphs using a circular layout
-	- fdp   -> draws undirected graphs 
-	It should be noted that the Graph Model tool needs the package graphviz to
-	work. 
+    Model tool. This will bring up a file browser, "browse" to python script of
+    your connected model and select "Open". Several "jpg" graphs will be
+    generated you choose the one you like the best for your project
+    - dot   -> draws directed graphs
+    - neato -> draws undirected graphs using a "spring" model
+    - twopi -> draws graphs using a radial layout. 
+    - circo -> draws graphs using a circular layout
+    - fdp   -> draws undirected graphs 
+    It should be noted that the Graph Model tool needs the package graphviz to
+    work.
 
 The Parameter Sweep tool - Select the Tools drop down menu and select Parameter
-	Sweep Tool. This will bring up a file browser, "browse" to the python script
-	that you entered your sweeping parameters, in formats listed below. The tool
-	will then create a new set of test files in a directory named
-	<test file>_expanded. These additional test files will sweep every parameter
-	you entered and create a test file for each combination. Valid Format Entry:
-	-Range:
-		Start-End;Increment
-		Example: 2-6;2 will create three test files with the parameter set to
-		2,4, and 6
-		Increment can be positive or negative. If Increment is not an interger
-		multiple of your end value it will be the next value after the end point
-	-Range with Units:
-		Start-End;Increment Unit
-		Note a space is required between Increment value and Unit
-		Example: 2-6;2 GHz will create three test files with the parameter set
-		to 2 GHz,4 GHz, and 6 GHz
-		Increment can be positive or negative. If Increment is not an interger
-		multiple of your end value it will be the next value after the end point
-	-List:
-		first,second,third,forth,....
-		Example 2,1,9 will create three test files with the parameter set to
-		2,1, and 9
-	-List with Units:
-		first Unit,second Unit,third Unit,forth Unit,....
-		Example 2 KB,1MB,9 TB will create three test files with the parameter
-		set to 2 KB,1MB, and 9 TB
-		Hex digits can be accomodated but you must use the 0x prefix before the
-		value. For example: 0xa-0xf;1 will range the parameters between Hex a
-		through Hex f by 1
+    Sweep Tool. This will bring up a file browser, "browse" to the python script
+    that you entered your sweeping parameters, in formats listed below. The tool
+    will then create a new set of test files in a directory named
+    <test file>_expanded. These additional test files will sweep every parameter
+    you entered and create a test file for each combination. Valid Format Entry:
+    -Range:
+        Start-End;Increment
+        Example: 2-6;2 will create three test files with the parameter set to
+        2,4, and 6
+        Increment can be positive or negative. If Increment is not an interger
+        multiple of your end value it will be the next value after the end point
+    -Range with Units:
+        Start-End;Increment Unit
+        Note a space is required between Increment value and Unit
+        Example: 2-6;2 GHz will create three test files with the parameter set
+        to 2 GHz,4 GHz, and 6 GHz
+        Increment can be positive or negative. If Increment is not an interger
+        multiple of your end value it will be the next value after the end point
+    -List:
+        first,second,third,forth,....
+        Example 2,1,9 will create three test files with the parameter set to
+        2,1, and 9
+    -List with Units:
+        first Unit,second Unit,third Unit,forth Unit,....
+        Example 2 KB,1MB,9 TB will create three test files with the parameter
+        set to 2 KB,1MB, and 9 TB
+        Hex digits can be accomodated but you must use the 0x prefix before the
+        value. For example: 0xa-0xf;1 will range the parameters between Hex a
+        through Hex f by 1

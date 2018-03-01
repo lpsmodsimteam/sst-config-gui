@@ -4,21 +4,21 @@ file which uses subcomponents, as the component declares the interface it needs
 and the subcomponent must conform to that definition.
 
 Browse Header Files button - This button will let you choose a header file that
-	may contain a subcomponent prototype. If a subcomponent prototype is found
-	in the header file, the prototype(s) will be listed in the Available
-	Subcomponent Types list for you to choose.
+    may contain a subcomponent prototype. If a subcomponent prototype is found
+    in the header file, the prototype(s) will be listed in the Available
+    Subcomponent Types list for you to choose.
 
 Selected Header File box - Contains the path to the selected header file.
 
 Available Subcomponent Types box - Contains a list of the available subcomponent
-	prototypes found in the header file shown in the Selected Header File box.
+    prototypes found in the header file shown in the Selected Header File box.
 
 Generate Files button - This button will create a skeleton using the
-	subcomponent prototype selected. This skeleton consists of a .h and .cc
-	file, both of which have been filled out with the basic functions required
-	by SST and the subcomponent prototype. You will need to edit the files to
-	make them useful, as well as adding the .cc file to the Element's Makefile
-	so that it gets built. The .h file also needs to have the correct Element
-	library name added in as described in the TODO message. The .h file has
-	stubs for parameters, statistics, and ports that can be filled out or
-	removed.
+    subcomponent prototype selected. This skeleton consists of a .h and .cc
+    file, both of which have been filled out with the basic functions required
+    by SST and the subcomponent prototype. You will need to edit the files to
+    make them useful, as well as adding the .cc file to the Element's Makefile
+    so that it gets built. The .h file also needs to have the correct Element
+    library name added in as described in the TODO message. The .h file has
+    stubs for parameters, statistics, and ports that can be filled out or
+    removed.
