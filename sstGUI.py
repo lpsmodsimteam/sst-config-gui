@@ -19,7 +19,8 @@ from PyQt5 import uic
 import sstSHELL
 
 # Load the UI
-Ui_MainWindow, QtBaseClass = uic.loadUiType('resources/sstGUI.ui')
+guiDir = os.path.dirname(os.path.abspath(__file__))
+Ui_MainWindow, QtBaseClass = uic.loadUiType(guiDir + '/resources/sstGUI.ui')
 
 ####################################################################################
 ##### Main Application Class
@@ -76,19 +77,19 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Select template
 	def selectTemplate(self):
 		if self.templates.currentItem():
-			self.templateType.setText(str(os.getcwd() + '/templates/' + self.templates.currentItem().text()))
+			self.templateType.setText(guiDir + '/templates/' + self.templates.currentItem().text())
 	
 	
 	# Browse for templates
 	def browseTemplates(self):
-		templatePath = QFileDialog.getExistingDirectory(self, 'Select Template', './templates/', QFileDialog.ShowDirsOnly)
+		templatePath = QFileDialog.getExistingDirectory(self, 'Select Template', guiDir + '/templates/', QFileDialog.ShowDirsOnly)
 		self.templateType.setText(str(templatePath))
 	
 	
 	# Update the Avaiable Templates
 	def updateTemplates(self):
 		self.templates.clear()
-		self.templates.addItems(next(os.walk('./templates/'))[1])
+		self.templates.addItems(next(os.walk(guiDir + '/templates/'))[1])
 	
 	
 	# Creates or opens model files
@@ -99,13 +100,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if makefiles == None:
 			return
 		if makefiles:
-			os.system(str('rm -rf ' + self.model))
+			os.system('rm -rf ' + self.model)
 			sstSHELL.createModel(self.model, self.templatePath, self.modelPath)
 		f = ''
 		for item in self.dest:
 			f += self.modelPath + '/' + self.model + '/' + item + ' '
 		self.createdFilesMessage(f.rstrip().split(' '))
-		os.system(str(self.editor + ' ' + f + '&'))
+		os.system(self.editor + ' ' + f + '&')
 	
 	
 	# Compiles and registers the model with SST
@@ -115,9 +116,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeSeparator()
 		self.writeInfo('***** Building Model *****\n\n')
 		if self.clean.isChecked():
-			self.runCmdByLine(str('make clean -C ' + self.modelPath + '/' + self.model))
+			self.runCmdByLine('make clean -C ' + self.modelPath + '/' + self.model)
 		# runCmdByLine returns the make return value (0 success, others fail)
-		failed = self.runCmdByLine(str('make all -C ' + self.modelPath + '/' + self.model))
+		failed = self.runCmdByLine('make all -C ' + self.modelPath + '/' + self.model)
 		if failed:
 			self.writeInfo('\n*** ERROR DURING MAKE!!! PLEASE FIX THE ERROR BEFORE CONTINUING ***', 'red')
 			return
@@ -177,7 +178,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		f = self.modelPath + '/' + self.model + '.cc ' + self.modelPath + '/' + self.model + '.h'
 		self.createdFilesMessage(f.split(' '))
 		self.writeInfo('Make sure to add the subcomponent into the Element\'s Makefile so that it gets built\n', 'green')
-		os.system(str(self.editor + ' ' + f + ' &'))
+		os.system(self.editor + ' ' + f + ' &')
 		
 	### End Subcomponent Creator Tab
 	############################################################################
@@ -308,7 +309,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			if self.selected.invisibleRootItem().childCount() == 0:
 				self.writeInfo('*** NO COMPONENTS SELECTED ***\n\n', 'red')
 				return
-			os.system(str('rm -rf ' + self.model))
+			os.system('rm -rf ' + self.model)
 			components = ''
 			root = self.selected.invisibleRootItem()
 			# build up the list with format element.component.subcomponent,subcomponent;
@@ -330,7 +331,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			sstSHELL.connectModels(self.model, components, self.modelPath)
 		f = self.modelPath + '/' + self.model + '/' + self.model + '.py'
 		self.createdFilesMessage([f])
-		os.system(str(self.editor + ' ' + f + ' &'))
+		os.system(self.editor + ' ' + f + ' &')
 	
 	
 	# Runs the tests in the model folder
@@ -400,7 +401,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if not ok or not text:
 			self.writeInfo('*** PLEASE ENTER A TEMPLATE NAME ***\n\n', 'red')
 			return
-		templates = os.listdir('./templates/')
+		templates = os.listdir(guiDir + '/templates/')
 		if text in templates:
 			self.writeInfo('*** TEMPLATE ALREADY EXISTS ***\n\n', 'red')
 			return
@@ -408,9 +409,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo('***** Converting Model into Template *****\n\n')
 		self.writeInfo('Converting ' + model + ' to ' + text + '\n\n')
 		f = sstSHELL.model2Template(model, text)
-		self.writeInfo('\nNew template created: ' + './templates/' + text + '\n')
+		self.writeInfo('\nNew template created: ' + guiDir + '/templates/' + text + '\n')
 		self.updateTemplates()
-		os.system(str(self.editor + ' ' + f + '&'))
+		os.system(self.editor + ' ' + f + '&')
 	
 	### End Menu Functions
 	############################################################################
@@ -533,9 +534,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					sweepfiles = sorted(glob.glob(subdir + '/*.py'))
 					for sweep in sweepfiles:
 						self.writeInfo('\n** ' + os.path.basename(sweep) + ' **\n')
-						self.runCmdByLine(str('sst ' + sweep))
+						self.runCmdByLine('sst ' + sweep)
 			else:
-				self.runCmdByLine(str('sst ' + testfile))
+				self.runCmdByLine('sst ' + testfile)
 	
 	
 	# Write a horizontal separator to information screen
@@ -614,7 +615,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def templateHelp(self):
 		for item in self.templates.selectedItems():
 			self.writeSeparator()
-			f = os.getcwd() + '/templates/' + item.text() + '/' + item.text() + '.cc'
+			f = guiDir + '/templates/' + item.text() + '/' + item.text() + '.cc'
 			if os.path.isfile(f):
 				# Look for a doxygen style comment block at the beginning of the file
 				with open(f, 'r') as help:
@@ -674,17 +675,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		h = self.helpMenu.currentIndex()
 		self.helpMenu.setCurrentIndex(0)
 		if h == 1:
-			self.help('resources/about.txt')
+			self.help(guiDir + '/resources/about.txt')
 		elif h == 2:
-			self.help('resources/global.txt')
+			self.help(guiDir + '/resources/global.txt')
 		elif h == 3:
-			self.help('resources/creator.txt')
+			self.help(guiDir + '/resources/creator.txt')
 		elif h == 4:
-			self.help('resources/subcomponent.txt')
+			self.help(guiDir + '/resources/subcomponent.txt')
 		elif h == 5:
-			self.help('resources/connector.txt')
+			self.help(guiDir + '/resources/connector.txt')
 		elif h == 6:
-			self.help('resources/tools.txt')
+			self.help(guiDir + '/resources/tools.txt')
 	
 	# Help
 	def help(self, f):

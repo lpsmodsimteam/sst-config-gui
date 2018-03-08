@@ -18,7 +18,7 @@ import argparse
 
 # Move and update the template files to create a new model
 def createModel(model, template, path):
-	os.system(str('rm -rf ' + path + '/' + model))
+	os.system('rm -rf ' + path + '/' + model)
 	with open(template + '/template', 'r') as fp:
 		structure = fp.read()
 	source = structure.split()[0::2]
@@ -26,10 +26,10 @@ def createModel(model, template, path):
 	dest=[]
 	for item in destination:
 		dest.append(item.replace('<model>', str(model)))
-	os.system(str('mkdir -p ' + path + '/' + model + '/tests'))
+	os.system('mkdir -p ' + path + '/' + model + '/tests')
 	# Loop through sources and destinations at the same time
 	for s, d in zip(source, dest):
-		with open(str(template + '/' + s), 'r') as infile, open(str(path + '/' + model + '/' + d), 'w') as outfile:
+		with open(template + '/' + s, 'r') as infile, open(path + '/' + model + '/' + d, 'w') as outfile:
 			# Copy from source to destination while replacing <model> tags
 			for line in infile:
 				outfile.write(line.replace('<model>', str(model)))
@@ -38,10 +38,10 @@ def createModel(model, template, path):
 # Connect various models together
 def connectModels(model, componentList, path):
 	components = componentList.rstrip(';').split(';')
-	os.system(str('rm -rf ' + path + '/' + model))
-	os.system(str('mkdir -p ' + path + '/' + model))
+	os.system('rm -rf ' + path + '/' + model)
+	os.system('mkdir -p ' + path + '/' + model)
 	elements = ET.fromstring(runCommand('sst-info -qnxo /dev/stdout'))
-	with open(str(path + '/' + model + '/' + model + '.py'), 'w') as fp:
+	with open(path + '/' + model + '/' + model + '.py', 'w') as fp:
 		fp.write('import sst\n\n# TODO: Check the parameters for all components and connect the links at the bottom before running!!!\n\n')
 		# Loop through all the components
 		for i in range(len(components)):
@@ -126,7 +126,7 @@ def connectModels(model, componentList, path):
 # Create a subcomponent
 def createSubcomponent(name, subcomp, header):
 	found = False
-	with open(str(header), 'r') as infile, open(str(os.path.dirname(header) + '/' + name + '.cc'), 'w') as cFile, open(str(os.path.dirname(header) + '/' + name + '.h'), 'w') as hFile:
+	with open(str(header), 'r') as infile, open(os.path.dirname(header) + '/' + name + '.cc', 'w') as cFile, open(os.path.dirname(header) + '/' + name + '.h', 'w') as hFile:
 		# create the beginning of the header file
 		htxt = '#ifndef _' + name + '_H\n#define _' + name + '_H\n\n'
 		htxt += '#include <sst/core/sst_config.h>\n#include <sst/core/elementinfo.h>\n'
@@ -301,15 +301,15 @@ def graphModel(test):
 	path = os.path.dirname(test)
 	name = os.path.basename(test).replace('.py','')
 	filename = path + '/' + name
-	os.system(str('PYTHONPATH=$PYTHONPATH:' + path + ' sst --output-dot=' + filename + '.dot --run-mode=init ' + test))
+	os.system('PYTHONPATH=$PYTHONPATH:' + path + ' sst --output-dot=' + filename + '.dot --run-mode=init ' + test)
 	# Convert .dot file to a .jpg file using multiple graphing tools
 	convert = ['neato', 'twopi', 'circo', 'fdp', 'dot']
 	files = ''
 	for tool in convert:
-		os.system(str(tool + ' -Tjpg ' + filename + '.dot -O'))
+		os.system(tool + ' -Tjpg ' + filename + '.dot -O')
 		if not tool == 'dot':
-			os.system(str('mv ' + filename + '.dot.jpg ' + filename + '.' + tool + '.jpg'))
-			os.system(str('mv ' + filename + '.dot.2.jpg ' + filename + '.' + tool + '.2.jpg'))
+			os.system('mv ' + filename + '.dot.jpg ' + filename + '.' + tool + '.jpg')
+			os.system('mv ' + filename + '.dot.2.jpg ' + filename + '.' + tool + '.2.jpg')
 		files += filename + '.' + tool + '.jpg ' + filename + '.' + tool + '.2.jpg '
 	return str(filename + '.dot ' + files.rstrip())
 
@@ -318,13 +318,13 @@ def graphModel(test):
 def model2Template(model, template):
 	path = './templates/' + template
 	# Copy the model into the templates directory, clean the model
-	os.system(str('rm -rf ' + path))
-	os.system(str('cp -r ' + model + ' ' + path))
-	os.system(str('make clean -C ' + path))
+	os.system('rm -rf ' + path)
+	os.system('cp -r ' + model + ' ' + path)
+	os.system('make clean -C ' + path)
 	# Move any test files into the main directory with and add test- prefix
-	for item in os.listdir(str(path + '/tests/')):
-		os.system(str('mv ' + path + '/tests/' + item + ' ' + path + '/test-' + item))
-	os.system(str('rmdir ' + path + '/tests'))
+	for item in os.listdir(path + '/tests/'):
+		os.system('mv ' + path + '/tests/' + item + ' ' + path + '/test-' + item)
+	os.system('rmdir ' + path + '/tests')
 	modelName = os.path.basename(str(model.rstrip('/')))
 	files = os.listdir(path)
 	newFiles = []
@@ -334,19 +334,19 @@ def model2Template(model, template):
 		new = item.replace(modelName, str(template))
 		newFiles.append(new)
 		templateNames.append(item.replace(modelName, '<model>'))
-		os.system(str('mv ' + path + '/' + item + ' ' + path + '/' + new))
+		os.system('mv ' + path + '/' + item + ' ' + path + '/' + new)
 	# Case insensitive replacing modelName with <model> tag
 	pattern = re.compile(modelName, re.IGNORECASE)
 	for new in newFiles:
-		for line in fileinput.input(str(path + '/' + new), inplace=True):
+		for line in fileinput.input(path + '/' + new, inplace=True):
 			print(pattern.sub('<model>', line), end='')
 	# Create the template file
-	with open(str(path + '/template'), 'w') as fp:
+	with open(path + '/template', 'w') as fp:
 		for new, tmp in zip(newFiles, templateNames):
 			if new.endswith('.py'):
-				fp.write(str(new + ' tests/' + tmp + '\n'))
+				fp.write(new + ' tests/' + tmp + '\n')
 			else:
-				fp.write(str(new + ' ' + tmp + '\n'))
+				fp.write(new + ' ' + tmp + '\n')
 	f = path + '/template '
 	for new in newFiles:
 		f += path + '/' + new + ' '
