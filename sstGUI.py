@@ -177,7 +177,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		sstSHELL.createSubcomponent(self.model, self.available_sub.currentItem().text(), self.header.text())
 		f = self.modelPath + '/' + self.model + '.cc ' + self.modelPath + '/' + self.model + '.h'
 		self.createdFilesMessage(f.split(' '))
-		self.writeInfo('Make sure to add the subcomponent into the Element\'s Makefile so that it gets built\n', 'green')
+		self.writeInfo('Make sure to add the subcomponent into the Element\'s Makefile so that it gets built\n', 'olive')
 		os.system(self.editor + ' ' + f + ' &')
 		
 	### End Subcomponent Creator Tab
@@ -550,12 +550,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	
 	
 	# Write to information screen
-	# Available Colors:
-	# black(default), darkgray, gray, lightgray, white,
-	# red, yellow, green, cyan, blue, magenta,
-	# darkred, darkyellow, darkgreen, darkcyan, darkblue, darkmagenta
+	# Available Colors (HTML colors):
+	# black(default), gray, silver, white
+	# red, yellow, green, blue, purple
+	# maroon, olive, lime, aqua, teal, navy, fuchsia
 	def writeInfo(self, text, color='black', update=True):
-		colorText = '<span style="white-space:pre-wrap; color:' + QColor(color).name() + ';">'
+		colorText = '<span style="white-space:pre-wrap; color:' + color + ';">'
 		colorText += html.escape(text) + '</span>'
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertHtml(colorText)
@@ -693,7 +693,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		with open(f, 'r') as fp:
 			for line in fp:
 				if ' - ' in line:
-					self.writeInfo(line.split(' - ')[0], 'darkcyan')
+					self.writeInfo(line.split(' - ')[0], 'teal')
 					self.writeInfo(' - ' + line.split(' - ')[1])
 				else:
 					self.writeInfo(line, 'black', False)
