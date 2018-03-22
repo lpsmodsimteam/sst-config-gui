@@ -25,7 +25,7 @@ Ui_MainWindow, QtBaseClass = uic.loadUiType(guiDir + '/resources/sstGUI.ui')
 ####################################################################################
 ##### Main Application Class
 class MyApp(QMainWindow, Ui_MainWindow):
-	
+
 	############################################################################
 	### Initialization Function
 	def __init__(self):
@@ -68,30 +68,30 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.generate_con.clicked.connect(self.generateCon)
 		self.run_con.clicked.connect(self.runCon)
 	############################################################################
-	
-	
-	
+
+
+
 	############################################################################
 	### Model Creator Tab
-	
+
 	# Select template
 	def selectTemplate(self):
 		if self.templates.currentItem():
 			self.templateType.setText(guiDir + '/templates/' + self.templates.currentItem().text())
-	
-	
+
+
 	# Browse for templates
 	def browseTemplates(self):
 		templatePath = QFileDialog.getExistingDirectory(self, 'Select Template', guiDir + '/templates/', QFileDialog.ShowDirsOnly)
 		self.templateType.setText(str(templatePath))
-	
-	
+
+
 	# Update the Avaiable Templates
 	def updateTemplates(self):
 		self.templates.clear()
 		self.templates.addItems(next(os.walk(guiDir + '/templates/'))[1])
-	
-	
+
+
 	# Creates or opens model files
 	def generateOpenFiles(self):
 		if not self.getModel(): return
@@ -107,8 +107,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			f += self.modelPath + '/' + self.model + '/' + item + ' '
 		self.createdFilesMessage(f.rstrip().split(' '))
 		os.system(self.editor + ' ' + f + '&')
-	
-	
+
+
 	# Compiles and registers the model with SST
 	def compileModel(self):
 		if not self.isSSTinstalled(): return
@@ -125,8 +125,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo('\nModel has compiled successfully\n')
 		if self.autoRun.isChecked():
 			self.runModel()
-	
-	
+
+
 	# Runs the tests in the model/tests/ folder
 	def runModel(self):
 		if not self.isSSTinstalled(): return
@@ -134,15 +134,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeSeparator()
 		self.writeInfo('***** Running Model test(s) *****\n\n')
 		self.runTests(sorted(glob.glob(self.modelPath + '/' + self.model + '/tests/*.py')))
-	
+
 	### End Model Creator Tab
 	############################################################################
-	
-	
-	
+
+
+
 	############################################################################
 	### Subcomponent Creator Tab
-	
+
 	# Browse for a header file containing a subcomponent prototype
 	def browseHeaders(self):
 		path = QFileDialog.getOpenFileName(self, 'Select Header File', '.', 'Header files (*.h)')[0]
@@ -156,8 +156,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			for line in fp:
 				if 'SST::SubComponent' in line:
 					self.available_sub.addItem(line.lstrip().split(':')[0].split(' ')[1])
-	
-	
+
+
 	# Generate a subcomponent using the prototype selected from the header file
 	def generateSub(self):
 		if not self.getModel(): return
@@ -179,15 +179,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.createdFilesMessage(f.split(' '))
 		self.writeInfo('Make sure to add the subcomponent into the Element\'s Makefile so that it gets built\n', 'olive')
 		os.system(self.editor + ' ' + f + ' &')
-		
+
 	### End Subcomponent Creator Tab
 	############################################################################
-	
-	
-	
+
+
+
 	############################################################################
 	### Model Connector Tab
-	
+
 	# Update the Available Models
 	def updateModels(self):
 		self.available.clear()
@@ -212,8 +212,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 								if subcomponent.get('Interface') == sub.get('Interface'):
 									s = QTreeWidgetItem(c)
 									s.setText(0, sub.get('Name'))
-	
-	
+
+
 	# Add Models
 	def addModel(self):
 		root = self.selected.invisibleRootItem()
@@ -247,8 +247,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			else:
 				self.writeInfo('*** Need to select a COMPONENT or SUBCOMPONENT from the Available Components ***\n\n', 'red')
 		self.selected.expandToDepth(1)
-	
-	
+
+
 	# Add subcomponent to existing component
 	def addSubcomponent(self):
 		root = self.selected.invisibleRootItem()
@@ -282,8 +282,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			else:
 				self.writeInfo('*** Need to select a component from the Selected Components ***\n\n', 'red')
 		self.selected.expandToDepth(1)
-	
-	
+
+
 	# Remove Models
 	def removeModel(self):
 		root = self.selected.invisibleRootItem()
@@ -296,8 +296,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					item.parent().removeChild(item)
 			else:
 				root.removeChild(item)
-	
-	
+
+
 	# Creates or opens python file
 	def generateCon(self):
 		if not self.isSSTinstalled(): return
@@ -332,8 +332,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		f = self.modelPath + '/' + self.model + '/' + self.model + '.py'
 		self.createdFilesMessage([f])
 		os.system(self.editor + ' ' + f + ' &')
-	
-	
+
+
 	# Runs the tests in the model folder
 	def runCon(self):
 		if not self.isSSTinstalled(): return
@@ -341,15 +341,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeSeparator()
 		self.writeInfo('***** Running Model test(s) *****\n\n')
 		self.runTests(sorted(glob.glob(self.modelPath + '/' + self.model + '/*.py')))
-	
+
 	### End Model Connector Tab
 	############################################################################
-	
-	
-	
+
+
+
 	############################################################################
 	### Menu functions (not including Help)
-	
+
 	# Tools Dropdown has changed
 	def toolsSelect(self):
 		t = self.toolsMenu.currentIndex()
@@ -360,8 +360,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.paramSweep()
 		elif t == 3:
 			self.model2Template()
-	
-	
+
+
 	# Graph a model
 	def graphModel(self):
 		if not self.isSSTinstalled(): return
@@ -373,9 +373,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.createdFilesMessage(files.split(' '))
 		for f in files.split(' '):
 			if not f.endswith('.2.jpg') and not f.endswith('.dot'):
-				QDesktopServices.openUrl(QUrl(f))
-	
-	
+				QDesktopServices.openUrl(QUrl.fromLocalFile(f))
+
+
 	# Parameter sweep expansion
 	def paramSweep(self):
 		path = QFileDialog.getOpenFileName(self, 'Select Python Test File', '.', 'Python files (*.py)')[0]
@@ -389,8 +389,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.writeInfo(subdir, 'red')
 		else:
 			self.writeInfo('Parameters expanded successfully into ' + subdir + '\n')
-	
-	
+
+
 	# Convert a model into a template
 	def model2Template(self):
 		model = QFileDialog.getExistingDirectory(self, 'Select Model', './', QFileDialog.ShowDirsOnly)
@@ -412,15 +412,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.writeInfo('\nNew template created: ' + guiDir + '/templates/' + text + '\n')
 		self.updateTemplates()
 		os.system(self.editor + ' ' + f + '&')
-	
+
 	### End Menu Functions
 	############################################################################
-	
-	
-	
+
+
+
 	############################################################################
 	### Application helper functions
-	
+
 	# Browse for a directory to put the model in
 	def browseDirectories(self):
 		directory = QFileDialog.getExistingDirectory(self, 'Select Directory', './', QFileDialog.ShowDirsOnly)
@@ -428,8 +428,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.writeInfo('*** PLEASE SELECT A DIRECTORY ***\n\n', 'red')
 		else:
 			self.modelDir.setText(str(directory))
-	
-	
+
+
 	# Checks whether SST is installed
 	def isSSTinstalled(self):
 		if self.SSTinstalled is None:
@@ -442,8 +442,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		else:
 			self.writeInfo('*** SST IS NOT INSTALLED. YOU WILL NOT BE ABLE TO COMPILE OR RUN ANYTHING, BUT YOU CAN STILL CREATE MODELS FROM TEMPLATES ***\n\n', 'red')
 			return False
-	
-	
+
+
 	# Gets the model name from the GUI
 	def getModel(self):
 		self.model = self.modelName.text()
@@ -452,8 +452,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.writeInfo('*** PLEASE ENTER A MODEL NAME ***\n\n', 'red')
 			return False
 		return True
-	
-	
+
+
 	# Gets the template information
 	def getTemplate(self):
 		self.templatePath = str(self.templateType.text())
@@ -475,8 +475,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		for item in destination:
 			self.dest.append(item.replace('<model>', str(self.model)))
 		return True
-	
-	
+
+
 	# checks the model name to see if a SST model already exists
 	def checkModels(self):
 		self.updateModels()
@@ -505,8 +505,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.writeInfo(text, 'blue')
 				return None
 		return makefiles
-	
-	
+
+
 	# loops through all the tests and runs them
 	def runTests(self, testfiles):
 		for testfile in testfiles:
@@ -537,8 +537,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						self.runCmdByLine('sst ' + sweep)
 			else:
 				self.runCmdByLine('sst ' + testfile)
-	
-	
+
+
 	# Write a horizontal separator to information screen
 	def writeSeparator(self):
 		if self.firstSeparator:
@@ -547,8 +547,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.info.moveCursor(QTextCursor.End)
 			self.info.insertHtml('<hr><br>')
 			self.info.moveCursor(QTextCursor.End)
-	
-	
+
+
 	# Write to information screen
 	# Available Colors (HTML colors):
 	# black(default), gray, silver, white
@@ -562,8 +562,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.info.moveCursor(QTextCursor.End)
 		if update:
 			app.processEvents() # force the GUI to display the text
-	
-	
+
+
 	# Runs a command and prints the output line by line while the command is running
 	# Returns the exit status of the command
 	def runCmdByLine(self, command, color='black'):
@@ -573,8 +573,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			output = process.stdout.readline()
 			self.writeInfo(output.decode('utf-8'), color)
 		return process.poll()
-	
-	
+
+
 	# Update all tabs
 	def updateTabs(self):
 		if self.isSSTinstalled():
@@ -584,8 +584,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.modelDir.setText(str(os.getcwd()))
 		if self.tabWidget.currentIndex() == 1 and self.header.text():
 			self.modelDir.setText(os.path.dirname(self.header.text()))
-	
-	
+
+
 	# File Creation message
 	def createdFilesMessage(self, files):
 		self.writeSeparator()
@@ -594,8 +594,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		for item in files:
 			text += '\t- ' + item + '\n'
 		self.writeInfo(text, 'green')
-	
-	
+
+
 	# Generates a warning pop-up
 	def warningPopup(self, text, title):
 		msg = QMessageBox()
@@ -609,8 +609,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Button to go along with the popup
 	def warningButton(self, button):
 		return button
-	
-	
+
+
 	# Display template help
 	def templateHelp(self):
 		for item in self.templates.selectedItems():
@@ -630,8 +630,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						else:
 							if line.strip().startswith('/**'):
 								incomment = True
-	
-	
+
+
 	# Display model information from sst-info
 	def sstInfoHelp(self, items, displayAll = False):
 		for item in items:
@@ -661,15 +661,15 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Selected Models Help
 	def selectedHelp(self):
 		self.sstInfoHelp(self.selected.selectedItems(), True)
-	
+
 	### End Application Helper Functions
 	############################################################################
-	
-	
-	
+
+
+
 	############################################################################
 	### Help Menu
-	
+
 	# Help Dropdown has changed
 	def helpSelect(self):
 		h = self.helpMenu.currentIndex()
@@ -686,7 +686,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.help(guiDir + '/resources/connector.txt')
 		elif h == 6:
 			self.help(guiDir + '/resources/tools.txt')
-	
+
 	# Help
 	def help(self, f):
 		self.writeSeparator()
@@ -697,7 +697,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					self.writeInfo(' - ' + line.split(' - ')[1])
 				else:
 					self.writeInfo(line, 'black', False)
-	
+
 	### End Help Menu
 	############################################################################
 
@@ -712,4 +712,3 @@ if __name__ == '__main__':
 	window = MyApp()
 	window.show()
 	sys.exit(app.exec_())
-
