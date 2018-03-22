@@ -11,6 +11,7 @@ import os
 import subprocess
 import glob
 import html
+from datetime import datetime
 import xml.etree.ElementTree as ET
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -38,6 +39,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.helpMenu.currentIndexChanged.connect(self.helpSelect)
 		self.toolsMenu.currentIndexChanged.connect(self.toolsSelect)
 		# General setup
+		self.updateMicrosec = 100000 #update gui every 0.1s
+		self.timer = datetime.now()
 		self.modelDir.setText(str(os.getcwd()))
 		self.modelName.setFocus()
 		self.editor = os.getenv('EDITOR', 'gedit')
@@ -554,14 +557,17 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# black(default), gray, silver, white
 	# red, yellow, green, blue, purple
 	# maroon, olive, lime, aqua, teal, navy, fuchsia
-	def writeInfo(self, text, color='black', update=True):
+	def writeInfo(self, text, color='black'):
 		colorText = '<span style="white-space:pre-wrap; color:' + color + ';">'
 		colorText += html.escape(text) + '</span>'
 		self.info.moveCursor(QTextCursor.End)
 		self.info.insertHtml(colorText)
 		self.info.moveCursor(QTextCursor.End)
-		if update:
-			app.processEvents() # force the GUI to display the text
+		time = datetime.now()
+		delta = time - self.timer
+		if delta.microseconds > self.updateMicrosec:
+			self.timer = time
+			app.processEvents()
 
 
 	# Runs a command and prints the output line by line while the command is running
@@ -696,7 +702,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					self.writeInfo(line.split(' - ')[0], 'teal')
 					self.writeInfo(' - ' + line.split(' - ')[1])
 				else:
-					self.writeInfo(line, 'black', False)
+					self.writeInfo(line, 'black')
 
 	### End Help Menu
 	############################################################################
