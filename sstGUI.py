@@ -108,8 +108,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		path = self.modelPath + '/' + self.model + '/'
 		# prepending tests/ to the files in the tests folder
 		files = next(os.walk(path))[2]
-		if os.path.isdir(path + '/tests/'):
-			files = files + ['tests/{0}'.format(f) for f in next(os.walk(path + '/tests/'))[2]]
+		if os.path.isdir(path + 'tests/'):
+			files = files + ['tests/{0}'.format(f) for f in next(os.walk(path + 'tests/'))[2]]
+		# list comprehension to only select the "code" files
 		files[:] = [f for f in files if f.endswith(('.py', '.cc', '.c', '.h', '.cpp', '.hpp', 'Makefile'))]
 		if files:
 			self.createdFilesMessage(files)
