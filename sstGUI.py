@@ -98,18 +98,25 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Creates or opens model files
 	def generateOpenFiles(self):
 		if not self.getModel(): return
-		if not self.getTemplate(): return
 		makefiles = self.checkModels()
 		if makefiles == None:
 			return
 		if makefiles:
+			if not self.getTemplate(): return
 			os.system('rm -rf ' + self.model)
 			sstSHELL.createModel(self.model, self.templatePath, self.modelPath)
-		f = ''
-		for item in self.dest:
-			f += self.modelPath + '/' + self.model + '/' + item + ' '
-		self.createdFilesMessage(f.rstrip().split(' '))
-		os.system(self.editor + ' ' + f + '&')
+		path = self.modelPath + '/' + self.model + '/'
+		# prepending tests/ to the files in the tests folder
+		files = next(os.walk(path))[2]
+		if os.path.isdir(path + '/tests/'):
+			files = files + ['tests/{0}'.format(f) for f in next(os.walk(path + '/tests/'))[2]]
+		files[:] = [f for f in files if f.endswith(('.py', '.cc', '.c', '.h', '.cpp', '.hpp', 'Makefile'))]
+		if files:
+			self.createdFilesMessage(files)
+			# map and lambda function simply add the path prefix to the files
+			os.system(self.editor + ' ' + ' '.join(map(lambda f: path+f, files)) + ' &')
+		else:
+			self.writeInfo('*** No files to open ***\n', 'red')
 
 
 	# Compiles and registers the model with SST
