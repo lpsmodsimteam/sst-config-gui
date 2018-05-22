@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>854</width>
+    <width>920</width>
     <height>722</height>
    </rect>
   </property>
@@ -18,7 +18,75 @@
     <normaloff>resources/logo.png</normaloff>resources/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0,1,2" columnstretch="1,1,5,1">
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="0" column="0">
+     <widget class="QComboBox" name="helpMenu">
+      <item>
+       <property name="text">
+        <string>Help</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>About</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Global</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Model Creator</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Subcomponent Creator</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Model Connector</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Network Gen</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Tools</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QComboBox" name="toolsMenu">
+      <item>
+       <property name="text">
+        <string>Tools</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Graph Model</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Parameter Sweep</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Model to Template Converter</string>
+       </property>
+      </item>
+     </widget>
+    </item>
     <item row="1" column="0" rowspan="2">
      <widget class="QLabel" name="logo">
       <property name="text">
@@ -401,93 +469,125 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="networkGen">
+       <attribute name="title">
+        <string>Network Gen</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_5" columnstretch="1,1,2,2,0">
+        <item row="0" column="1">
+         <widget class="QLabel" name="endpoints">
+          <property name="text">
+           <string>Endpoint</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="topologies">
+          <property name="text">
+           <string>Topology</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Parameters</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" rowspan="2">
+         <widget class="QListWidget" name="listTopologies">
+          <property name="toolTip">
+           <string>List of available topologies that can be used for testing</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Values</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3" colspan="2">
+         <widget class="QListWidget" name="listValues">
+          <property name="toolTip">
+           <string>Click on a value to edit</string>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::AllEditTriggers</set>
+          </property>
+          <property name="tabKeyNavigation">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QListWidget" name="listParameters">
+          <property name="toolTip">
+           <string>Double click a parameter for a description</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" rowspan="2">
+         <widget class="QListWidget" name="listEndpoints">
+          <property name="toolTip">
+           <string>List of endpoints that may be used for testing</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" alignment="Qt::AlignRight">
+         <widget class="QCommandLinkButton" name="generateNetwork">
+          <property name="toolTip">
+           <string>Creates a test file based on the provided values</string>
+          </property>
+          <property name="text">
+           <string>Generate/Open File</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3" colspan="2" alignment="Qt::AlignRight">
+         <widget class="QCommandLinkButton" name="runNetworkTest">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Runs the generated test file</string>
+          </property>
+          <property name="text">
+           <string>Run Model</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>resources/run.png</normaloff>resources/run.png</iconset>
+          </property>
+          <property name="autoDefault">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item row="4" column="0" colspan="4">
      <widget class="QTextEdit" name="info">
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-       </font>
-      </property>
       <property name="toolTip">
        <string>Information Screen</string>
-      </property>
-      <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOn</enum>
-      </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="readOnly">
        <bool>true</bool>
       </property>
       <property name="tabStopWidth">
-       <number>29</number>
+       <number>25</number>
       </property>
-     </widget>
-    </item>
-    <item row="0" column="3">
-     <widget class="QComboBox" name="toolsMenu">
-      <item>
-       <property name="text">
-        <string>Tools</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Graph Model</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Parameter Sweep</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Model to Template Converter</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QComboBox" name="helpMenu">
-      <item>
-       <property name="text">
-        <string>Help</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>About</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Global</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Model Creator</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Subcomponent Creator</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Model Connector</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Tools</string>
-       </property>
-      </item>
      </widget>
     </item>
    </layout>

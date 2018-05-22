@@ -70,6 +70,33 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.selected.setExpandsOnDoubleClick(False)
 		self.generate_con.clicked.connect(self.generateCon)
 		self.run_con.clicked.connect(self.runCon)
+		# Network Gen Tab
+		self.listTopologies.clicked.connect(self.dispEndpoints)
+		self.listEndpoints.clicked.connect(self.dispParams)
+		self.listParameters.itemDoubleClicked.connect(self.dispDesc)
+		self.generateNetwork.clicked.connect(self.genNetwork)
+		self.runNetworkTest.clicked.connect(self.runNetTest)
+		# Connect the scrollbars of the listParameters and listValues. When one 
+		# scrolls, the other scrolls
+		self.listParameters.verticalScrollBar().valueChanged.connect(
+			self.listValues.verticalScrollBar().setValue)
+		self.listValues.verticalScrollBar().valueChanged.connect(
+			self.listParameters.verticalScrollBar().setValue)
+		# Highlight lines together
+		self.listParameters.currentRowChanged.connect(self.listValues.setCurrentRow)
+		self.listValues.currentRowChanged.connect(self.listParameters.setCurrentRow)
+		# Items for the Network Gen tab that are used by more than one function/method
+		self.topologyParamDescription = []
+		self.endpoints = ["TestEndPoint", "TrafficGenEndPoint", "BisectionEndPoint"]
+		self.endpointDescription = []
+		self.badParams = ['num_vcs', 'debug', 'id', 'network_inspectors', 
+		                  'fattree:adaptive_threshold', 'num_peers', 'num_vns']
+		self.topo = ''
+		self.fontBold = QFont()
+		self.fontBold.setBold(True)
+		# Keeps track of how many items are in the listParameters list. 
+		# Even if it is just a label
+		self.parameterCount = 0
 	############################################################################
 
 
@@ -357,6 +384,141 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	############################################################################
 
 
+	
+	############################################################################
+	### Network Gen tab
+
+	# Displays the avaiable topologies
+	def updateTopologies(self):
+		self.listTopologies.clear()
+		# Make sure that Overwrite Existing Models is checked by default on this 
+		# tab. Get the page, then set index to the index of the networkGen page.
+		# Check if the current tab is equal to the index of networkGen
+		page = self.tabWidget.findChild(QWidget, "networkGen")
+		index = self.tabWidget.indexOf(page)
+		if self.tabWidget.currentIndex() == index:
+			if not self.overwrite.isChecked():
+				self.overwrite.setChecked(True)
+		else:
+			self.overwrite.setChecked(False)
+
+		for subCompTopology in self.sstinfo.findall('*/SubComponent'):
+			sstInterface = subCompTopology.get('Interface')
+			if sstInterface == "SST::Merlin::Topology":
+				self.listTopologies.addItem(subCompTopology.get('Name'))
+
+
+	# Displays the available endpoints
+	def dispEndpoints(self):
+		self.listEndpoints.clear()
+		self.listParameters.clear()
+		self.listValues.clear()
+		
+		for ep in self.endpoints:
+			self.listEndpoints.addItem(ep)
+
+
+	# Displays the available parameters of the selected topology
+	def dispParams(self):
+		# Clear the lists
+		self.listParameters.clear()
+		self.listValues.clear()
+		self.topologyParamDescription = []
+		self.parameterCount = 0
+
+		self.topo = self.listTopologies.currentItem().text()
+		endpoint = self.listEndpoints.currentItem().text()
+		
+		# Populates the topology parameter list and the associated values
+		self.popTopoParams()
+
+		# Populates the hr_router parameters and values
+		self.popHrrParams()
+
+		# Hard coded the link latency since it is not available through sstinfo
+		self.listParameters.addItem('link_lat')
+		self.listValues.addItem('20ns')
+		self.topologyParamDescription.append('The latency of the link')
+
+		if endpoint == "TrafficGenEndPoint":
+			self.popTrafficGenParams()
+		if endpoint == "BisectionEndPoint":
+			self.popBisectionParams()
+
+		# Make the values editable in the GUI
+		for index in range(self.listValues.count()):
+			item = self.listValues.item(index)
+			item.setFlags(item.flags() | Qt.ItemIsEditable)
+
+
+	# Creates a python file that contains configuration of a test network
+	def genNetwork(self):
+		""" Creates a network test file based on the user provided values """
+		if not self.getModel(): return
+		if not self.listTopologies.currentItem():
+			self.writeInfo("Please select a topology.\n\n", 'red')
+			return
+		if not self.listEndpoints.currentItem():
+			self.writeInfo("Please select an endpoint.\n\n", 'red')
+			return
+		
+		topoName = self.listTopologies.currentItem().text()
+		endpointName = self.listEndpoints.currentItem().text()
+		testFilePath = self.modelPath + '/' + self.model
+		testFilePathAndName = testFilePath + '/' + self.model + '.py'
+		# Check if file is already created
+		createfiles = self.checkModels()
+		if createfiles == None:
+			return
+		if not createfiles:
+			text = 'File {} already exists\n\n'.format(testFilePathAndName)
+			self.writeInfo(text, 'red')
+		# Create the model using the template
+		if createfiles:
+			# Open or create a directory and file to write data to	
+			try:
+				os.system(str('mkdir -p ' + testFilePath))
+				with open(str(testFilePathAndName), 'w') as fp:
+					# Print the file header
+					fp.write('#!/usr/bin/env python\n\n')
+					fp.write('import sst\nfrom sst.merlin import *\n\n')
+					fp.write('if __name__ == "__main__":\n\n')
+					# Contents of the test file
+					fp.write('    topo = topo_{}()\n'.format(topoName))
+					fp.write('    endPoint = {}()\n\n\n'.format(endpointName))
+					for index in range(self.listParameters.count()):
+						fp.write('    sst.merlin._params["{}"] = "{}"\n'.format
+								(self.listParameters.item(index).text(), 
+								self.listValues.item(index).text()))
+					fp.write('\n\n    topo.prepParams()\n')
+					fp.write('    endPoint.prepParams()\n')
+					fp.write('    topo.setEndPoint(endPoint)\n')
+					fp.write('    topo.build()')
+					# Write to the information screen
+					self.createdFilesMessage([testFilePathAndName])
+					os.system(self.editor + ' ' + testFilePathAndName + '&')
+			except:
+				text = 'Could not create the network test file for {} topology\n\n'.format(
+						topoName.title())
+				self.writeInfo(text, 'red')
+		# If the Overwrite checkbox is not checked, then we will open the test file
+		if not self.overwrite.isChecked(): 
+			self.createdFilesMessage(testFilePathAndName.rstrip().split(' '))
+			os.system(self.editor + ' ' + testFilePathAndName + '&')
+
+
+	# Runs a test based on the file created by genNetwork
+	def runNetTest(self):
+		if not self.isSSTinstalled(): return
+		if not self.getModel(): return
+		self.writeSeparator()
+		self.writeInfo('***** Running Model test(s) *****\n\n')
+		self.runTests(sorted(glob.glob(self.modelPath + '/' + self.model + '/*.py')))
+
+	### End Network Gen Tab
+	############################################################################
+
+
 
 	############################################################################
 	### Menu functions (not including Help)
@@ -595,6 +757,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.sstinfo = ET.fromstring(sstSHELL.runCommand('sst-info -qnxo /dev/stdout'))
 			self.updateModels()
 		self.updateTemplates()
+		self.updateTopologies()
 		self.modelDir.setText(str(os.getcwd()))
 		if self.tabWidget.currentIndex() == 1 and self.header.text():
 			self.modelDir.setText(os.path.dirname(self.header.text()))
@@ -675,6 +838,124 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Selected Models Help
 	def selectedHelp(self):
 		self.sstInfoHelp(self.selected.selectedItems(), True)
+	
+	
+	# Displays descriptions of paramters from the Network Gen tab in the information window
+	def dispDesc(self):
+		index = self.listParameters.row(self.listParameters.currentItem())
+		desc = self.topologyParamDescription[index]
+		self.writeInfo(self.separator)
+		self.writeInfo(desc + '\n', 'gray')
+		self.writeInfo(self.separator + '\n')
+
+
+
+	# Populates the parameters of a topology into the Network Gen tab Parameter list
+	# Also updates the parameter description list
+	def popTopoParams(self):
+		# Add Topology label before listing the parameters
+		self.listParameters.addItem('Topology Parameters:')
+		self.listParameters.item(self.parameterCount).setFont(self.fontBold)
+		self.listValues.addItem('Topology Values:')
+		self.listValues.item(self.parameterCount).setFont(self.fontBold)
+		self.parameterCount += 1
+		self.topologyParamDescription.append('')
+		for subCompTopology in self.sstinfo.findall('*/SubComponent'):
+			sstInterface = subCompTopology.get('Interface')
+			if (sstInterface == "SST::Merlin::Topology") and (self.topo == subCompTopology.get('Name')):
+				for paramIndex in subCompTopology.findall('Parameter'):
+					# Parameter name is stored as <topology:parameter name>
+					paramName = paramIndex.get('Name')
+					if paramName not in self.badParams:
+						self.listParameters.addItem(paramName)
+						# Populate the default values of the topology parameters
+						paramValue = paramIndex.get('Default')
+						self.listValues.addItem(paramValue)
+						self.topologyParamDescription.append(paramIndex.get('Description'))
+						self.parameterCount += 1
+
+
+	# Populates the hr_router parameters into the Network Gen tab Parameter list
+	# Also updates the paramter description list 
+	def popHrrParams(self):
+		# Add hr_router label before listing the parameters
+		self.listParameters.addItem('hr Router Parameters:')
+		self.listParameters.item(self.parameterCount).setFont(self.fontBold)
+		self.listValues.addItem('hr Router Values:')
+		self.listValues.item(self.parameterCount).setFont(self.fontBold)
+		self.topologyParamDescription.append('')
+		self.parameterCount += 1
+		for compIndex in self.sstinfo.findall('*/Component'):
+			if compIndex.get('Name') == 'hr_router':
+				if (compIndex.get('Category') == 'NETWORK COMPONENT'):
+					for paramIndex in compIndex.findall('Parameter'):
+						# Parameter name is stored as <topology:parameter name>
+						paramName = paramIndex.get('Name')
+						if paramName not in self.badParams:
+							self.listParameters.addItem(paramName)
+							# Populate the default values of the hr_router parameters
+							paramValue = paramIndex.get('Default')
+							if paramName == 'topology':
+								self.listValues.addItem(self.topo)
+							else:
+								self.listValues.addItem(paramValue)
+							# Populates a list containing the descriptions 
+							self.topologyParamDescription.append(paramIndex.get('Description'))
+							self.parameterCount += 1
+
+
+	# Populates the Traffic Gen Endpoint paramters into the Parameter list
+	def popTrafficGenParams(self):
+		self.listParameters.addItem('Traffic Gen EndPoint Parameters:')
+		self.parameterCount += 1
+		self.listParameters.item(self.parameterCount).setFont(self.fontBold)
+		self.listValues.addItem('Traffic Gen EndPoint Values:')
+		self.listValues.item(self.parameterCount).setFont(self.fontBold)
+		self.topologyParamDescription.append('')
+		for compIndex in self.sstinfo.findall('*/Component'):
+			if compIndex.get('Name') == 'trafficgen':
+				if (compIndex.get('Category') == 'NETWORK COMPONENT'):
+					for paramIndex in compIndex.findall('Parameter'):
+						# Parameter name is stored as <topology:parameter name>
+						paramName = paramIndex.get('Name')
+						if paramName not in self.badParams:
+							self.listParameters.addItem(paramName)
+							# Populate the default values of the hr_router parameters
+							paramValue = paramIndex.get('Default')
+							if paramName == 'topology':
+								self.listValues.addItem(self.topo)
+							else:
+								self.listValues.addItem(paramValue)
+							# Populates a list containing the descriptions 
+							self.topologyParamDescription.append(paramIndex.get('Description'))
+							self.parameterCount += 1
+	
+
+	# Populates the Bisection Endpoint paramters into the Parameter list
+	def popBisectionParams(self):
+		self.listParameters.addItem('Bisection EndPoint Parameters:')
+		self.parameterCount += 1
+		self.listParameters.item(self.parameterCount).setFont(self.fontBold)
+		self.listValues.addItem('Bisection EndPoint Values:')
+		self.listValues.item(self.parameterCount).setFont(self.fontBold)
+		self.topologyParamDescription.append('')
+		for compIndex in self.sstinfo.findall('*/Component'):
+			if compIndex.get('Name') == 'bisection_test':
+				if (compIndex.get('Category') == 'NETWORK COMPONENT'):
+					for paramIndex in compIndex.findall('Parameter'):
+						# Parameter name is stored as <topology:parameter name>
+						paramName = paramIndex.get('Name')
+						if paramName not in self.badParams:
+							self.listParameters.addItem(paramName)
+							# Populate the default values of the hr_router parameters
+							paramValue = paramIndex.get('Default')
+							if paramName == 'topology':
+								self.listValues.addItem(self.topo)
+							else:
+								self.listValues.addItem(paramValue)
+							# Populates a list containing the descriptions 
+							self.topologyParamDescription.append(paramIndex.get('Description'))
+							self.parameterCount += 1
 
 	### End Application Helper Functions
 	############################################################################
@@ -699,6 +980,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		elif h == 5:
 			self.help(guiDir + '/resources/connector.txt')
 		elif h == 6:
+			self.help(guiDir + '/resources/network.txt')
+		elif h == 7:
 			self.help(guiDir + '/resources/tools.txt')
 
 	# Help

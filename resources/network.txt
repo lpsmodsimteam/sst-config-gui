@@ -1,0 +1,36 @@
+The Network Gen tab helps you test network configurations on available network 
+topologies within SST. You are presented with an easy to use interface that 
+allows you to configure and reconfigure your network on the fly.
+
+NOTE**The 'Overwrite Existing Model' checkbox is checked by default when 
+	entering the Network Gen tab.**
+
+Topology - This list is populated with all the available network
+	topologies in your SST. You cannot move on unless a topology is selected.
+	
+Endpoint - All of the available endpoints in your SST are displayed 
+	here. This list is not populated unless a topology has been selected. You 
+	cannot move on until an endpoint has been selected.
+	
+Parameters - This is populated with all of the available parameters based 
+	on the previous selection of the topology and endpoint. The bolded text is 
+	a label indicating what the following parameters are for. The scroll bar 
+	on both the Parameter and the Value lists are synced, so when one list 
+	scrolls, the other scrolls as well. 
+	
+Values - This list contains the values that are associated with the 
+	parameters in the previous list. This list is editable. To edit, click on 
+	the value or space that corresponds to the parameter in the same row as 
+	the value. For the edit to be complete, you must either hit the 'enter' 
+	key or click off of the edited value. The scroll bar on both the Parameter 
+	and the Value lists are synced, so when one list scrolls, the other scrolls 
+	as well.
+	
+Generate/Open File - This button creates, or overwrites, a file 
+	that has the name shown in the 'Enter Model Name' field in the directory 
+	shown in the 'Model Directory' field. The file contains all the necessary 
+	information for a test to be run on the network model you created.
+	
+Run Model - Clicking this button runs a test on the network model you 
+	created. If the test encounters any errors, you will be notified in the 
+	information window.
