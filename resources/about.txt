@@ -18,10 +18,11 @@ The tool has five main regions:
     1) Global parameters at the top of the screen, and the information display
        at the bottom of the screen
     2) Model Creator Tab -> Model Creation from a template
-    3) Sbcomponent Creator Tab -> Subcomponent Creation using the prototype from
+    3) Subcomponent Creator Tab -> Subcomponent Creation using the prototype from
        a header file
-    4) Model Connector -> Connecting Multiple models together
-    5) Tools Menu at the top right
+    4) Model Connector Tab -> Connecting Multiple models together
+    5) Network Gen Tab -> Generating and testing network configurations
+    6) Tools Menu at the top right
 
 Tool tips are available if you mouse over each button. More specific Help is
 also availble by selecting the correct option under the Help button.
@@ -31,6 +32,7 @@ Global               -> Global parameters at the top of the screen
 Model Creator        -> Model Creator tab functionality
 Subcomponent Creator -> Subcomponent Creator tab functionality
 Model Connector      -> Model Connector tab functionality
+Network Gen          -> Network Gen tab functionality
 Tools                -> Description of "Tools" listed in the Tools menu
 
 Appropriate information for each step is displayed in the Information screen.
