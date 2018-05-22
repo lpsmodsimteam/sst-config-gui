@@ -22,40 +22,36 @@ public:
 
 	bool clockTick( SST::Cycle_t currentCycle );
 
-// Setup two event handlers one for each port
-
-	void handleEventIN(SST::Event *ev);
-
-        void handleEventOUT(SST::Event *ev);
+	void handleEvent(SST::Event *ev);
 
 	SST_ELI_REGISTER_COMPONENT(
 		<model>,
 		"<model>",
 		"<model>",
 		SST_ELI_ELEMENT_VERSION( 1, 0, 0 ),
-		"SST model to incorporate a PyRTL counter",
+		"Demonstration of a PyRTL hardware simulation in SST",
 		COMPONENT_CATEGORY_UNCATEGORIZED
 	)
-// Document Ports
 
-	SST_ELI_DOCUMENT_PORTS(
-		{ "portIN", "Port to recieve commands and input data from driver", {"sst.Interfaces.StringEvent"}},
-                { "portOUT", "Port to send result back to the driver", {"sst.Interfaces.StringEvent"}}
+	SST_ELI_DOCUMENT_PARAMS(
+		{ "printFrequency", "How frequently to print a message from the component", "5" },
+		{ "repeats", "Number of repetitions to make", "10" }
 	)
 
-	
+	/*SST_ELI_DOCUMENT_PORTS(
+		{ "port", "Port on which to send/recv messages", {"sst.Interfaces.StringEvent"}}
+	)*/
+
 private:
 	SST::Output output;
+	SST::Cycle_t printFreq;
+	SST::Cycle_t maxRepeats;
+	SST::Cycle_t repeats;
+
+	//SST::Link *port;
 	
-// Initial Condition for input to PyRTL
-
-	char s[4] = "000";
-
-	SST::Link *portIN;
-        SST::Link *portOUT;
-
-        int inFifo;
-        int outFifo;
+	int inFifo;
+	int outFifo;
 };
 
 #endif

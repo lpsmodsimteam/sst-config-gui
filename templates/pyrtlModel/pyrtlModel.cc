@@ -1,8 +1,7 @@
 /**
-Simple model that is basically a wrapper for PyRTL
-This model will receive a string event from another
-SST model then pass it through Linux Pipes to the 
-PyRTL model that is running as a subprocess.
+Simple Model with one clock that functions as a wrapper for a PyRTL simulation
+
+Uses named pipes to send and receive data between SST and PyRTL
 */
 
 #include <sst/core/sst_config.h>
@@ -12,31 +11,31 @@ PyRTL model that is running as a subprocess.
 using SST::Interfaces::StringEvent;
 
 <model>::<model>( SST::ComponentId_t id, SST::Params& params ) :
-SST::Component(id) {
+SST::Component(id), repeats(0) {
 
 	output.init("<model>-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
+	printFreq  = params.find<SST::Cycle_t>("printFrequency", 5);
+	maxRepeats = params.find<SST::Cycle_t>("repeats", 10);
+
+	if( ! (printFreq > 0) ) {
+		output.fatal(CALL_INFO, -1, "Error: printFrequency must be greater than zero.\n");
+	}
+
+	output.verbose(CALL_INFO, 1, 0, "Config: maxRepeats=%" PRIu64 ", printFreq=%" PRIu64 "\n",
+	static_cast<uint64_t>(maxRepeats), static_cast<uint64_t>(printFreq));
+
 	// Just register a plain clock for this simple example
-
 	registerClock("100MHz", new SST::Clock::Handler<<model>>(this, &<model>::clockTick));
-
-	// Configure our Input Command port
-/*
-	portIN = configureLink("portIN", new SST::Event::Handler<<model>>(this, &<model>::handleEventIN));
-	if ( !portIN ) {
-		output.fatal(CALL_INFO, -1, "Failed to configure port 'portIN'\n");
-	}
-
-       // Configure our Output Data port
-
-	portOUT = configureLink("portOUT", new SST::Event::Handler<<model>>(this, &<model>::handleEventOUT));
-	if ( !portOUT ) {
-		output.fatal(CALL_INFO, -1, "Failed to configure port 'portOUT'\n");
-	}
+	// Configure our port
+	/*port = configureLink("port", new SST::Event::Handler<<model>>(this, &<model>::handleEvent));
+	if ( !port ) {
+		output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+	}*/
 
 	// Tell SST to wait until we authorize it to exit
-*/
 	registerAsPrimaryComponent();
+	primaryComponentDoNotEndSim();
 }
 
 <model>::~<model>() {
@@ -44,62 +43,55 @@ SST::Component(id) {
 }
 
 void <model>::setup() {
-
-	 // Setup "fifos" in /tmp directory
-
-        while(access("/tmp/output", R_OK) != 0){}
-        inFifo = open("/tmp/output", O_RDONLY);
-        while(access("/tmp/input", W_OK) != 0){}
-        outFifo = open("/tmp/input", O_WRONLY);
+	// Connect to the named pipes when they are available
+	while(access("/tmp/output", R_OK) != 0){}
+	inFifo = open("/tmp/output", O_RDONLY);
+	while(access("/tmp/input", W_OK) != 0){}
+	outFifo = open("/tmp/input", O_WRONLY);
+	srand(time(NULL));
 	output.verbose(CALL_INFO, 1, 0, "Component is being setup.\n");
 }
 
 void <model>::finish() {
-
+	write(outFifo, "q", 1);
 	close(inFifo);
-        close(outFifo);
+	close(outFifo);
 	output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
 bool <model>::clockTick( SST::Cycle_t currentCycle ) {
-
-	// Command String to PyRTL model
-        // Byte 1 "Load" 
-        // Byte 2 and 3 data
-        
-        write(outFifo, s, 3);
 	
-        // Read "results from PyRTL Counter
-
-        char r[5] = "\0\0\0\0";
+	// Generate a 0x1XX which means load XX into the counter
+	char s[4] = "100";
+	for(int i = 1; i < 3; i++) {
+		sprintf(s + i, "%x", rand() % 16);
+	}
+	char r[5] = "\0\0\0\0";
+	
+	// Every printFreq clocks, send the load of a random number to the counter
+	// Otherwise, just keep incrementing
+	if( currentCycle % printFreq == 0 ) {
+		write(outFifo, s, 3);
+	}else{
+		write(outFifo, "000", 3);
+	}
+	repeats++;
+	
 	read(inFifo, r, 4);
-        
-        sprintf(s, "%s", "000");
 	printf("%s\n",r);
-	//portOUT->send(new StringEvent(r));
-	return false;
+
+	if( repeats == maxRepeats ) {
+		primaryComponentOKToEndSim();
+		return true;
+	} else {
+		return false;
+	}
 }
 
-void <model>::handleEventIN(SST::Event *ev) {
-
-        // When a "command" and "input data are sent from 
-        // Driver store in string to sent to PyRTL model
-
+/*void <model>::handleEvent(SST::Event *ev) {
 	StringEvent *se = dynamic_cast<StringEvent*>(ev);
 	if ( se != NULL ) {
-		sprintf(s, "%s", se->getString().c_str());
+		output.output("%s received an event: \"%s\"\n", getName().c_str(), se->getString().c_str());
 	}
 	delete ev;
-}
-
-void <model>::handleEventOUT(SST::Event *ev) {
-
-        // This Port is to return data to driver. If data is received on 
-        // this port flag the error.
-
-	StringEvent *se = dynamic_cast<StringEvent*>(ev);
-	if ( se != NULL ) {
-		output.output("%s received an event this port is for output only: \"%s\"\n", getName().c_str(), se->getString().c_str());
-	}
-	delete ev;
-}
+}*/
