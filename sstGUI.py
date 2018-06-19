@@ -485,11 +485,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					fp.write('if __name__ == "__main__":\n\n')
 					# Contents of the test file
 					fp.write('    topo = topo_{}()\n'.format(topoName))
-					fp.write('    endPoint = {}()\n\n\n'.format(endpointName))
+					fp.write('    endPoint = {}()\n\n'.format(endpointName))
 					for index in range(self.listParameters.count()):
-						fp.write('    sst.merlin._params["{}"] = "{}"\n'.format
-								(self.listParameters.item(index).text(), 
-								self.listValues.item(index).text()))
+						if 'Parameters:' not in self.listParameters.item(index).text():
+							fp.write('    sst.merlin._params["{}"] = "{}"\n'.format
+									(self.listParameters.item(index).text(), 
+									self.listValues.item(index).text()))
+						else:
+							fp.write('\n#   {}\n'.format(self.listParameters.item(index).text()))
 					fp.write('\n\n    topo.prepParams()\n')
 					fp.write('    endPoint.prepParams()\n')
 					fp.write('    topo.setEndPoint(endPoint)\n')
@@ -746,8 +749,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		output = process.stdout.readline()
 		while output != b'' or process.poll() is None:
-			output = process.stdout.readline()
 			self.writeInfo(output.decode('utf-8'), color)
+			output = process.stdout.readline()
 		return process.poll()
 
 
