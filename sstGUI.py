@@ -71,9 +71,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.generate_con.clicked.connect(self.generateCon)
 		self.run_con.clicked.connect(self.runCon)
 		# Network Gen Tab
-		self.listTopologies.clicked.connect(self.dispEndpoints)
+		self.listTopologies.clicked.connect(self.dispParams)
+		self.listTopologies.itemDoubleClicked.connect(self.topoHelp)
 		self.listEndpoints.clicked.connect(self.dispParams)
-		self.listParameters.itemDoubleClicked.connect(self.dispDesc)
+		self.listEndpoints.itemDoubleClicked.connect(self.endpointHelp)
+		self.listParameters.itemDoubleClicked.connect(self.hrrouterHelp)
 		self.generateNetwork.clicked.connect(self.genNetwork)
 		self.runNetworkTest.clicked.connect(self.runNetTest)
 		# Connect the scrollbars of the listParameters and listValues. When one 
@@ -86,17 +88,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.listParameters.currentRowChanged.connect(self.listValues.setCurrentRow)
 		self.listValues.currentRowChanged.connect(self.listParameters.setCurrentRow)
 		# Items for the Network Gen tab that are used by more than one function/method
-		self.topologyParamDescription = []
-		self.endpoints = ["TestEndPoint", "TrafficGenEndPoint", "BisectionEndPoint"]
-		self.endpointDescription = []
-		self.badParams = ['num_vcs', 'debug', 'id', 'network_inspectors', 
-		                  'fattree:adaptive_threshold', 'num_peers', 'num_vns']
+		self.badParams = ['debug', 'id', 'network_inspectors', 'fattree:adaptive_threshold', 'num_peers', 'num_vns']
 		self.topo = ''
-		self.fontBold = QFont()
-		self.fontBold.setBold(True)
-		# Keeps track of how many items are in the listParameters list. 
-		# Even if it is just a label
-		self.parameterCount = 0
+		self.bold = QFont()
+		self.bold.setBold(True)
 	############################################################################
 
 
@@ -391,6 +386,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Displays the avaiable topologies
 	def updateTopologies(self):
 		self.listTopologies.clear()
+		self.listEndpoints.clear()
 		# Make sure that Overwrite Existing Models is checked by default on this 
 		# tab. Get the page, then set index to the index of the networkGen page.
 		# Check if the current tab is equal to the index of networkGen
@@ -403,19 +399,12 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.overwrite.setChecked(False)
 
 		for subCompTopology in self.sstinfo.findall('*/SubComponent'):
-			sstInterface = subCompTopology.get('Interface')
-			if sstInterface == "SST::Merlin::Topology":
+			if subCompTopology.get('Interface') == "SST::Merlin::Topology":
 				self.listTopologies.addItem(subCompTopology.get('Name'))
-
-
-	# Displays the available endpoints
-	def dispEndpoints(self):
-		self.listEndpoints.clear()
-		self.listParameters.clear()
-		self.listValues.clear()
 		
-		for ep in self.endpoints:
-			self.listEndpoints.addItem(ep)
+		for ep in self.sstinfo.findall('Element[@Name="merlin"]/Component'):
+			if 'endpoint' in ep.get('Name'):
+				self.listEndpoints.addItem(ep.get('Name'))
 
 
 	# Displays the available parameters of the selected topology
@@ -423,32 +412,31 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		# Clear the lists
 		self.listParameters.clear()
 		self.listValues.clear()
-		self.topologyParamDescription = []
 		self.parameterCount = 0
-
-		self.topo = self.listTopologies.currentItem().text()
-		endpoint = self.listEndpoints.currentItem().text()
 		
-		# Populates the topology parameter list and the associated values
-		self.popTopoParams()
+		if self.listTopologies.currentItem() and self.listEndpoints.currentItem():
+			self.topo = self.listTopologies.currentItem().text()
+			endpoint = self.listEndpoints.currentItem().text()
+			
+			# Populates the topology parameter list and the associated values
+			self.popTopoParams()
 
-		# Populates the hr_router parameters and values
-		self.popHrrParams()
+			# Populates the hr_router parameters and values
+			self.addHeaders('HR Router')
+			self.popComponentParams('hr_router')
 
-		# Hard coded the link latency since it is not available through sstinfo
-		self.listParameters.addItem('link_lat')
-		self.listValues.addItem('20ns')
-		self.topologyParamDescription.append('The latency of the link')
+			# Hard coded the link latency since it is not available through sstinfo
+			self.listParameters.addItem('link_lat')
+			self.listValues.addItem('20ns')
 
-		if endpoint == "TrafficGenEndPoint":
-			self.popTrafficGenParams()
-		if endpoint == "BisectionEndPoint":
-			self.popBisectionParams()
+			# Populates the endpoint parameters and values
+			self.addHeaders('Endpoint')
+			self.popComponentParams(endpoint)
 
-		# Make the values editable in the GUI
-		for index in range(self.listValues.count()):
-			item = self.listValues.item(index)
-			item.setFlags(item.flags() | Qt.ItemIsEditable)
+			# Make the values editable in the GUI
+			for index in range(self.listValues.count()):
+				item = self.listValues.item(index)
+				item.setFlags(item.flags() | Qt.ItemIsEditable)
 
 
 	# Creates a python file that contains configuration of a test network
@@ -843,122 +831,61 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.sstInfoHelp(self.selected.selectedItems(), True)
 	
 	
-	# Displays descriptions of paramters from the Network Gen tab in the information window
-	def dispDesc(self):
-		index = self.listParameters.row(self.listParameters.currentItem())
-		desc = self.topologyParamDescription[index]
-		self.writeInfo(self.separator)
-		self.writeInfo(desc + '\n', 'gray')
-		self.writeInfo(self.separator + '\n')
-
-
+	# Display help from network gen double clicks
+	def networkGenHelp(self, text):
+		self.writeSeparator()
+		self.writeInfo(text + '\n', 'gray')
+	# Topologies Help
+	def topoHelp(self):
+		self.networkGenHelp(sstSHELL.runCommand('sst-info merlin.' + self.listTopologies.currentItem().text()))
+	# Endpoints Help
+	def endpointHelp(self):
+		self.networkGenHelp(sstSHELL.runCommand('sst-info merlin.' + self.listEndpoints.currentItem().text()))
+	# Parameters Help (hr_router)
+	def hrrouterHelp(self):
+		self.networkGenHelp(sstSHELL.runCommand('sst-info merlin.hr_router'))
+	
 
 	# Populates the parameters of a topology into the Network Gen tab Parameter list
 	# Also updates the parameter description list
 	def popTopoParams(self):
 		# Add Topology label before listing the parameters
 		self.listParameters.addItem('Topology Parameters:')
-		self.listParameters.item(self.parameterCount).setFont(self.fontBold)
+		self.listParameters.item(self.listParameters.count()-1).setFont(self.bold)
 		self.listValues.addItem('Topology Values:')
-		self.listValues.item(self.parameterCount).setFont(self.fontBold)
-		self.parameterCount += 1
-		self.topologyParamDescription.append('')
-		for subCompTopology in self.sstinfo.findall('*/SubComponent'):
-			sstInterface = subCompTopology.get('Interface')
-			if (sstInterface == "SST::Merlin::Topology") and (self.topo == subCompTopology.get('Name')):
-				for paramIndex in subCompTopology.findall('Parameter'):
-					# Parameter name is stored as <topology:parameter name>
-					paramName = paramIndex.get('Name')
-					if paramName not in self.badParams:
-						self.listParameters.addItem(paramName)
-						# Populate the default values of the topology parameters
-						paramValue = paramIndex.get('Default')
-						self.listValues.addItem(paramValue)
-						self.topologyParamDescription.append(paramIndex.get('Description'))
-						self.parameterCount += 1
+		self.listValues.item(self.listValues.count()-1).setFont(self.bold)
+		topo = self.sstinfo.find('Element[@Name="merlin"]/SubComponent[@Name="' + self.topo + '"]')
+		for param in topo.findall('Parameter'):
+			# Parameter name is stored as <topology:parameter name>
+			if 'DEPRECATED' not in param.get('Description'):
+				if param.get('Name') not in self.badParams:
+					self.listParameters.addItem(param.get('Name'))
+					# Populate the default values of the topology parameters
+					self.listValues.addItem(param.get('Default'))
 
 
-	# Populates the hr_router parameters into the Network Gen tab Parameter list
-	# Also updates the paramter description list 
-	def popHrrParams(self):
-		# Add hr_router label before listing the parameters
-		self.listParameters.addItem('hr Router Parameters:')
-		self.listParameters.item(self.parameterCount).setFont(self.fontBold)
-		self.listValues.addItem('hr Router Values:')
-		self.listValues.item(self.parameterCount).setFont(self.fontBold)
-		self.topologyParamDescription.append('')
-		self.parameterCount += 1
-		for compIndex in self.sstinfo.findall('*/Component'):
-			if compIndex.get('Name') == 'hr_router':
-				if (compIndex.get('Category') == 'NETWORK COMPONENT'):
-					for paramIndex in compIndex.findall('Parameter'):
-						# Parameter name is stored as <topology:parameter name>
-						paramName = paramIndex.get('Name')
-						if paramName not in self.badParams:
-							self.listParameters.addItem(paramName)
-							# Populate the default values of the hr_router parameters
-							paramValue = paramIndex.get('Default')
-							if paramName == 'topology':
-								self.listValues.addItem(self.topo)
-							else:
-								self.listValues.addItem(paramValue)
-							# Populates a list containing the descriptions 
-							self.topologyParamDescription.append(paramIndex.get('Description'))
-							self.parameterCount += 1
+	# Adds a bold header to the Parameter and Value lists
+	def addHeaders(self, text):
+		self.listParameters.addItem(text + ' Parameters:')
+		self.listParameters.item(self.listParameters.count()-1).setFont(self.bold)
+		self.listValues.addItem(text + ' Values:')
+		self.listValues.item(self.listValues.count()-1).setFont(self.bold)
 
 
-	# Populates the Traffic Gen Endpoint paramters into the Parameter list
-	def popTrafficGenParams(self):
-		self.listParameters.addItem('Traffic Gen EndPoint Parameters:')
-		self.parameterCount += 1
-		self.listParameters.item(self.parameterCount).setFont(self.fontBold)
-		self.listValues.addItem('Traffic Gen EndPoint Values:')
-		self.listValues.item(self.parameterCount).setFont(self.fontBold)
-		self.topologyParamDescription.append('')
-		for compIndex in self.sstinfo.findall('*/Component'):
-			if compIndex.get('Name') == 'trafficgen':
-				if (compIndex.get('Category') == 'NETWORK COMPONENT'):
-					for paramIndex in compIndex.findall('Parameter'):
-						# Parameter name is stored as <topology:parameter name>
-						paramName = paramIndex.get('Name')
-						if paramName not in self.badParams:
-							self.listParameters.addItem(paramName)
-							# Populate the default values of the hr_router parameters
-							paramValue = paramIndex.get('Default')
-							if paramName == 'topology':
-								self.listValues.addItem(self.topo)
-							else:
-								self.listValues.addItem(paramValue)
-							# Populates a list containing the descriptions 
-							self.topologyParamDescription.append(paramIndex.get('Description'))
-							self.parameterCount += 1
+	# Populates the Component paramters into the Parameter list
+	def popComponentParams(self, item):
+		comp = self.sstinfo.find('Element[@Name="merlin"]/Component[@Name="' + item + '"]')
+		for param in comp.findall('Parameter'):
+			# Parameter name is stored as <topology:parameter name>
+			if 'DEPRECATED' not in param.get('Description'):
+				if param.get('Name') not in self.badParams:
+					self.listParameters.addItem(param.get('Name'))
+					# Populate the default values of the parameters
+					if param.get('Name') == 'topology':
+						self.listValues.addItem(self.topo)
+					else:
+						self.listValues.addItem(param.get('Default'))
 	
-
-	# Populates the Bisection Endpoint paramters into the Parameter list
-	def popBisectionParams(self):
-		self.listParameters.addItem('Bisection EndPoint Parameters:')
-		self.parameterCount += 1
-		self.listParameters.item(self.parameterCount).setFont(self.fontBold)
-		self.listValues.addItem('Bisection EndPoint Values:')
-		self.listValues.item(self.parameterCount).setFont(self.fontBold)
-		self.topologyParamDescription.append('')
-		for compIndex in self.sstinfo.findall('*/Component'):
-			if compIndex.get('Name') == 'bisection_test':
-				if (compIndex.get('Category') == 'NETWORK COMPONENT'):
-					for paramIndex in compIndex.findall('Parameter'):
-						# Parameter name is stored as <topology:parameter name>
-						paramName = paramIndex.get('Name')
-						if paramName not in self.badParams:
-							self.listParameters.addItem(paramName)
-							# Populate the default values of the hr_router parameters
-							paramValue = paramIndex.get('Default')
-							if paramName == 'topology':
-								self.listValues.addItem(self.topo)
-							else:
-								self.listValues.addItem(paramValue)
-							# Populates a list containing the descriptions 
-							self.topologyParamDescription.append(paramIndex.get('Description'))
-							self.parameterCount += 1
 
 	### End Application Helper Functions
 	############################################################################

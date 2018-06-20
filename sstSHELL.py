@@ -57,7 +57,7 @@ def connectModels(model, componentList, path):
 				# Remove the DEPRECATED parameters
 				params = []
 				for param in parameters:
-					if not param.get('Description').strip().startswith('DEPRECATED'):
+					if 'DEPRECATED' not in param.get('Description'):
 						params.append(param)
 				# Write out all of the available parameters with their defaults and description
 				for k in range(len(params)):
@@ -82,7 +82,7 @@ def connectModels(model, componentList, path):
 					# Remove the DEPRECATED parameters
 					params = []
 					for param in parameters:
-						if not param.get('Description').strip().startswith('DEPRECATED'):
+						if 'DEPRECATED' not in param.get('Description'):
 							params.append(param)
 					# Write out all of the available parameters with their defaults and description
 					for k in range(len(params)):

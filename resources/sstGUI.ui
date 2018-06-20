@@ -498,7 +498,7 @@
         <item row="1" column="0" rowspan="2">
          <widget class="QListWidget" name="listTopologies">
           <property name="toolTip">
-           <string>List of available topologies that can be used for testing</string>
+           <string>List of available topologies. Double click for help</string>
           </property>
          </widget>
         </item>
@@ -525,14 +525,14 @@
         <item row="1" column="2">
          <widget class="QListWidget" name="listParameters">
           <property name="toolTip">
-           <string>Double click a parameter for a description</string>
+           <string>Double click for hr_router description</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1" rowspan="2">
          <widget class="QListWidget" name="listEndpoints">
           <property name="toolTip">
-           <string>List of endpoints that may be used for testing</string>
+           <string>List of endpoints. Double click for help</string>
           </property>
          </widget>
         </item>
