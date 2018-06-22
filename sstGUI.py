@@ -89,7 +89,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.listValues.currentRowChanged.connect(self.listParameters.setCurrentRow)
 		# Items for the Network Gen tab that are used by more than one function/method
 		self.badParams = ['debug', 'id', 'network_inspectors', 'fattree:adaptive_threshold', 'num_peers', 'num_vns']
-		self.topo = ''
 		self.bold = QFont()
 		self.bold.setBold(True)
 	############################################################################
@@ -397,11 +396,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.overwrite.setChecked(True)
 		else:
 			self.overwrite.setChecked(False)
-
 		for subCompTopology in self.sstinfo.findall('*/SubComponent'):
 			if subCompTopology.get('Interface') == "SST::Merlin::Topology":
 				self.listTopologies.addItem(subCompTopology.get('Name'))
-		
 		for ep in self.sstinfo.findall('Element[@Name="merlin"]/Component'):
 			if 'endpoint' in ep.get('Name'):
 				self.listEndpoints.addItem(ep.get('Name'))
@@ -413,30 +410,24 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.listParameters.clear()
 		self.listValues.clear()
 		self.parameterCount = 0
-		
 		if self.listTopologies.currentItem() and self.listEndpoints.currentItem():
-			self.topo = self.listTopologies.currentItem().text()
 			endpoint = self.listEndpoints.currentItem().text()
-			
 			# Populates the topology parameter list and the associated values
 			self.popTopoParams()
-
 			# Populates the hr_router parameters and values
 			self.addHeaders('HR Router')
 			self.popComponentParams('hr_router')
-
 			# Hard coded the link latency since it is not available through sstinfo
 			self.listParameters.addItem('link_lat')
 			self.listValues.addItem('20ns')
-
 			# Populates the endpoint parameters and values
 			self.addHeaders('Endpoint')
 			self.popComponentParams(endpoint)
-
 			# Make the values editable in the GUI
 			for index in range(self.listValues.count()):
 				item = self.listValues.item(index)
-				item.setFlags(item.flags() | Qt.ItemIsEditable)
+				if 'Values:' not in item.text():
+					item.setFlags(item.flags() | Qt.ItemIsEditable)
 
 
 	# Creates a python file that contains configuration of a test network
@@ -449,7 +440,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		if not self.listEndpoints.currentItem():
 			self.writeInfo("Please select an endpoint.\n\n", 'red')
 			return
-		
 		topoName = self.listTopologies.currentItem().text()
 		endpointName = self.listEndpoints.currentItem().text()
 		testFilePath = self.modelPath + '/' + self.model
@@ -854,7 +844,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.listParameters.item(self.listParameters.count()-1).setFont(self.bold)
 		self.listValues.addItem('Topology Values:')
 		self.listValues.item(self.listValues.count()-1).setFont(self.bold)
-		topo = self.sstinfo.find('Element[@Name="merlin"]/SubComponent[@Name="' + self.topo + '"]')
+		topo = self.sstinfo.find('Element[@Name="merlin"]/SubComponent[@Name="' + self.listTopologies.currentItem().text() + '"]')
 		for param in topo.findall('Parameter'):
 			# Parameter name is stored as <topology:parameter name>
 			if 'DEPRECATED' not in param.get('Description'):
@@ -882,7 +872,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 					self.listParameters.addItem(param.get('Name'))
 					# Populate the default values of the parameters
 					if param.get('Name') == 'topology':
-						self.listValues.addItem(self.topo)
+						self.listValues.addItem(self.listTopologies.currentItem().text())
 					else:
 						self.listValues.addItem(param.get('Default'))
 	
