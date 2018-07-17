@@ -1,0 +1,24 @@
+All chisel code is under the chisel folder. Other files are SST files
+including Makefile, the chisel SST wrapper .cc and .h files, and the project
+driver in the tests folder. Under the chisel folder, the files of interest are
+in the src folder. The files under main are the actual hardware description files,
+and the file under test is the PeekPokeTester that communicates with SST.
+
+File Structure:
+
+chisel (folder)
+-src (folder)
+--main (folder)
+---scala (folder)
+----counter (folder)
+-----FullAdder.scala
+-----Adder.scala
+-----Counter.scala
+--test (folder)
+---scala (folder)
+----counter (folder)
+-----CounterTest.scala
+Makefile
+SST wrapper (.cc and .h)
+tests (folder)
+-SST project driver

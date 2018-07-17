@@ -1,0 +1,4 @@
+chiselModel.h <model>.h
+chiselModel.cc <model>.cc
+test-chiselModel.py tests/test-<model>.py
+Makefile Makefile

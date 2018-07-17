@@ -33,6 +33,10 @@ def createModel(model, template, path):
 			# Copy from source to destination while replacing <model> tags
 			for line in infile:
 				outfile.write(line.replace('<model>', str(model)))
+	files = os.listdir(template)
+	for file in files:
+		if file != 'template' and file not in source:
+			os.system('cp -r ' + template + '/' + file + ' ' + path + '/' + model + '/.')
 
 
 # Connect various models together
@@ -326,7 +330,7 @@ def model2Template(model, template):
 		os.system('mv ' + path + '/tests/' + item + ' ' + path + '/test-' + item)
 	os.system('rmdir ' + path + '/tests')
 	modelName = os.path.basename(str(model.rstrip('/')))
-	files = os.listdir(path)
+	files = next(os.walk(path))[2]
 	newFiles = []
 	templateNames = []
 	# For each file move the file to its new name and replace model with <model> tag
