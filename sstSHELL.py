@@ -348,7 +348,7 @@ def model2Template(model, template):
 	with open(path + '/template', 'w') as fp:
 		for new, tmp in zip(newFiles, templateNames):
 			if new.startswith('test-'):
-				fp.write(new + ' tests/' + tmp.replace('test-','') + '\n')
+				fp.write(new + ' tests/' + tmp[5:] + '\n')
 			else:
 				fp.write(new + ' ' + tmp + '\n')
 	f = path + '/template '
