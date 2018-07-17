@@ -1,4 +1,4 @@
-test-LogicAnalyzer.py tests/test-<model>.py
+test-LogicAnalyzer.py tests/<model>.py
 LogicAnalyzer.h <model>.h
 LogicAnalyzer.cc <model>.cc
 Makefile Makefile
