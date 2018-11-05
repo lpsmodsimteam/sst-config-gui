@@ -302,19 +302,20 @@ def paramSweep(filename):
 
 # Graph a Model using the python test script
 def graphModel(test):
-	path = os.path.dirname(test)
+	path = os.path.dirname(test) + '/graphs'
 	name = os.path.basename(test).replace('.py','')
+	os.makedirs(path, exist_ok=True)
 	filename = path + '/' + name
 	os.system('PYTHONPATH=$PYTHONPATH:' + path + ' sst --output-dot=' + filename + '.dot --run-mode=init ' + test)
-	# Convert .dot file to a .jpg file using multiple graphing tools
+	# Convert .dot file to a .svg file using multiple graphing tools
 	convert = ['neato', 'twopi', 'circo', 'fdp', 'dot']
 	files = ''
 	for tool in convert:
-		os.system(tool + ' -Tjpg ' + filename + '.dot -O')
+		os.system(tool + ' -Tsvg ' + filename + '.dot -O')
 		if not tool == 'dot':
-			os.system('mv ' + filename + '.dot.jpg ' + filename + '.' + tool + '.jpg')
-			os.system('mv ' + filename + '.dot.2.jpg ' + filename + '.' + tool + '.2.jpg')
-		files += filename + '.' + tool + '.jpg ' + filename + '.' + tool + '.2.jpg '
+			os.system('mv ' + filename + '.dot.svg ' + filename + '.' + tool + '.svg')
+			os.system('mv ' + filename + '.dot.2.svg ' + filename + '.' + tool + '.2.svg')
+		files += filename + '.' + tool + '.svg ' + filename + '.' + tool + '.2.svg '
 	return str(filename + '.dot ' + files.rstrip())
 
 

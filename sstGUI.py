@@ -88,7 +88,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.listParameters.currentRowChanged.connect(self.listValues.setCurrentRow)
 		self.listValues.currentRowChanged.connect(self.listParameters.setCurrentRow)
 		# Items for the Network Gen tab that are used by more than one function/method
-		self.badParams = ['debug', 'id', 'network_inspectors', 'fattree:adaptive_threshold', 'num_peers', 'num_vns']
+		self.badParams = ['debug', 'id', 'network_inspectors', 'fattree:adaptive_threshold', 'num_peers', 'num_vns', 'num_ports']
 		self.bold = QFont()
 		self.bold.setBold(True)
 	############################################################################
@@ -467,19 +467,19 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						fp.write('import sst\nfrom sst.merlin import *\n\n')
 						fp.write('if __name__ == "__main__":\n\n')
 						# Contents of the test file
-						fp.write('    topo = topo_{}()\n'.format(topoName))
-						fp.write('    endPoint = {}()\n\n'.format(endpointName))
+						fp.write('\ttopo = topo_{}(debug = 0)\n'.format(topoName))
+						fp.write('\tendPoint = {}()\n\n'.format(endpointName))
 						for index in range(self.listParameters.count()):
 							if 'Parameters:' not in self.listParameters.item(index).text():
-								fp.write('    sst.merlin._params["{}"] = "{}"\n'.format
+								fp.write('\tsst.merlin._params["{}"] = "{}"\n'.format
 										(self.listParameters.item(index).text(), 
 										self.listValues.item(index).text()))
 							else:
-								fp.write('\n#   {}\n'.format(self.listParameters.item(index).text()))
-						fp.write('\n\n    topo.prepParams()\n')
-						fp.write('    endPoint.prepParams()\n')
-						fp.write('    topo.setEndPoint(endPoint)\n')
-						fp.write('    topo.build()')
+								fp.write('\n#\t{}\n'.format(self.listParameters.item(index).text()))
+						fp.write('\n\n\ttopo.prepParams()\n')
+						fp.write('\tendPoint.prepParams()\n')
+						fp.write('\ttopo.setEndPoint(endPoint)\n')
+						fp.write('\ttopo.build()')
 						# Write to the information screen
 						self.createdFilesMessage([testFilePathAndName])
 						os.system(self.editor + ' ' + testFilePathAndName + '&')
@@ -527,7 +527,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		files = sstSHELL.graphModel(path)
 		self.createdFilesMessage(files.split(' '))
 		for f in files.split(' '):
-			if not f.endswith('.2.jpg') and not f.endswith('.dot'):
+			if not f.endswith('.2.svg') and not f.endswith('.dot'):
 				QDesktopServices.openUrl(QUrl.fromLocalFile(f))
 
 
@@ -849,10 +849,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		for param in topo.findall('Parameter'):
 			# Parameter name is stored as <topology:parameter name>
 			if 'DEPRECATED' not in param.get('Description'):
-				if param.get('Name') not in self.badParams:
-					self.listParameters.addItem(param.get('Name'))
-					# Populate the default values of the topology parameters
-					self.listValues.addItem(param.get('Default'))
+				if 'Not Required for pymerlin use' not in param.get('Default'):
+					if param.get('Name') not in self.badParams:
+						self.listParameters.addItem(param.get('Name'))
+						# Populate the default values of the topology parameters
+						self.listValues.addItem(param.get('Default'))
 
 
 	# Adds a bold header to the Parameter and Value lists
