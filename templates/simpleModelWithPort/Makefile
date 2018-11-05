@@ -11,5 +11,5 @@ install:
 	sst-register <model> <model>_LIBDIR=$(CURDIR)
 
 clean:
-	rm -f *.o tests/graphs/*.dot tests/graphs/*.svg lib<model>.so
+	rm -rf tests/graphs lib<model>.so
 	sst-register -u <model>
