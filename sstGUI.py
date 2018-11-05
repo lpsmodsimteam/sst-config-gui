@@ -400,8 +400,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			if subCompTopology.get('Interface') == "SST::Merlin::Topology":
 				self.listTopologies.addItem(subCompTopology.get('Name'))
 		for ep in self.sstinfo.findall('Element[@Name="merlin"]/Component'):
-			if 'endpoint' in ep.get('Name'):
-				self.listEndpoints.addItem(ep.get('Name'))
+			if ep.get('Name').endswith('_endpoint'):
+				self.listEndpoints.addItem(ep.get('Name')[:-9])
 
 
 	# Displays the available parameters of the selected topology
@@ -419,10 +419,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
 			self.popComponentParams('hr_router')
 			# Hard coded the link latency since it is not available through sstinfo
 			self.listParameters.addItem('link_lat')
-			self.listValues.addItem('20ns')
+			self.listValues.addItem('10ns')
 			# Populates the endpoint parameters and values
 			self.addHeaders('Endpoint')
-			self.popComponentParams(endpoint)
+			self.popComponentParams(endpoint + '_endpoint')
 			# Make the values editable in the GUI
 			for index in range(self.listValues.count()):
 				item = self.listValues.item(index)
@@ -467,7 +467,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						fp.write('import sst\nfrom sst.merlin import *\n\n')
 						fp.write('if __name__ == "__main__":\n\n')
 						# Contents of the test file
-						fp.write('\ttopo = topo_{}(debug = 0)\n'.format(topoName))
+						fp.write('\ttopo = {}(debug = 0)\n'.format(topoName))
 						fp.write('\tendPoint = {}()\n\n'.format(endpointName))
 						for index in range(self.listParameters.count()):
 							if 'Parameters:' not in self.listParameters.item(index).text():
