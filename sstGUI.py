@@ -88,7 +88,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.listParameters.currentRowChanged.connect(self.listValues.setCurrentRow)
 		self.listValues.currentRowChanged.connect(self.listParameters.setCurrentRow)
 		# Items for the Network Gen tab that are used by more than one function/method
-		self.badParams = ['debug', 'id', 'network_inspectors', 'fattree:adaptive_threshold', 'num_peers', 'num_vns', 'num_ports']
+		self.badParams = ['id', 'network_inspectors', 'fattree:adaptive_threshold', 'num_peers', 'num_vns', 'num_ports']
 		self.bold = QFont()
 		self.bold.setBold(True)
 	############################################################################
@@ -467,7 +467,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						fp.write('import sst\nfrom sst.merlin import *\n\n')
 						fp.write('if __name__ == "__main__":\n\n')
 						# Contents of the test file
-						fp.write('\ttopo = {}(debug = 0)\n'.format(topoName))
+						fp.write('\ttopo = {}()\n'.format(topoName))
 						fp.write('\tendPoint = {}()\n\n'.format(endpointName))
 						for index in range(self.listParameters.count()):
 							if 'Parameters:' not in self.listParameters.item(index).text():
