@@ -1,0 +1,13 @@
+<RCC>
+    <qresource>
+        <file>add.png</file>
+        <file>broom.png</file>
+        <file>delete.png</file>
+        <file>edit.png</file>
+        <file>find.png</file>
+        <file>gears.png</file>
+        <file>logo.png</file>
+        <file>new.png</file>
+        <file>run.png</file>
+    </qresource>
+</RCC>

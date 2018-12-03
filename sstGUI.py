@@ -17,11 +17,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
-import sstSHELL
+import resources.sstSHELL as sstSHELL
 
 # Load the UI
 guiDir = os.path.dirname(os.path.abspath(__file__))
-Ui_MainWindow, QtBaseClass = uic.loadUiType(guiDir + '/resources/sstGUI.ui')
+Ui_MainWindow, QtBaseClass = uic.loadUiType(guiDir + '/resources/sstGUI.ui',
+                                            from_imports=True, import_from='resources')
 
 ####################################################################################
 ##### Main Application Class

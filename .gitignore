@@ -2,3 +2,4 @@
 */*
 !templates/*
 !resources/*
+resources/__pycache__

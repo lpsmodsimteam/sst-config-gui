@@ -14,8 +14,8 @@
    <string>SST Model Creator</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>resources/logo.png</normaloff>resources/logo.png</iconset>
+   <iconset resource="sstGUI.qrc">
+    <normaloff>:/logo.png</normaloff>:/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_4">
@@ -93,7 +93,7 @@
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>resources/logo.png</pixmap>
+       <pixmap resource="sstGUI.qrc">:/logo.png</pixmap>
       </property>
      </widget>
     </item>
@@ -147,8 +147,8 @@
        <string>Browse Directories</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>resources/find.png</normaloff>resources/find.png</iconset>
+       <iconset resource="sstGUI.qrc">
+        <normaloff>:/find.png</normaloff>:/find.png</iconset>
       </property>
      </widget>
     </item>
@@ -181,8 +181,8 @@
            <string>Browse Templates</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/find.png</normaloff>resources/find.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/find.png</normaloff>:/find.png</iconset>
           </property>
          </widget>
         </item>
@@ -208,8 +208,8 @@
            <string>Generate/Open Files</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
           </property>
          </widget>
         </item>
@@ -222,8 +222,8 @@
            <string>Make Clean</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/broom.png</normaloff>resources/broom.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/broom.png</normaloff>:/broom.png</iconset>
           </property>
          </widget>
         </item>
@@ -242,8 +242,8 @@
            <string>Compile Model</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/gears.png</normaloff>resources/gears.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/gears.png</normaloff>:/gears.png</iconset>
           </property>
          </widget>
         </item>
@@ -272,8 +272,8 @@
            <string>Run Model</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/run.png</normaloff>resources/run.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/run.png</normaloff>:/run.png</iconset>
           </property>
          </widget>
         </item>
@@ -313,8 +313,8 @@
            <string>Browse Header Files</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/find.png</normaloff>resources/find.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/find.png</normaloff>:/find.png</iconset>
           </property>
          </widget>
         </item>
@@ -351,8 +351,8 @@
            <string>Generate Files</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
           </property>
          </widget>
         </item>
@@ -382,8 +382,8 @@
            <string>New Component</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/new.png</normaloff>resources/new.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/new.png</normaloff>:/new.png</iconset>
           </property>
          </widget>
         </item>
@@ -396,8 +396,8 @@
            <string>Remove</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/delete.png</normaloff>resources/delete.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/delete.png</normaloff>:/delete.png</iconset>
           </property>
          </widget>
         </item>
@@ -422,8 +422,8 @@
            <string>Add Subcomponent</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/add.png</normaloff>resources/add.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/add.png</normaloff>:/add.png</iconset>
           </property>
          </widget>
         </item>
@@ -436,8 +436,8 @@
            <string>Run Model</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/run.png</normaloff>resources/run.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/run.png</normaloff>:/run.png</iconset>
           </property>
          </widget>
         </item>
@@ -450,8 +450,8 @@
            <string>Generate/Open File</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
           </property>
          </widget>
         </item>
@@ -545,8 +545,8 @@
            <string>Generate/Open File</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/edit.png</normaloff>resources/edit.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
           </property>
          </widget>
         </item>
@@ -565,8 +565,8 @@
            <string>Run Model</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>resources/run.png</normaloff>resources/run.png</iconset>
+           <iconset resource="sstGUI.qrc">
+            <normaloff>:/run.png</normaloff>:/run.png</iconset>
           </property>
           <property name="autoDefault">
            <bool>true</bool>
@@ -599,6 +599,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="sstGUI.qrc"/>
+ </resources>
  <connections/>
 </ui>
