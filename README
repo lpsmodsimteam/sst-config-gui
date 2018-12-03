@@ -21,7 +21,7 @@ Requirements to run the GUI:
 	PyQt5
 	graphviz (If you want to use the graphing capability to make a .jpg)
 
-The scripts both sstGUI.py and sstSHELL.py should be run in your working
-directory. As you create new models they will reside in seperate folders inside
-your working directory. The SST GUI will pick up any new models you register
-with your version of SST.
+sstGUI.py can be run from any directory on your system. sstSHELL.py should be run
+from within the resources folder if needed. As you create new models they will
+reside in seperate folders inside your working directory. The SST GUI will pick
+up any new models you register with your version of SST.
