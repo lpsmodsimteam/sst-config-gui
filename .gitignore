@@ -3,3 +3,4 @@
 !templates/*
 !resources/*
 resources/__pycache__
+.DS_Store
