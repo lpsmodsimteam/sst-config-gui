@@ -79,7 +79,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.listParameters.itemDoubleClicked.connect(self.hrrouterHelp)
 		self.generateNetwork.clicked.connect(self.genNetwork)
 		self.runNetworkTest.clicked.connect(self.runNetTest)
-		# Connect the scrollbars of the listParameters and listValues. When one 
+		# Connect the scrollbars of the listParameters and listValues. When one
 		# scrolls, the other scrolls
 		self.listParameters.verticalScrollBar().valueChanged.connect(
 			self.listValues.verticalScrollBar().setValue)
@@ -116,7 +116,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		self.templates.clear()
 		temps = next(os.walk(guiDir + '/templates/'))[1]
 		temps.remove('common')
-		self.templates.addItems(temps)
+		self.templates.addItems(sorted(temps))
 
 
 	# Creates or opens model files
@@ -381,7 +381,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	############################################################################
 
 
-	
+
 	############################################################################
 	### Network Gen tab
 
@@ -389,7 +389,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	def updateTopologies(self):
 		self.listTopologies.clear()
 		self.listEndpoints.clear()
-		# Make sure that Overwrite Existing Models is checked by default on this 
+		# Make sure that Overwrite Existing Models is checked by default on this
 		# tab. Get the page, then set index to the index of the networkGen page.
 		# Check if the current tab is equal to the index of networkGen
 		page = self.tabWidget.findChild(QWidget, "networkGen")
@@ -438,7 +438,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 		""" Creates a network test file based on the user provided values """
 		if not self.getModel(): return
 		# If the Overwrite checkbox is not checked, then we will open the test file
-		if not self.overwrite.isChecked(): 
+		if not self.overwrite.isChecked():
 			self.createdFilesMessage(testFilePathAndName.rstrip().split(' '))
 			os.system(self.editor + ' ' + testFilePathAndName + '&')
 		else:
@@ -461,7 +461,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 				self.writeInfo(text, 'red')
 			# Create the model using the template
 			if createfiles:
-				# Open or create a directory and file to write data to	
+				# Open or create a directory and file to write data to
 				try:
 					os.system(str('mkdir -p ' + testFilePath))
 					with open(str(testFilePathAndName), 'w') as fp:
@@ -475,7 +475,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						for index in range(self.listParameters.count()):
 							if 'Parameters:' not in self.listParameters.item(index).text():
 								fp.write('\tsst.merlin._params["{}"] = "{}"\n'.format
-										(self.listParameters.item(index).text(), 
+										(self.listParameters.item(index).text(),
 										self.listValues.item(index).text()))
 							else:
 								fp.write('\n#\t{}\n'.format(self.listParameters.item(index).text()))
@@ -823,8 +823,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Selected Models Help
 	def selectedHelp(self):
 		self.sstInfoHelp(self.selected.selectedItems(), True)
-	
-	
+
+
 	# Display help from network gen double clicks
 	def networkGenHelp(self, text):
 		self.writeSeparator()
@@ -838,7 +838,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Parameters Help (hr_router)
 	def hrrouterHelp(self):
 		self.networkGenHelp(sstSHELL.runCommand('sst-info merlin.hr_router'))
-	
+
 
 	# Populates the parameters of a topology into the Network Gen tab Parameter list
 	# Also updates the parameter description list
@@ -880,7 +880,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 						self.listValues.addItem('merlin.' + self.listTopologies.currentItem().text())
 					else:
 						self.listValues.addItem(param.get('Default'))
-	
+
 
 	### End Application Helper Functions
 	############################################################################
