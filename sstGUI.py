@@ -114,7 +114,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 	# Update the Avaiable Templates
 	def updateTemplates(self):
 		self.templates.clear()
-		self.templates.addItems(next(os.walk(guiDir + '/templates/'))[1])
+		temps = next(os.walk(guiDir + '/templates/'))[1]
+		temps.remove('common')
+		self.templates.addItems(temps)
 
 
 	# Creates or opens model files

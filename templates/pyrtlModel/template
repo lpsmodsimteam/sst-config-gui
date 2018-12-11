@@ -1,5 +1,5 @@
 pyrtlModel.h <model>.h
-test-pyrtlModel.py tests/<model>.py
 pyrtlModel.cc <model>.cc
-test-counter.py tests/counter.py
-Makefile Makefile
+counter.py tests/counter.py
+test-pyrtlModel.py tests/<model>.py
+../common/Makefile Makefile

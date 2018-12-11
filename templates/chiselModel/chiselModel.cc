@@ -1,10 +1,7 @@
 /**
-Simple Model with one clock that prints "Hello World!"
+Simple Model with one clock that functions as a wrapper for a Chisel simulation
 
-Has a port that sends the string "Hello #" and also receives
-printing out "received an event:" followed by what was received
-
-Contains 1 model that gets instantiated twice in the test to talk to itself
+Uses named pipes to send and receive data between SST and Chisel
 */
 
 #include <sst/core/sst_config.h>

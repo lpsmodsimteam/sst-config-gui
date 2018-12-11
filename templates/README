@@ -6,12 +6,12 @@ file in the template followed by one space, then the second item is the
 path and name of the file once it is used in a model. Using the example
 from the simpleModel template:
 
-Makefile Makefile
-model.cc <model>.cc
 model.h <model>.h
+model.cc <model>.cc
 test.py tests/<model>.py
+../common/Makefile Makefile
 
-Makefile doesn't change names and is located in the top of the model directory.
+The common Makefile is used in this case as nothing special needs to be built.
 
 model.cc is placed in the top of the model directory and uses the name <model> 
 which is substituted with the first model name provided.
