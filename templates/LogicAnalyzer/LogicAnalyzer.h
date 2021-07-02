@@ -3,7 +3,6 @@
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
-#include <sst/core/elementinfo.h>
 #include <string>
 
 class <model> : public SST::Component {
